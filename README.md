@@ -1,2 +1,2 @@
 # MSEdgeRedirect
-A Tool to Redirect Weather and Search Results to Your Default Browser
+A Tool to Redirect New, Search, and Weather Results to Your Default Browser
