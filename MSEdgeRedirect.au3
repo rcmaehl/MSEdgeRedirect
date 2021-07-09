@@ -20,8 +20,14 @@
 #include <WinAPIHObj.au3>
 #include <WinAPIProc.au3>
 #include <WinAPIShPath.au3>
+#include <MsgBoxConstants.au3>
 
 Opt("TrayAutoPause", 0)
+
+If @OSArch = "X64" And _WinAPI_IsWow64Process() Then
+	MsgBox($MB_ICONERROR+$MB_OK, "Wrong Version", "The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
+	Exit 1
+EndIf
 
 Main()
 
