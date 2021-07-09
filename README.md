@@ -35,8 +35,6 @@ Disk (Storage)|5MB Free|100MB Free
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for rules of coding and pull requests.
 
-If you want to help with translations check [translating guidelines](Langs/0000-translating-guidelines.md).
-
 ## License
 
 WhyNotWin11 is free and open source software, it is using the LGPL-3.0 license.
