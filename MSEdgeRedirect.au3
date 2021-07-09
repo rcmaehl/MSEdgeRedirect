@@ -21,6 +21,8 @@
 #include <WinAPIProc.au3>
 #include <WinAPIShPath.au3>
 
+Opt("TrayAutoPause", 0)
+
 Local $aProcessList
 Local $aAdjust, $aList = 0
 
