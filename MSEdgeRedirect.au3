@@ -23,37 +23,44 @@
 
 Opt("TrayAutoPause", 0)
 
-Local $aProcessList
-Local $aAdjust, $aList = 0
+Main()
 
-; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
-Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
+Func Main()
 
-_WinAPI_AdjustTokenPrivileges($hToken, $SE_DEBUG_NAME, $SE_PRIVILEGE_ENABLED, $aAdjust)
+	Local $aAdjust
+	Local $aProcessList
+	Local $sCommandline
 
-While 1
-	If ProcessExists("msedge.exe") Then
-		$aProcessList = ProcessList("msedge.exe")
-		For $iLoop = 1 To $aProcessList[0][0] - 1
-			$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
-			If StringInStr($sCommandline, "--single-argument") And _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]) = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" Then
-				Select
-					Case StringInStr($sCommandline, "Microsoft.Windows.Cortana")
-						$sCommandline = StringReplace($sCommandline, "--single-argument microsoft-edge:?launchContext1=Microsoft.Windows.Cortana_cw5n1h2txyewy&url=", "")
-						$sCommandline = _UnicodeURLDecode($sCommandline)
-						If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
-					Case Else
-						$sCommandline = StringReplace($sCommandline, "--single-argument microsoft-edge:", "")
-						If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
-				EndSelect
-				ProcessClose($aProcessList[$iLoop][1])
-			EndIf
-		Next
-	EndIf
-WEnd
+	; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
+	Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
 
-_WinAPI_AdjustTokenPrivileges($hToken, $aAdjust, 0, $aAdjust)
-_WinAPI_CloseHandle($hToken)
+	_WinAPI_AdjustTokenPrivileges($hToken, $SE_DEBUG_NAME, $SE_PRIVILEGE_ENABLED, $aAdjust)
+
+	While 1
+		If ProcessExists("msedge.exe") Then
+			$aProcessList = ProcessList("msedge.exe")
+			For $iLoop = 1 To $aProcessList[0][0] - 1
+				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
+				If StringInStr($sCommandline, "--single-argument") And _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]) = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" Then
+					Select
+						Case StringInStr($sCommandline, "Microsoft.Windows.Cortana")
+							$sCommandline = StringReplace($sCommandline, "--single-argument microsoft-edge:?launchContext1=Microsoft.Windows.Cortana_cw5n1h2txyewy&url=", "")
+							$sCommandline = _UnicodeURLDecode($sCommandline)
+							If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
+						Case Else
+							$sCommandline = StringReplace($sCommandline, "--single-argument microsoft-edge:", "")
+							If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
+					EndSelect
+					ProcessClose($aProcessList[$iLoop][1])
+				EndIf
+			Next
+		EndIf
+	WEnd
+
+	_WinAPI_AdjustTokenPrivileges($hToken, $aAdjust, 0, $aAdjust)
+	_WinAPI_CloseHandle($hToken)
+
+EndFunc
 
 ;===============================================================================
 ; _UnicodeURLDecode()
@@ -78,7 +85,7 @@ Func _UnicodeURLDecode($toDecode)
             $strChar = $strChar & $aryHex[$i]
         EndIf
     Next
-    $Process = StringToBinary (StringReplace($strChar, "+", " "))
-    $DecodedString = BinaryToString ($Process, 4)
+    Local $Process = StringToBinary (StringReplace($strChar, "+", " "))
+    Local $DecodedString = BinaryToString ($Process, 4)
     Return $DecodedString
 EndFunc   ;==>_UnicodeURLDecode
