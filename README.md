@@ -9,3 +9,36 @@
 # MSEdgeRedirect
 A Tool to Redirect News, Search, and Weather Results to Your Default Browser
 
+## Download
+
+[Download latest stable release](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe)
+
+[Download latest testing release](https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/mser/main/mser.zip)\
+**Keep in mind that you will have to update testing releases manually**
+
+## System Requirements
+ |Minimum Requirements|Recommended
+----|----|----
+OS|Windows 8.1|Latest Windows 10 Build
+CPU|32-bit Single Core|64-bit Dual Core or Higher
+RAM (Memory)|40MB Free|100MB Free
+Disk (Storage)|5MB Free|100MB Free
+
+## Compiling
+
+1. Download and run "AutoIt Full Installation" from [official website](https://www.autoitscript.com/site/autoit/downloads). 
+1. Get the source code either by [downloading zip](https://github.com/rcmaehl/MSEdgeRedirect/archive/main.zip) or do `git clone https://github.com/rcmaehl/MSEdgeRedirect`.
+1. Right click on `MSEdgeRedirect.au3` in the MSEdgeRedirect directory and select "Compile Script (x64) (or x86 if you have 32 bit Windows install).
+1. This will create MSEdgeRedirect.exe in the same directory.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for rules of coding and pull requests.
+
+If you want to help with translations check [translating guidelines](Langs/0000-translating-guidelines.md).
+
+## License
+
+WhyNotWin11 is free and open source software, it is using the LGPL-3.0 license.
+
+See [LICENSE](LICENSE) for the full license text.
