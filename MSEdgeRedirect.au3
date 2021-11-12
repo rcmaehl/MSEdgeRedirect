@@ -29,6 +29,7 @@ Global $sVersion = "0.2.1.0"
 
 Opt("TrayMenuMode", 3)
 Opt("TrayAutoPause", 0)
+Opt("GUICloseOnESC", 0)
 
 If @OSArch = "X64" And _WinAPI_IsWow64Process() Then
 	MsgBox($MB_ICONERROR+$MB_OK, "Wrong Version", "The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
@@ -63,6 +64,7 @@ Func Main()
 	TrayCreateItem("")
 	Local $hDonate = TrayCreateItem("Donate")
 	TrayCreateItem("")
+	Local $hHide = TrayCreateItem("Hide Icon")
 	Local $hExit = TrayCreateItem("Exit")
 
 	If FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then TrayItemSetState($hStartup, $TRAY_CHECKED)
@@ -77,14 +79,14 @@ Func Main()
 				If StringInStr($sCommandline, "--single-argument") And _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1])) Then
 					ProcessClose($aProcessList[$iLoop][1])
 					Select
-						Case StringInStr($sCommandline, "microsoft-edge:?launchContext1")
+						Case StringRegExp($sCommandline, "microsoft-edge:[\/]*?\?launchContext1")
 							$aLaunchContext = StringSplit($sCommandline, "=")
-							If $aLaunchContext[0] = 3 Then
-								$sCommandline = _UnicodeURLDecode($aLaunchContext[3])
+							If $aLaunchContext[0] >= 3 Then
+								$sCommandline = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
 								If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
 							EndIf
 						Case Else
-							$sCommandline = StringReplace($sCommandline, "--single-argument microsoft-edge:", "")
+							$sCommandline = StringRegExpReplace($sCommandline, "--single-argument microsoft-edge:[\/]*", "")
 							If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
 					EndSelect
 				EndIf
@@ -93,8 +95,11 @@ Func Main()
 
 		Select
 
+			Case $hMsg = $hHide
+				TraySetState($TRAY_ICONSTATE_HIDE)
+
 			Case $hMsg = $hExit
-				Exit
+				ExitLoop
 
 			Case $hMsg = $hDonate
 				ShellExecute("https://paypal.me/rhsky")
@@ -137,6 +142,7 @@ Func Main()
 
 	_WinAPI_AdjustTokenPrivileges($hToken, $aAdjust, 0, $aAdjust)
 	_WinAPI_CloseHandle($hToken)
+	Exit
 
 EndFunc
 
