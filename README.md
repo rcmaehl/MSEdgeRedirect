@@ -19,7 +19,7 @@ No Default App walkthrough or other complicated steps, just set and forget.
 [Download latest testing release](https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/mser/main/mser.zip)\
 **Keep in mind that you will have to update testing releases manually**
 
-## System Requirements
+### System Requirements
  |Minimum Requirements|Recommended
 ----|----|----
 OS|Windows 8.1|Latest Windows 11 Build
@@ -43,3 +43,21 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for rules of coding and pull requests.
 MSEdgeRedirect is free and open source software, it is using the LGPL-3.0 license.
 
 See [LICENSE](LICENSE) for the full license text.
+
+## FAQ
+
+### It isn’t working for me!
+
+Make sure the application is running in the system tray, then run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that is properly redirected, file a bug report!
+
+### Will searches inside <app name here> still use Bing?
+
+MSEdge Redirect only redirects links that attempt to open in MS Edge. It will not affect results generated within other applications.
+
+### Can you change Bing results to Google Results?
+
+**Not Yet**, I plan to add a selector for your prefered search engine in a future version.
+
+### How do I uninstall?
+
+Simply delete MSEdgeRedirect.exe!
