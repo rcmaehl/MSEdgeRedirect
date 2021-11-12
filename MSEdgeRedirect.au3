@@ -36,7 +36,58 @@ If @OSArch = "X64" And _WinAPI_IsWow64Process() Then
 	Exit 1
 EndIf
 
-Main()
+ProcessCMDLine()
+
+Func ProcessCMDLine()
+	Local $iParams = $CmdLine[0]
+
+	If $iParams > 0 Then
+		Do
+			Switch $CmdLine[1]
+				Case "/?", "/h", "/help"
+					MsgBox(0, "Help and Flags", _
+							"Checks PC for Windows 11 Release Compatibility" & @CRLF & _
+							@CRLF & _
+							"MSEdgeRedirect [/hide]" & @CRLF & _
+							@CRLF & _
+							@TAB & "/hide  " & @TAB & "Hides the tray icon" & @CRLF & _
+							@TAB & "/update" & @TAB & "Downloads the latest RELEASE (default) or DEV build" & @CRLF & _
+							@CRLF & _
+							@CRLF)
+					Exit 0
+				Case "/h", "/hide"
+					TraySetState($TRAY_ICONSTATE_HIDE)
+					_ArrayDelete($CmdLine, 1)
+				Case "/u", "/update"
+					Select
+						Case UBound($CmdLine) = 2
+							InetGet("https://fcofix.org/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe", @ScriptDir & "\MSEdgeRedirect_Latest.exe")
+							_ArrayDelete($CmdLine, 1)
+						Case UBound($CmdLine) > 2 And $CmdLine[2] = "dev"
+							InetGet("https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/mser/main/mser.zip", @ScriptDir & "\WhyNotWin11_dev.zip")
+							_ArrayDelete($CmdLine, "1-2")
+						Case UBound($CmdLine) > 2 And $CmdLine[2] = "release"
+							InetGet("https://fcofix.org/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe", @ScriptDir & "\MSEdgeRedirect_Latest.exe")
+							_ArrayDelete($CmdLine, "1-2")
+						Case StringLeft($CmdLine[2], 1) = "/"
+							InetGet("https://fcofix.org/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe", @ScriptDir & "\MSEdgeRedirect_Latest.exe")
+							_ArrayDelete($CmdLine, 1)
+						Case Else
+							MsgBox(0, "Invalid", 'Invalid release type - "' & $CmdLine[2] & "." & @CRLF)
+							Exit 87 ; ERROR_INVALID_PARAMETER
+					EndSelect
+				Case Else
+					If @Compiled Then ; support for running non-compiled script - mLipok
+						MsgBox(0, "Invalid", 'Invalid parameter - "' & $CmdLine[1] & "." & @CRLF)
+						Exit 87 ; ERROR_INVALID_PARAMETER
+					EndIf
+			EndSwitch
+		Until UBound($CmdLine) <= 1
+	EndIf
+
+	Main()
+
+EndFunc
 
 Func Main()
 
