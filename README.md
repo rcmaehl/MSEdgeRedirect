@@ -48,7 +48,7 @@ See [LICENSE](LICENSE) for the full license text.
 
 ### It isn’t working for me!
 
-Make sure the application is running in the system tray, then run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that is properly redirected, file a bug report!
+Make sure the application is running in the system tray, then run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that is properly redirected, [file a bug report!](https://github.com/rcmaehl/MSEdgeRedirect/issues/new?assignees=&labels=&template=bug_report.md&title=)
 
 ### Will searches inside <app name here> still use Bing?
 
