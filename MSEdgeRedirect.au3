@@ -50,6 +50,7 @@ Func Main()
 	While 1
 		$hMsg = TrayGetMsg()
 
+		; da2x, please make your own fix, I pointed this out to you and you deleted my comment. :C
 		If ProcessExists("msedge.exe") Then
 			$aProcessList = ProcessList("msedge.exe")
 			For $iLoop = 1 To $aProcessList[0][0] - 1
