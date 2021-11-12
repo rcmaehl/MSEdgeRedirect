@@ -39,6 +39,8 @@ EndIf
 ProcessCMDLine()
 
 Func ProcessCMDLine()
+
+	Local $bHide = False
 	Local $iParams = $CmdLine[0]
 
 	If $iParams > 0 Then
@@ -56,7 +58,7 @@ Func ProcessCMDLine()
 							@CRLF)
 					Exit 0
 				Case "/h", "/hide"
-					TraySetState($TRAY_ICONSTATE_HIDE)
+					$bHide = True
 					_ArrayDelete($CmdLine, 1)
 				Case "/u", "/update"
 					Select
@@ -85,11 +87,11 @@ Func ProcessCMDLine()
 		Until UBound($CmdLine) <= 1
 	EndIf
 
-	Main()
+	Main($bHide)
 
 EndFunc
 
-Func Main()
+Func Main($bHide = False)
 
 	Local $aMUI[2] = [Null, @MUILang]
 	Local $aAdjust
@@ -117,6 +119,8 @@ Func Main()
 	TrayCreateItem("")
 	Local $hHide = TrayCreateItem("Hide Icon")
 	Local $hExit = TrayCreateItem("Exit")
+
+	If $bHide Then TraySetState($TRAY_ICONSTATE_HIDE)
 
 	If FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then TrayItemSetState($hStartup, $TRAY_CHECKED)
 
