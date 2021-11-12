@@ -83,10 +83,6 @@ Func Main()
 								$sCommandline = _UnicodeURLDecode($aLaunchContext[3])
 								If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
 							EndIf
-						Case StringInStr($sCommandline, "Microsoft.Windows.Search")
-							$sCommandline = StringReplace($sCommandline, "-single-argument microsoft-edge:?launchContext1=Microsoft.Windows.Search_cw5n1h2txyewy&url=", "")
-							$sCommandline = _UnicodeURLDecode($sCommandline)
-							If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
 						Case Else
 							$sCommandline = StringReplace($sCommandline, "--single-argument microsoft-edge:", "")
 							If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
