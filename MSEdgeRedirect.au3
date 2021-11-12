@@ -5,9 +5,9 @@
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Res_Description=A Tool to Redirect New, Search, and Weather Results to Your Default Browser
-#AutoIt3Wrapper_Res_Fileversion=0.1.0.0
+#AutoIt3Wrapper_Res_Fileversion=0.2.0.0
 #AutoIt3Wrapper_Res_ProductName=MSEdgeRedirect
-#AutoIt3Wrapper_Res_ProductVersion=0.1.0.0
+#AutoIt3Wrapper_Res_ProductVersion=0.2.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
@@ -16,12 +16,18 @@
 #Au3Stripper_Parameters=/so
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
+#include <Misc.au3>
 #include <Array.au3>
+#include <String.au3>
 #include <WinAPIHObj.au3>
 #include <WinAPIProc.au3>
 #include <WinAPIShPath.au3>
+#include <TrayConstants.au3>
 #include <MsgBoxConstants.au3>
 
+Global $sVersion = "0.2.0.0"
+
+Opt("TrayMenuMode", 3)
 Opt("TrayAutoPause", 0)
 
 If @OSArch = "X64" And _WinAPI_IsWow64Process() Then
@@ -33,19 +39,27 @@ Main()
 
 Func Main()
 
+	Local $aMUI[2] = [Null, @MUILang]
 	Local $aAdjust
 	Local $aProcessList
 	Local $sCommandline
 	Local $aLaunchContext
 
-	Local $hMsg, $hStartup
+	Local $hMsg
 
 	; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
 	Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
 
 	_WinAPI_AdjustTokenPrivileges($hToken, $SE_DEBUG_NAME, $SE_PRIVILEGE_ENABLED, $aAdjust)
 
-	$hStartup = TrayCreateItem("Start With Windows")
+	Local $hStartup = TrayCreateItem("Start With Windows")
+	Local $hUpdate = TrayCreateItem("Check for Updates")
+	TrayCreateItem("")
+	Local $hDonate = TrayCreateItem("Donate")
+	TrayCreateItem("")
+	Local $hExit = TrayCreateItem("Exit")
+
+	If FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then TrayItemSetState($hStartup, $TRAY_CHECKED)
 
 	While 1
 		$hMsg = TrayGetMsg()
@@ -75,12 +89,94 @@ Func Main()
 				EndIf
 			Next
 		EndIf
+
+		Select
+
+			Case $hMsg = $hExit
+				Exit
+
+			Case $hMsg = $hDonate
+				ShellExecute("https://paypal.me/rhsky")
+
+			Case $hMsg = $hUpdate
+				Switch _GetLatestRelease($sVersion)
+					Case -1
+						MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _Translate($aMUI[1], "Test Build?"), _Translate($aMUI[1], "You're running a newer build than publicly Available!"), 10)
+					Case 0
+						Switch @error
+							Case 0
+								MsgBox($MB_OK + $MB_ICONINFORMATION + $MB_TOPMOST, _Translate($aMUI[1], "Up to Date"), _Translate($aMUI[1], "You're running the latest build!"), 10)
+							Case 1
+								MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _Translate($aMUI[1], "Unable to Check for Updates"), _Translate($aMUI[1], "Unable to load release data."), 10)
+							Case 2
+								MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _Translate($aMUI[1], "Unable to Check for Updates"), _Translate($aMUI[1], "Invalid Data Received!"), 10)
+							Case 3
+								Switch @extended
+									Case 0
+										MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _Translate($aMUI[1], "Unable to Check for Updates"), _Translate($aMUI[1], "Invalid Release Tags Received!"), 10)
+									Case 1
+										MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _Translate($aMUI[1], "Unable to Check for Updates"), _Translate($aMUI[1], "Invalid Release Types Received!"), 10)
+								EndSwitch
+						EndSwitch
+					Case 1
+						If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _Translate($aMUI[1], "Update Available"), _Translate($aMUI[1], "An Update is Available, would you like to download it?"), 10) = $IDYES Then ShellExecute("https://fcofix.org/WhyNotWin11/releases")
+				EndSwitch
+
+			Case $hMsg = $hStartup
+				If Not FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then
+					FileCreateShortcut(@AutoItExe, @StartupDir & "\MSEdgeRedirect.lnk")
+					TrayItemSetState($hStartup, $TRAY_CHECKED)
+				ElseIf FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then
+					FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
+					TrayItemSetState($hStartup, $TRAY_UNCHECKED)
+				EndIf
+
+		EndSelect
 	WEnd
 
 	_WinAPI_AdjustTokenPrivileges($hToken, $aAdjust, 0, $aAdjust)
 	_WinAPI_CloseHandle($hToken)
 
 EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _GetLatestRelease
+; Description ...: Checks GitHub for the Latest Release
+; Syntax ........: _GetLatestRelease($sCurrent)
+; Parameters ....: $sCurrent            - a string containing the current program version
+; Return values .: Returns True if Update Available
+; Author ........: rcmaehl
+; Modified ......: 11/11/2021
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _GetLatestRelease($sCurrent)
+
+	Local $dAPIBin
+	Local $sAPIJSON
+
+	$dAPIBin = InetRead("https://api.fcofix.org/repos/rcmaehl/MSEdgeRedirect/releases")
+	If @error Then Return SetError(1, 0, 0)
+	$sAPIJSON = BinaryToString($dAPIBin)
+	If @error Then Return SetError(2, 0, 0)
+
+	Local $aReleases = _StringBetween($sAPIJSON, '"tag_name":"', '",')
+	If @error Then Return SetError(3, 0, 0)
+	Local $aRelTypes = _StringBetween($sAPIJSON, '"prerelease":', ',')
+	If @error Then Return SetError(3, 1, 0)
+	Local $aCombined[UBound($aReleases)][2]
+
+	For $iLoop = 0 To UBound($aReleases) - 1 Step 1
+		$aCombined[$iLoop][0] = $aReleases[$iLoop]
+		$aCombined[$iLoop][1] = $aRelTypes[$iLoop]
+	Next
+
+	Return _VersionCompare($aCombined[0][0], $sCurrent)
+
+EndFunc   ;==>_GetLatestRelease
+
 
 ;===============================================================================
 ; _UnicodeURLDecode()
@@ -109,3 +205,50 @@ Func _UnicodeURLDecode($toDecode)
     Local $DecodedString = BinaryToString ($Process, 4)
     Return $DecodedString
 EndFunc   ;==>_UnicodeURLDecode
+
+#Region Translation Functions
+Func _GetFile($sFile, $sFormat = $FO_READ)
+	Local Const $hFileOpen = FileOpen($sFile, $sFormat)
+	If $hFileOpen = -1 Then
+		Return SetError(1, 0, '')
+	EndIf
+	Local Const $sData = FileRead($hFileOpen)
+	FileClose($hFileOpen)
+	Return $sData
+EndFunc   ;==>_GetFile
+
+Func _INIUnicode($sINI)
+	If FileExists($sINI) = 0 Then
+		Return FileClose(FileOpen($sINI, $FO_OVERWRITE + $FO_UNICODE))
+	Else
+		Local Const $iEncoding = FileGetEncoding($sINI)
+		Local $fReturn = True
+		If Not ($iEncoding = $FO_UNICODE) Then
+			Local $sData = _GetFile($sINI, $iEncoding)
+			If @error Then
+				$fReturn = False
+			EndIf
+			_SetFile($sData, $sINI, $FO_APPEND + $FO_UNICODE)
+		EndIf
+		Return $fReturn
+	EndIf
+EndFunc   ;==>_INIUnicode
+
+Func _SetFile($sString, $sFile, $iOverwrite = $FO_READ)
+	Local Const $hFileOpen = FileOpen($sFile, $iOverwrite + $FO_APPEND)
+	FileWrite($hFileOpen, $sString)
+	FileClose($hFileOpen)
+	If @error Then
+		Return SetError(1, 0, False)
+	EndIf
+	Return True
+EndFunc   ;==>_SetFile
+
+Func _Translate($iMUI, $sString)
+	Local $sReturn
+	_INIUnicode(@LocalAppDataDir & "\MSEdgeRedirect\Langs\" & $iMUI & ".lang")
+	$sReturn = IniRead(@LocalAppDataDir & "\MSEdgeRedirect\Langs\" & $iMUI & ".lang", "Strings", $sString, $sString)
+	$sReturn = StringReplace($sReturn, "\n", @CRLF)
+	Return $sReturn
+EndFunc   ;==>_Translate
+#EndRegion
