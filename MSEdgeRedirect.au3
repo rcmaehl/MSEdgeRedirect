@@ -36,21 +36,34 @@ Func Main()
 	Local $aAdjust
 	Local $aProcessList
 	Local $sCommandline
+	Local $aLaunchContext
+
+	Local $hMsg, $hStartup
 
 	; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
 	Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
 
 	_WinAPI_AdjustTokenPrivileges($hToken, $SE_DEBUG_NAME, $SE_PRIVILEGE_ENABLED, $aAdjust)
 
+	$hStartup = TrayCreateItem("Start With Windows")
+
 	While 1
+		$hMsg = TrayGetMsg()
+
 		If ProcessExists("msedge.exe") Then
 			$aProcessList = ProcessList("msedge.exe")
 			For $iLoop = 1 To $aProcessList[0][0] - 1
 				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
 				If StringInStr($sCommandline, "--single-argument") And _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]) = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" Then
 					Select
-						Case StringInStr($sCommandline, "Microsoft.Windows.Cortana")
-							$sCommandline = StringReplace($sCommandline, "--single-argument microsoft-edge:?launchContext1=Microsoft.Windows.Cortana_cw5n1h2txyewy&url=", "")
+						Case StringInStr($sCommandline, "microsoft-edge:?launchContext1")
+							$aLaunchContext = StringSplit($sCommandline, "=")
+							If $aLaunchContext[0] = 3 Then
+								$sCommandline = _UnicodeURLDecode($aLaunchContext[3])
+								If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
+							EndIf
+						Case StringInStr($sCommandline, "Microsoft.Windows.Search")
+							$sCommandline = StringReplace($sCommandline, "-single-argument microsoft-edge:?launchContext1=Microsoft.Windows.Search_cw5n1h2txyewy&url=", "")
 							$sCommandline = _UnicodeURLDecode($sCommandline)
 							If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
 						Case Else
