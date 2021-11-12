@@ -40,7 +40,6 @@ Main()
 Func Main()
 
 	Local $aMUI[2] = [Null, @MUILang]
-	Local $hTimer = TimerInit()
 	Local $aAdjust
 	Local $aProcessList
 	Local $sCommandline
@@ -68,32 +67,28 @@ Func Main()
 
 	If FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then TrayItemSetState($hStartup, $TRAY_CHECKED)
 
-	While True
+	While Sleep(10)
 		$hMsg = TrayGetMsg()
 
-		If TimerDiff($hTimer) >= 250 Then
-			; da2x, please make your own fix, I pointed this out to you and you deleted my comment. :C
-			If ProcessExists("msedge.exe") Then
-				$aProcessList = ProcessList("msedge.exe")
-				For $iLoop = 1 To $aProcessList[0][0] - 1
-					$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
-					If StringInStr($sCommandline, "--single-argument") And _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1])) Then
-						Select
-							Case StringInStr($sCommandline, "microsoft-edge:?launchContext1")
-								$aLaunchContext = StringSplit($sCommandline, "=")
-								If $aLaunchContext[0] = 3 Then
-									$sCommandline = _UnicodeURLDecode($aLaunchContext[3])
-									If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
-								EndIf
-							Case Else
-								$sCommandline = StringReplace($sCommandline, "--single-argument microsoft-edge:", "")
+		If ProcessExists("msedge.exe") Then
+			$aProcessList = ProcessList("msedge.exe")
+			For $iLoop = 1 To $aProcessList[0][0] - 1
+				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
+				If StringInStr($sCommandline, "--single-argument") And _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1])) Then
+					ProcessClose($aProcessList[$iLoop][1])
+					Select
+						Case StringInStr($sCommandline, "microsoft-edge:?launchContext1")
+							$aLaunchContext = StringSplit($sCommandline, "=")
+							If $aLaunchContext[0] = 3 Then
+								$sCommandline = _UnicodeURLDecode($aLaunchContext[3])
 								If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
-						EndSelect
-						ProcessClose($aProcessList[$iLoop][1])
-					EndIf
-				Next
-			EndIf
-			$hTimer = TimerInit()
+							EndIf
+						Case Else
+							$sCommandline = StringReplace($sCommandline, "--single-argument microsoft-edge:", "")
+							If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
+					EndSelect
+				EndIf
+			Next
 		EndIf
 
 		Select

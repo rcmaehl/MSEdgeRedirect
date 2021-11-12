@@ -2,3 +2,4 @@
 *.exe
 MSEdgeRedirect_stripped.au3
 *.txt
+MSEdgeRedirect_onEvent.au3
