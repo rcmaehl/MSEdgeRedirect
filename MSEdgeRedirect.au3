@@ -49,7 +49,7 @@ Func Main()
 		"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", _
 		"C:\Program Files (x86)\Microsoft\Edge Beta\Application\msedge.exe", _
 		"C:\Program Files (x86)\Microsoft\Edge Dev\Application\msedge.exe", _
-		@LocalAppDataDir & "Microsft\Edge SXS\Application\msedge.exe"]
+		@LocalAppDataDir & "Microsoft\Edge SXS\Application\msedge.exe"]
 
 	Local $hMsg
 
