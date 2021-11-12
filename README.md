@@ -18,7 +18,7 @@ A Tool to Redirect News, Search, and Weather Results to Your Default Browser
 ## System Requirements
  |Minimum Requirements|Recommended
 ----|----|----
-OS|Windows 8.1|Latest Windows 10 Build
+OS|Windows 8.1|Latest Windows 11 Build
 CPU|32-bit Single Core|64-bit Dual Core or Higher
 RAM (Memory)|40MB Free|100MB Free
 Disk (Storage)|5MB Free|100MB Free
