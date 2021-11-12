@@ -10,9 +10,9 @@ A Tool to Redirect News, Search, and Weather Results to Your Default Browser.
 
 This tool filters and passes the command line arguments of Microsoft Edge processes into your default browser instead of hooking into the `microsoft-edge:` handler, this should provide resiliency against future changes.
 
-If you're on older Windows builds, check out: https://github.com/da2x/EdgeDeflector
+No Default App walkthrough or other steps, just set and forget.
 
-No Default App walkthrough or other complicated steps, just set and forget.
+If you're on older Windows builds, check out: https://github.com/da2x/EdgeDeflector
 
 ## Download
 
