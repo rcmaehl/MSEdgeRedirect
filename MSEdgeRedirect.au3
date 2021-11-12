@@ -4,10 +4,10 @@
 #AutoIt3Wrapper_Outfile_x64=MSEdgeRedirect.exe
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
-#AutoIt3Wrapper_Res_Description=A Tool to Redirect New, Search, and Weather Results to Your Default Browser
-#AutoIt3Wrapper_Res_Fileversion=0.2.0.0
+#AutoIt3Wrapper_Res_Description=A Tool to Redirect News, Search, and Weather Results to Your Default Browser
+#AutoIt3Wrapper_Res_Fileversion=0.2.1.0
 #AutoIt3Wrapper_Res_ProductName=MSEdgeRedirect
-#AutoIt3Wrapper_Res_ProductVersion=0.2.0.0
+#AutoIt3Wrapper_Res_ProductVersion=0.2.1.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
@@ -25,7 +25,7 @@
 #include <TrayConstants.au3>
 #include <MsgBoxConstants.au3>
 
-Global $sVersion = "0.2.0.0"
+Global $sVersion = "0.2.1.0"
 
 Opt("TrayMenuMode", 3)
 Opt("TrayAutoPause", 0)
@@ -44,6 +44,12 @@ Func Main()
 	Local $aProcessList
 	Local $sCommandline
 	Local $aLaunchContext
+
+	Local $aEdges[5] = [4, _
+		"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", _
+		"C:\Program Files (x86)\Microsoft\Edge Beta\Application\msedge.exe", _
+		"C:\Program Files (x86)\Microsoft\Edge Dev\Application\msedge.exe", _
+		@LocalAppDataDir & "Microsft\Edge SXS\Application\msedge.exe"]
 
 	Local $hMsg
 
@@ -69,7 +75,7 @@ Func Main()
 			$aProcessList = ProcessList("msedge.exe")
 			For $iLoop = 1 To $aProcessList[0][0] - 1
 				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
-				If StringInStr($sCommandline, "--single-argument") And _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]) = "C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" Then
+				If StringInStr($sCommandline, "--single-argument") And _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1])) Then
 					Select
 						Case StringInStr($sCommandline, "microsoft-edge:?launchContext1")
 							$aLaunchContext = StringSplit($sCommandline, "=")
