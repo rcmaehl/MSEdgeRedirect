@@ -6,7 +6,11 @@
 [![Join the Discord chat](https://img.shields.io/badge/Discord-chat-7289da.svg?&logo=discord)](https://discord.gg/uBnBcBx)
 
 # MSEdgeRedirect
-A Tool to Redirect News, Search, and Weather Results to Your Default Browser
+A Tool to Redirect News, Search, and Weather Results to Your Default Browser.
+
+This tool filters and passes the command line arguments of Microsoft Edge processes into your default browser instead of hooking into the `microsoft-edge:` handler, this should provide resiliency against future changes.
+
+No Default App walkthrough or other complicated steps, just set and forget.
 
 ## Download
 
@@ -15,7 +19,7 @@ A Tool to Redirect News, Search, and Weather Results to Your Default Browser
 [Download latest testing release](https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/mser/main/mser.zip)\
 **Keep in mind that you will have to update testing releases manually**
 
-## System Requirements
+### System Requirements
  |Minimum Requirements|Recommended
 ----|----|----
 OS|Windows 8.1|Latest Windows 11 Build
@@ -39,3 +43,21 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for rules of coding and pull requests.
 MSEdgeRedirect is free and open source software, it is using the LGPL-3.0 license.
 
 See [LICENSE](LICENSE) for the full license text.
+
+## FAQ
+
+### It isn’t working for me!
+
+Make sure the application is running in the system tray, then run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that is properly redirected, file a bug report!
+
+### Will searches inside <app name here> still use Bing?
+
+MSEdge Redirect only redirects links that attempt to open in MS Edge. It will not affect results generated within other applications.
+
+### Can you change Bing results to Google Results?
+
+**Not Yet**, I plan to add a selector for your prefered search engine in a future version.
+
+### How do I uninstall?
+
+Simply delete MSEdgeRedirect.exe!
