@@ -8,7 +8,9 @@
 # MSEdgeRedirect
 A Tool to Redirect News, Search, and Weather Results to Your Default Browser.
 
-This tool filters and passes the command line arguments of Microsoft Edge processes into your default browser instead of hooking into the `microsoft-edge:` handler, this should provide resiliency against future changes. No Default App walkthrough or other complicated steps, just set and forget.
+This tool filters and passes the command line arguments of Microsoft Edge processes into your default browser instead of hooking into the `microsoft-edge:` handler, this should provide resiliency against future changes.
+
+No Default App walkthrough or other complicated steps, just set and forget.
 
 ## Download
 
