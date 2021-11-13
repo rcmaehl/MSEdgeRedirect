@@ -124,26 +124,27 @@ Func Main($bHide = False)
 
 	If FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then TrayItemSetState($hStartup, $TRAY_CHECKED)
 
-	While Sleep(10)
-		$hMsg = TrayGetMsg()
+	While True
 
 		If ProcessExists("msedge.exe") Then
 			$aProcessList = ProcessList("msedge.exe")
 			For $iLoop = 1 To $aProcessList[0][0] - 1
 				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
-				If StringInStr($sCommandline, "--single-argument") And _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1])) Then
+				If StringInStr($sCommandline, "--single-argument") Then
 					ProcessClose($aProcessList[$iLoop][1])
-					Select
-						Case StringRegExp($sCommandline, "microsoft-edge:[\/]*?\?launchContext1")
-							$aLaunchContext = StringSplit($sCommandline, "=")
-							If $aLaunchContext[0] >= 3 Then
-								$sCommandline = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
+					If _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1])) Then
+						Select
+							Case StringRegExp($sCommandline, "microsoft-edge:[\/]*?\?launchContext1")
+								$aLaunchContext = StringSplit($sCommandline, "=")
+								If $aLaunchContext[0] >= 3 Then
+									$sCommandline = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
+									If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
+								EndIf
+							Case Else
+								$sCommandline = StringRegExpReplace($sCommandline, "--single-argument microsoft-edge:[\/]*", "")
 								If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
-							EndIf
-						Case Else
-							$sCommandline = StringRegExpReplace($sCommandline, "--single-argument microsoft-edge:[\/]*", "")
-							If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
-					EndSelect
+						EndSelect
+					EndIf
 				EndIf
 			Next
 		EndIf
@@ -191,6 +192,8 @@ Func Main($bHide = False)
 					FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
 					TrayItemSetState($hStartup, $TRAY_UNCHECKED)
 				EndIf
+
+			Case Else
 
 		EndSelect
 	WEnd
