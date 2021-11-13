@@ -3,3 +3,5 @@
 MSEdgeRedirect_stripped.au3
 *.txt
 MSEdgeRedirect_onEvent.au3
+del.au3
+ETC/MSER.reg

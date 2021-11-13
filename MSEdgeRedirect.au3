@@ -28,10 +28,18 @@
 
 SetupAppdata()
 
-Global $sVersion = "0.2.1.0"
-Global $hLogs[2] = _
+Global $hLogs[3] = _
 	[FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\AppFailures.log", $FO_APPEND), _
+	FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\AppGeneral.log", $FO_APPEND), _
 	FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\URIFailures.log", $FO_APPEND)]
+
+Global $aEdges[5] = [4, _
+	"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", _
+	"C:\Program Files (x86)\Microsoft\Edge Beta\Application\msedge.exe", _
+	"C:\Program Files (x86)\Microsoft\Edge Dev\Application\msedge.exe", _
+	@LocalAppDataDir & "Microsoft\Edge SXS\Application\msedge.exe"]
+
+Global $sVersion = "0.2.1.0"
 
 Opt("TrayMenuMode", 3)
 Opt("TrayAutoPause", 0)
@@ -49,9 +57,15 @@ EndIf
 ProcessCMDLine()
 
 Func SetupAppdata()
-	If Not FileExists(@LocalAppDataDir & "\MSEdgeRedirect\logs\") Then
-		DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\logs\")
-	EndIf
+	Select
+		Case Not FileExists(@LocalAppDataDir & "\MSEdgeRedirect\")
+			DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\logs\")
+			ContinueCase
+		Case Not FileExists(@LocalAppDataDir & "\MSEdgeRedirect\Langs\")
+			DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\langs\")
+		Case Else
+			;;;
+	EndSelect
 EndFunc
 
 Func ProcessCMDLine()
@@ -60,6 +74,11 @@ Func ProcessCMDLine()
 	Local $iParams = $CmdLine[0]
 
 	If $iParams > 0 Then
+
+		_ArrayDisplay($CmdLine)
+		If _ArraySearch($aEdges, $CmdLine[1]) Then ; Image File Execution Options Mode
+			ActiveMode($CmdLine)
+		EndIf
 		Do
 			Switch $CmdLine[1]
 				Case "/?", "/h", "/help"
@@ -103,23 +122,34 @@ Func ProcessCMDLine()
 		Until UBound($CmdLine) <= 1
 	EndIf
 
-	Main($bHide)
+	ReactiveMode($bHide)
 
 EndFunc
 
-Func Main($bHide = False)
+Func ActiveMode(ByRef $aCMDLine)
+
+	Local $sCMDLine = ""
+
+	If RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER", "FilterFullPath") = $CmdLine[1] Then
+		For $iLoop = 2 To $aCMDLine[0]
+			$sCMDLine &= $aCMDLine[$iLoop] & " "
+		Next
+		_DecodeAndRun($sCMDLine)
+		Exit
+	Else
+		MsgBox(0, "TEST - " & $aCMDLine[1], $sCMDLine)
+		_DecodeAndRun($sCMDLine)
+		Exit
+	EndIf
+
+EndFunc
+
+Func ReactiveMode($bHide = False)
 
 	Local $aMUI[2] = [Null, @MUILang]
 	Local $aAdjust
 	Local $aProcessList
 	Local $sCommandline
-	Local $aLaunchContext
-
-	Local $aEdges[5] = [4, _
-		"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", _
-		"C:\Program Files (x86)\Microsoft\Edge Beta\Application\msedge.exe", _
-		"C:\Program Files (x86)\Microsoft\Edge Dev\Application\msedge.exe", _
-		@LocalAppDataDir & "Microsoft\Edge SXS\Application\msedge.exe"]
 
 	Local $hMsg
 
@@ -149,26 +179,10 @@ Func Main($bHide = False)
 				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
 				If StringInStr($sCommandline, "--single-argument") Then
 					ProcessClose($aProcessList[$iLoop][1])
-					If _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1])) Then
-						Select
-							Case StringRegExp($sCommandline, "microsoft-edge:[\/]*?\?launchContext1")
-								$aLaunchContext = StringSplit($sCommandline, "=")
-								If $aLaunchContext[0] >= 3 Then
-									$sCommandline = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
-									If _WinAPI_UrlIs($sCommandline) Then
-										ShellExecute($sCommandline)
-									Else
-										FileWrite($hLogs[1], _NowCalc() & " - Invalid URL: " & $sCommandline)
-									EndIf
-								EndIf
-							Case Else
-								$sCommandline = StringRegExpReplace($sCommandline, "--single-argument microsoft-edge:[\/]*", "")
-								If _WinAPI_UrlIs($sCommandline) Then
-									ShellExecute($sCommandline)
-								Else
-									FileWrite($hLogs[1], _NowCalc() & " - Invalid URL: " & $sCommandline)
-								EndIf
-						EndSelect
+					If _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]), 1, $aEdges[0]) Then
+						_DecodeAndRun($sCommandline)
+					Else
+						FileWrite($hLogs[2], _NowCalc() & " - Invalid MSEdge: " & $aProcessList[$iLoop][1])
 					EndIf
 				EndIf
 			Next
@@ -230,6 +244,31 @@ Func Main($bHide = False)
 	Next
 	Exit
 
+EndFunc
+
+Func _DecodeAndRun($sCMDLine)
+
+	Local $aLaunchContext
+
+	Select
+		Case StringRegExp($sCMDLine, "microsoft-edge:[\/]*?\?launchContext1")
+			$aLaunchContext = StringSplit($sCMDLine, "=")
+			If $aLaunchContext[0] >= 3 Then
+				$sCMDLine = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
+				If _WinAPI_UrlIs($sCMDLine) Then
+					ShellExecute($sCMDLine)
+				Else
+					FileWrite($hLogs[2], _NowCalc() & " - Invalid URL: " & $sCMDLine)
+				EndIf
+			EndIf
+		Case Else
+			$sCMDLine = StringRegExpReplace($sCMDLine, "--single-argument microsoft-edge:[\/]*", "")
+			If _WinAPI_UrlIs($sCMDLine) Then
+				ShellExecute($sCMDLine)
+			Else
+				FileWrite($hLogs[2], _NowCalc() & " - Invalid URL: " & $sCMDLine)
+			EndIf
+	EndSelect
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
