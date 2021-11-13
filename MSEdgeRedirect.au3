@@ -16,6 +16,7 @@
 #Au3Stripper_Parameters=/so
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
+#include <Date.au3>
 #include <Misc.au3>
 #include <Array.au3>
 #include <String.au3>
@@ -125,7 +126,7 @@ Func Main($bHide = False)
 	If FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then TrayItemSetState($hStartup, $TRAY_CHECKED)
 
 	While True
-		$hMsg = Null
+		$hMsg = TrayGetMsg()
 
 		If ProcessExists("msedge.exe") Then
 			$aProcessList = ProcessList("msedge.exe")
@@ -139,11 +140,19 @@ Func Main($bHide = False)
 								$aLaunchContext = StringSplit($sCommandline, "=")
 								If $aLaunchContext[0] >= 3 Then
 									$sCommandline = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
-									If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
+									If _WinAPI_UrlIs($sCommandline) Then
+										ShellExecute($sCommandline)
+									Else
+										FileWrite(@LocalAppDataDir & "\MSEdgeRedirect\logs\URIFailures.log", _NowCalc() & " - " & $sCommandline)
+									EndIf
 								EndIf
 							Case Else
 								$sCommandline = StringRegExpReplace($sCommandline, "--single-argument microsoft-edge:[\/]*", "")
-								If _WinAPI_UrlIs($sCommandline) Then ShellExecute($sCommandline)
+								If _WinAPI_UrlIs($sCommandline) Then
+									ShellExecute($sCommandline)
+								Else
+									FileWrite(@LocalAppDataDir & "\MSEdgeRedirect\logs\URIFailures.log", _NowCalc() & " - " & $sCommandline)
+								EndIf
 						EndSelect
 					EndIf
 				EndIf
