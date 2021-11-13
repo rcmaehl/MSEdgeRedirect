@@ -14,6 +14,10 @@ No Default App walkthrough or other steps, just set and forget.
 
 If you're on older Windows builds, check out: https://github.com/da2x/EdgeDeflector
 
+## Disclaimer
+
+### PLEASE NOTE: MSEdgeRedirect is still BETA. There are known performance issues that I am investigating the best way to resolve. Due to Microsoft's blocking alternative URI handlers, performance will never be as good as the previous solutions. ☹️
+
 ## Download
 
 [Download latest stable release](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe)
