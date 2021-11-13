@@ -125,6 +125,7 @@ Func Main($bHide = False)
 	If FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then TrayItemSetState($hStartup, $TRAY_CHECKED)
 
 	While True
+		$hMsg = Null
 
 		If ProcessExists("msedge.exe") Then
 			$aProcessList = ProcessList("msedge.exe")
