@@ -26,7 +26,12 @@
 #include <TrayConstants.au3>
 #include <MsgBoxConstants.au3>
 
+SetupAppdata()
+
 Global $sVersion = "0.2.1.0"
+Global $hLogs[2] = _
+	[FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\AppFailures.log", $FO_APPEND), _
+	FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\URIFailures.log", $FO_APPEND)]
 
 Opt("TrayMenuMode", 3)
 Opt("TrayAutoPause", 0)
@@ -34,10 +39,20 @@ Opt("GUICloseOnESC", 0)
 
 If @OSArch = "X64" And _WinAPI_IsWow64Process() Then
 	MsgBox($MB_ICONERROR+$MB_OK, "Wrong Version", "The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
+	FileWrite($hLogs[0], _NowCalc() & " - " & "32 Bit Version on 64 Bit System." & @CRLF)
+	For $iLoop = 0 To UBound($hLogs) - 1
+		FileClose($hLogs[$iLoop])
+	Next
 	Exit 1
 EndIf
 
 ProcessCMDLine()
+
+Func SetupAppdata()
+	If Not FileExists(@LocalAppDataDir & "\MSEdgeRedirect\logs\") Then
+		DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\logs\")
+	EndIf
+EndFunc
 
 Func ProcessCMDLine()
 
@@ -143,7 +158,7 @@ Func Main($bHide = False)
 									If _WinAPI_UrlIs($sCommandline) Then
 										ShellExecute($sCommandline)
 									Else
-										FileWrite(@LocalAppDataDir & "\MSEdgeRedirect\logs\URIFailures.log", _NowCalc() & " - " & $sCommandline)
+										FileWrite($hLogs[1], _NowCalc() & " - Invalid URL: " & $sCommandline)
 									EndIf
 								EndIf
 							Case Else
@@ -151,7 +166,7 @@ Func Main($bHide = False)
 								If _WinAPI_UrlIs($sCommandline) Then
 									ShellExecute($sCommandline)
 								Else
-									FileWrite(@LocalAppDataDir & "\MSEdgeRedirect\logs\URIFailures.log", _NowCalc() & " - " & $sCommandline)
+									FileWrite($hLogs[1], _NowCalc() & " - Invalid URL: " & $sCommandline)
 								EndIf
 						EndSelect
 					EndIf
@@ -210,6 +225,9 @@ Func Main($bHide = False)
 
 	_WinAPI_AdjustTokenPrivileges($hToken, $aAdjust, 0, $aAdjust)
 	_WinAPI_CloseHandle($hToken)
+	For $iLoop = 0 To UBound($hLogs) - 1
+		FileClose($hLogs[$iLoop])
+	Next
 	Exit
 
 EndFunc
