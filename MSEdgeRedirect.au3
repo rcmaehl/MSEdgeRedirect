@@ -26,8 +26,6 @@
 #include <TrayConstants.au3>
 #include <MsgBoxConstants.au3>
 
-SetupAppdata()
-
 Global $hLogs[3] = _
 	[FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\AppFailures.log", $FO_APPEND), _
 	FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\AppGeneral.log", $FO_APPEND), _
@@ -56,16 +54,37 @@ EndIf
 
 ProcessCMDLine()
 
-Func SetupAppdata()
-	Select
-		Case Not FileExists(@LocalAppDataDir & "\MSEdgeRedirect\")
-			DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\logs\")
-			ContinueCase
-		Case Not FileExists(@LocalAppDataDir & "\MSEdgeRedirect\Langs\")
-			DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\langs\")
-		Case Else
-			;;;
-	EndSelect
+Func ActiveMode(ByRef $aCMDLine)
+
+	Local $sCMDLine = ""
+
+	If RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER", "FilterFullPath") = $CmdLine[1] Then
+		For $iLoop = 2 To $aCMDLine[0]
+			$sCMDLine &= $aCMDLine[$iLoop] & " "
+		Next
+		_DecodeAndRun($sCMDLine)
+		Exit
+	Else
+		MsgBox(0, "TEST - " & $aCMDLine[1], $sCMDLine)
+		_DecodeAndRun($sCMDLine)
+		Exit
+	EndIf
+
+EndFunc
+
+Func IsInstalled()
+
+	Local $sInstalledVer
+
+	$sInstalledVer = RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdge Redirect", "DisplayVersion")
+	If @error Then
+		$sInstalledVer = RegRead("HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdge Redirect", "DisplayVersion")
+		If @error Then
+			RunSetup()
+		EndIf
+	EndIf
+	If _VersionCompare($sVersion, $sInstalledVer) Then RunSetup(True)
+
 EndFunc
 
 Func ProcessCMDLine()
@@ -122,25 +141,8 @@ Func ProcessCMDLine()
 		Until UBound($CmdLine) <= 1
 	EndIf
 
+	;IsInstalled()
 	ReactiveMode($bHide)
-
-EndFunc
-
-Func ActiveMode(ByRef $aCMDLine)
-
-	Local $sCMDLine = ""
-
-	If RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER", "FilterFullPath") = $CmdLine[1] Then
-		For $iLoop = 2 To $aCMDLine[0]
-			$sCMDLine &= $aCMDLine[$iLoop] & " "
-		Next
-		_DecodeAndRun($sCMDLine)
-		Exit
-	Else
-		MsgBox(0, "TEST - " & $aCMDLine[1], $sCMDLine)
-		_DecodeAndRun($sCMDLine)
-		Exit
-	EndIf
 
 EndFunc
 
@@ -148,10 +150,20 @@ Func ReactiveMode($bHide = False)
 
 	Local $aMUI[2] = [Null, @MUILang]
 	Local $aAdjust
-	Local $aProcessList
-	Local $sCommandline
 
 	Local $hMsg
+
+	Local $oError = ObjEvent("AutoIt.Error", "_LogError")
+	#forceref $oError
+
+	Local $Obj  = ObjGet("winmgmts:{impersonationLevel=impersonate}!\\" & @ComputerName & "\root\cimv2")
+	Local $hObj = ObjCreate("WbemScripting.SWbemSink")
+
+	If IsObj($Obj) And IsObj($hObj) Then
+		ObjEvent($hObj, "SINK_")
+		$Obj.ExecNotificationQueryAsync($hObj, "SELECT * FROM __InstanceCreationEvent WITHIN 0.001 WHERE TargetInstance ISA 'Win32_Process'")
+	EndIf
+	#forceref SINK_OnObjectReady
 
 	; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
 	Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
@@ -172,21 +184,6 @@ Func ReactiveMode($bHide = False)
 
 	While True
 		$hMsg = TrayGetMsg()
-
-		If ProcessExists("msedge.exe") Then
-			$aProcessList = ProcessList("msedge.exe")
-			For $iLoop = 1 To $aProcessList[0][0] - 1
-				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
-				If StringInStr($sCommandline, "--single-argument") Then
-					ProcessClose($aProcessList[$iLoop][1])
-					If _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]), 1, $aEdges[0]) Then
-						_DecodeAndRun($sCommandline)
-					Else
-						FileWrite($hLogs[2], _NowCalc() & " - Invalid MSEdge: " & $aProcessList[$iLoop][1])
-					EndIf
-				EndIf
-			Next
-		EndIf
 
 		Select
 
@@ -246,6 +243,70 @@ Func ReactiveMode($bHide = False)
 
 EndFunc
 
+Func RunSetup($bUpdate = False)
+	#forceref $bUpdate
+
+	Local $bIsAdmin = IsAdmin()
+
+	If Not $bIsAdmin Then
+		If MsgBox($MB_YESNO+$MB_ICONWARNING+$MB_DEFBUTTON2+$MB_SETFOREGROUND, _
+			"Not Running As Admin", _
+			"MSEdge Redirect is not installed and will now do so." & @CRLF & _
+			@CRLF & _
+			"However, you are not running as admin. Some features, such as ACTIVE MODE, will not be available to install." & @CRLF & _
+			@CRLF & _
+			"Continue?") = $IDNO Then Exit
+	EndIf
+
+	DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\logs\")
+	DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\langs\")
+
+EndFunc
+
+Func SINK_OnObjectReady($OB)
+
+	Local $Str, $Owner, $Ret
+	#forceref $Ret
+
+	Local $sCommandline
+
+
+    Switch $OB.Path_.Class
+		Case "__InstanceCreationEvent"
+			If StringInStr($OB.TargetInstance.CommandLine, "microsoft-edge:") Then
+				ProcessClose($OB.TargetInstance.ProcessID)
+				$sCommandline = StringReplace($OB.TargetInstance.CommandLine, '"' & $ob.targetinstance.executablepath & '" ', "")
+				If _ArraySearch($aEdges, $ob.targetinstance.executablepath, 1, $aEdges[0]) Then
+					_DecodeAndRun($sCommandline)
+				Else
+					FileWrite($hLogs[2], _NowCalc() & " - Invalid MSEdge: " & $ob.targetinstance.executablepath & @CRLF)
+				EndIf
+			EndIf
+            $str &= $OB.TargetInstance.ProcessID & "-"
+            $str &= $ob.targetinstance.name & "-"
+            $str &= $ob.targetinstance.csname & "-"
+            $ret = $ob.targetinstance.getowner($owner)
+            $str &= $ob.targetinstance.creationdate & "-"
+            $str &= $ob.targetinstance.parentprocessid & "-"
+            $str &= $ob.targetinstance.executablepath & @cr
+            consolewrite("!->> Started  " & $str)
+            $str = ""
+    EndSwitch
+    Return 1
+EndFunc
+
+Func SetupAppdata()
+	Select
+		Case Not FileExists(@LocalAppDataDir & "\MSEdgeRedirect\")
+			DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\logs\")
+			ContinueCase
+		Case Not FileExists(@LocalAppDataDir & "\MSEdgeRedirect\Langs\")
+			DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\langs\")
+		Case Else
+			;;;
+	EndSelect
+EndFunc
+
 Func _DecodeAndRun($sCMDLine)
 
 	Local $aLaunchContext
@@ -258,7 +319,7 @@ Func _DecodeAndRun($sCMDLine)
 				If _WinAPI_UrlIs($sCMDLine) Then
 					ShellExecute($sCMDLine)
 				Else
-					FileWrite($hLogs[2], _NowCalc() & " - Invalid URL: " & $sCMDLine)
+					FileWrite($hLogs[2], _NowCalc() & " - Invalid Regexed URL: " & $sCMDLine & @CRLF)
 				EndIf
 			EndIf
 		Case Else
@@ -266,7 +327,7 @@ Func _DecodeAndRun($sCMDLine)
 			If _WinAPI_UrlIs($sCMDLine) Then
 				ShellExecute($sCMDLine)
 			Else
-				FileWrite($hLogs[2], _NowCalc() & " - Invalid URL: " & $sCMDLine)
+				FileWrite($hLogs[2], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
 			EndIf
 	EndSelect
 EndFunc
@@ -309,6 +370,19 @@ Func _GetLatestRelease($sCurrent)
 
 EndFunc   ;==>_GetLatestRelease
 
+Func _LogError($oError)
+    FileWrite($hLogs[0], _
+            "! ######################## OBJECT ERROR! #########################################" & @CRLF & _
+            "!                err.number is        : " & @TAB & hex($oError.number,8) & @CRLF & _
+            "!                err.scriptline is    : " & @TAB & $oError.scriptline & @CRLF & _
+            "!                err.windesc is       : " & @TAB & $oError.windescription & @CRLF & _
+            "!                err.desc is          : " & @TAB & $oError.description & @CRLF & _
+            "!                err.source is        : " & @TAB & $oError.source & @CRLF & _
+            "!                err.retcode is       : " & @TAB & hex($oError.retcode,8) & @CRLF & _
+            "! ################################################################################" & @CRLF _
+            )
+    Return 0
+EndFunc
 
 ;===============================================================================
 ; _UnicodeURLDecode()
