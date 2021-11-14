@@ -16,7 +16,7 @@ If you're on older Windows builds, check out: https://github.com/da2x/EdgeDeflec
 
 ## Disclaimer
 
-### PLEASE NOTE: MSEdgeRedirect is still BETA. There are known performance issues that I am investigating the best way to resolve. Due to Microsoft's blocking alternative URI handlers, performance will never be as good as the previous solutions. ☹️
+### PLEASE NOTE: MSEdgeRedirect is still BETA. Performance is still being improved. I have an upcoming improvement in a future build that will operate similarly to previous solutions, however, it will require both Edge and either Edge Beta, Dev, or Canary.
 
 ## Download
 
