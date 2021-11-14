@@ -155,6 +155,7 @@ EndFunc
 Func ReactiveMode($bHide = False)
 
 	Local $aMUI[2] = [Null, @MUILang]
+	Local $bMSER = False
 	Local $hTimer = TimerInit()
 	Local $aAdjust
 
@@ -187,8 +188,10 @@ Func ReactiveMode($bHide = False)
 		$hMsg = TrayGetMsg()
 
 		If TimerDiff($hTimer) >= 100 Then
-			$aMSER = ProcessList(@ScriptName)
-			If $aMSER[0][0] > 1 Then TraySetState($TRAY_ICONSTATE_SHOW)
+			If $bMSER Then
+				$aMSER = ProcessList(@ScriptName)
+				If $aMSER[0][0] > 1 Then TraySetState($TRAY_ICONSTATE_SHOW)
+			EndIf
 			$aProcessList = ProcessList("msedge.exe")
 			For $iLoop = 1 To $aProcessList[0][0] - 1
 				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
@@ -199,6 +202,7 @@ Func ReactiveMode($bHide = False)
 					EndIf
 				EndIf
 			Next
+			$bMSER = Not $bMSER
 			$hTimer = TimerInit()
 		EndIf
 
