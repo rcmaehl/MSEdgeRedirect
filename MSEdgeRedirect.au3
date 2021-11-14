@@ -5,9 +5,9 @@
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Res_Description=A Tool to Redirect News, Search, and Weather Results to Your Default Browser
-#AutoIt3Wrapper_Res_Fileversion=0.2.1.0
+#AutoIt3Wrapper_Res_Fileversion=0.3.0.0
 #AutoIt3Wrapper_Res_ProductName=MSEdgeRedirect
-#AutoIt3Wrapper_Res_ProductVersion=0.2.1.0
+#AutoIt3Wrapper_Res_ProductVersion=0.3.0.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
@@ -37,7 +37,7 @@ Global $aEdges[5] = [4, _
 	"C:\Program Files (x86)\Microsoft\Edge Dev\Application\msedge.exe", _
 	@LocalAppDataDir & "Microsoft\Edge SXS\Application\msedge.exe"]
 
-Global $sVersion = "0.2.1.0"
+Global $sVersion = "0.3.0.0"
 
 Opt("TrayMenuMode", 3)
 Opt("TrayAutoPause", 0)
