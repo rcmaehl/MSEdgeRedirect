@@ -153,7 +153,7 @@ Func ReactiveMode($bHide = False)
 
 	Local $hMsg
 
-	Local $oError = ObjEvent("AutoIt.Error", "_LogError")
+	Local $oError = ObjEvent("AutoIt.Error", "_SkipError")
 	#forceref $oError
 
 	Local $Obj  = ObjGet("winmgmts:{impersonationLevel=impersonate}!\\" & @ComputerName & "\root\cimv2")
@@ -312,6 +312,8 @@ Func _DecodeAndRun($sCMDLine)
 	Local $aLaunchContext
 
 	Select
+		Case StringInStr($sCMDLine, "Windows.Widgets")
+			ContinueCase
 		Case StringRegExp($sCMDLine, "microsoft-edge:[\/]*?\?launchContext1")
 			$aLaunchContext = StringSplit($sCMDLine, "=")
 			If $aLaunchContext[0] >= 3 Then
@@ -370,17 +372,8 @@ Func _GetLatestRelease($sCurrent)
 
 EndFunc   ;==>_GetLatestRelease
 
-Func _LogError($oError)
-    FileWrite($hLogs[0], _
-            "! ######################## OBJECT ERROR! #########################################" & @CRLF & _
-            "!                err.number is        : " & @TAB & hex($oError.number,8) & @CRLF & _
-            "!                err.scriptline is    : " & @TAB & $oError.scriptline & @CRLF & _
-            "!                err.windesc is       : " & @TAB & $oError.windescription & @CRLF & _
-            "!                err.desc is          : " & @TAB & $oError.description & @CRLF & _
-            "!                err.source is        : " & @TAB & $oError.source & @CRLF & _
-            "!                err.retcode is       : " & @TAB & hex($oError.retcode,8) & @CRLF & _
-            "! ################################################################################" & @CRLF _
-            )
+Func _SkipError($oError)
+	#forceref $oError
     Return 0
 EndFunc
 
