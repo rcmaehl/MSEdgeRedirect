@@ -149,21 +149,12 @@ EndFunc
 Func ReactiveMode($bHide = False)
 
 	Local $aMUI[2] = [Null, @MUILang]
+	Local $hTimer = TimerInit()
 	Local $aAdjust
 
 	Local $hMsg
 
-	Local $oError = ObjEvent("AutoIt.Error", "_SkipError")
-	#forceref $oError
-
-	Local $Obj  = ObjGet("winmgmts:{impersonationLevel=impersonate}!\\" & @ComputerName & "\root\cimv2")
-	Local $hObj = ObjCreate("WbemScripting.SWbemSink")
-
-	If IsObj($Obj) And IsObj($hObj) Then
-		ObjEvent($hObj, "SINK_")
-		$Obj.ExecNotificationQueryAsync($hObj, "SELECT * FROM __InstanceCreationEvent WITHIN 0.001 WHERE TargetInstance ISA 'Win32_Process'")
-	EndIf
-	#forceref SINK_OnObjectReady
+	; UseWMI()
 
 	; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
 	Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
@@ -182,8 +173,25 @@ Func ReactiveMode($bHide = False)
 
 	If FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then TrayItemSetState($hStartup, $TRAY_CHECKED)
 
+	Local $aProcessList
+	Local $sCommandline
+
 	While True
 		$hMsg = TrayGetMsg()
+
+		If TimerDiff($hTimer) >= 100 Then
+			$aProcessList = ProcessList("msedge.exe")
+			For $iLoop = 1 To $aProcessList[0][0] - 1
+				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
+				If StringInStr($sCommandline, "microsoft-edge:") Then
+					ProcessClose($aProcessList[$iLoop][1])
+					If _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]), 1, $aEdges[0]) Then
+						_DecodeAndRun($sCommandline)
+					EndIf
+				EndIf
+			Next
+			$hTimer = TimerInit()
+		EndIf
 
 		Select
 
@@ -270,7 +278,6 @@ Func SINK_OnObjectReady($OB)
 
 	Local $sCommandline
 
-
     Switch $OB.Path_.Class
 		Case "__InstanceCreationEvent"
 			If StringInStr($OB.TargetInstance.CommandLine, "microsoft-edge:") Then
@@ -305,6 +312,20 @@ Func SetupAppdata()
 		Case Else
 			;;;
 	EndSelect
+EndFunc
+
+Func UseWMI()
+	Local Static $oError = ObjEvent("AutoIt.Error", "_SkipError")
+	#forceref $oError
+
+	Local Static $Obj = ObjGet("winmgmts:\\.\root\CIMV2")
+	Local Static $hObj = ObjCreate("WbemScripting.SWbemSink")
+
+	If IsObj($Obj) And IsObj($hObj) Then
+		ObjEvent($hObj, "SINK_")
+		$Obj.ExecNotificationQueryAsync($hObj, "SELECT * FROM __InstanceCreationEvent WITHIN 0.01 WHERE TargetInstance ISA 'Win32_Process'")
+	EndIf
+	#forceref SINK_OnObjectReady
 EndFunc
 
 Func _DecodeAndRun($sCMDLine)
