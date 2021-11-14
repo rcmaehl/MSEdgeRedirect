@@ -98,6 +98,7 @@ Func ProcessCMDLine()
 		If _ArraySearch($aEdges, $CmdLine[1]) Then ; Image File Execution Options Mode
 			ActiveMode($CmdLine)
 		EndIf
+
 		Do
 			Switch $CmdLine[1]
 				Case "/?", "/h", "/help"
@@ -141,6 +142,11 @@ Func ProcessCMDLine()
 		Until UBound($CmdLine) <= 1
 	EndIf
 
+	If _Singleton("MSER", 1) = 0 Then
+		Sleep(300)
+		Exit
+	EndIf
+
 	;IsInstalled()
 	ReactiveMode($bHide)
 
@@ -173,6 +179,7 @@ Func ReactiveMode($bHide = False)
 
 	If FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then TrayItemSetState($hStartup, $TRAY_CHECKED)
 
+	Local $aMSER
 	Local $aProcessList
 	Local $sCommandline
 
@@ -180,6 +187,8 @@ Func ReactiveMode($bHide = False)
 		$hMsg = TrayGetMsg()
 
 		If TimerDiff($hTimer) >= 100 Then
+			$aMSER = ProcessList(@ScriptName)
+			If $aMSER[0][0] > 1 Then TraySetState($TRAY_ICONSTATE_SHOW)
 			$aProcessList = ProcessList("msedge.exe")
 			For $iLoop = 1 To $aProcessList[0][0] - 1
 				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
