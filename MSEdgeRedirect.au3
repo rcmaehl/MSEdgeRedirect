@@ -302,7 +302,7 @@ Func RunSetup($bUpdate = False)
 		GUICtrlCreateRadio("Active Mode" & @CRLF & _
 			@CRLF & _
 			"Active Mode uses Image File Execution Options to redirect the launch of an Edge install to MSEdge Redirect. " & _
-			"MSEdge Redirect will only run when a selected Edge is launched, similary to EdgeDeflector.", _
+			"MSEdge Redirect will only run when a selected Edge is launched, similary to the old EdgeDeflector app.", _
 			230, 120, 380, 70, $BS_TOP+$BS_MULTILINE)
 
 		GUICtrlCreateCheckbox("Edge Stable", 250, 190, 90, 20)
@@ -313,9 +313,11 @@ Func RunSetup($bUpdate = False)
 		GUICtrlCreateRadio("Reactive Mode" & @CRLF & _
 			@CRLF & _
 			"Reactive Mode keeps MSEdge Redirect in the background, monitoring program launches. " & _
-			"If an MICROSOFT-EDGE: URI is detected, Edge is quickly closed and the parameters redirected to your default browser.", _
+			"If a MICROSOFT-EDGE: URI is detected, Edge is rapidly closed and the parameters are redirected to your default browser.", _
 			230, 220, 380, 70, $BS_TOP+$BS_MULTILINE)
 		GUICtrlSetState(-1, $GUI_CHECKED)
+
+	GUICtrlCreateGroup("Options", 200, 300, 420, 100)
 
 	GUISetState(@SW_SHOW, $hInstallGUI)
 
