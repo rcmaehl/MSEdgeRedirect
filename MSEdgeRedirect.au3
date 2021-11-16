@@ -277,6 +277,7 @@ Func RunSetup($bUpdate = False)
 	Local $hInstallGUI = GUICreate("MSEdge Redirect " & $sVersion & " Setup", 640, 480)
 
 	GUICtrlCreateLabel("", 0, 0, 180, 480)
+	GUICtrlSetBkColor(-1, 0x0078D7)
 
 	If Not $bIsAdmin Then
 		If MsgBox($MB_YESNO+$MB_ICONWARNING+$MB_DEFBUTTON2+$MB_SETFOREGROUND, _
@@ -290,8 +291,6 @@ Func RunSetup($bUpdate = False)
 
 	DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\logs\")
 	DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\langs\")
-
-
 
 EndFunc
 
@@ -372,7 +371,7 @@ Func _DecodeAndRun($sCMDLine)
 				Else
 					FileWrite($hLogs[2], _NowCalc() & " - Invalid Regexed URL: " & $sCMDLine & @CRLF)
 				EndIf
-			ElseIf
+			Else
 				FileWrite($hLogs[2], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
 			EndIf
 		Case Else
