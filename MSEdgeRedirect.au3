@@ -25,6 +25,7 @@
 #include <WinAPIProc.au3>
 #include <WinAPIShPath.au3>
 #include <TrayConstants.au3>
+#include <GUIConstantsEx.au3>
 #include <MsgBoxConstants.au3>
 
 #include "Includes\_Theming.au3"
@@ -48,7 +49,7 @@ Opt("TrayMenuMode", 3)
 Opt("TrayAutoPause", 0)
 Opt("GUICloseOnESC", 0)
 
-If @OSArch = "X64" And _WinAPI_IsWow64Process() Then
+If @Compiled And @OSArch = "X64" And _WinAPI_IsWow64Process() Then
 	MsgBox($MB_ICONERROR+$MB_OK, "Wrong Version", "The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
 	FileWrite($hLogs[0], _NowCalc() & " - " & "32 Bit Version on 64 Bit System." & @CRLF)
 	For $iLoop = 0 To UBound($hLogs) - 1
@@ -138,6 +139,8 @@ Func ProcessCMDLine()
 							MsgBox(0, "Invalid", 'Invalid release type - "' & $CmdLine[2] & "." & @CRLF)
 							Exit 87 ; ERROR_INVALID_PARAMETER
 					EndSelect
+				Case "/uninstall"
+					RunRemoval()
 				Case Else
 					If @Compiled Then ; support for running non-compiled script - mLipok
 						MsgBox(0, "Invalid", 'Invalid parameter - "' & $CmdLine[1] & "." & @CRLF)
@@ -269,6 +272,9 @@ Func ReactiveMode($bHide = False)
 
 EndFunc
 
+Func RunRemoval()
+EndFunc
+
 Func RunSetup($bUpdate = False)
 	#forceref $bUpdate
 
@@ -277,17 +283,44 @@ Func RunSetup($bUpdate = False)
 	Local $hInstallGUI = GUICreate("MSEdge Redirect " & $sVersion & " Setup", 640, 480)
 
 	GUICtrlCreateLabel("", 0, 0, 180, 480)
-	GUICtrlSetBkColor(-1, 0x0078D7)
+	GUICtrlSetBkColor(-1, 0x00A4EF)
 
-	If Not $bIsAdmin Then
-		If MsgBox($MB_YESNO+$MB_ICONWARNING+$MB_DEFBUTTON2+$MB_SETFOREGROUND, _
-			"Not Running As Admin", _
-			"MSEdge Redirect is not installed and will now do so." & @CRLF & _
-			@CRLF & _
-			"However, you are not running as admin. Some features, such as ACTIVE MODE, will not be available to install." & @CRLF & _
-			@CRLF & _
-			"Continue?") = $IDNO Then Exit
+	GUICtrlCreateIcon("", -1, 26, 26, 128, 128)
+	If @Compiled Then
+		_SetBkSelfIcon(-1, "", 0x00A4EF, @ScriptFullPath, 201, 128, 128)
+	Else
+		_SetBkIcon(-1, "", 0x00A4EF, @ScriptDir & "\assets\MSEdgeRedirect.ico", -1, 128, 128)
 	EndIf
+
+	GUICtrlCreateLabel("Install MSEdge Redirect " & $sVersion, 200, 20, 420, 30)
+	GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+	GUICtrlCreateLabel("Click Install to install MS Edge Redirect after customizing your preferred options", 200, 50, 420, 40)
+	GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+
+	GUICtrlCreateGroup("Mode", 200, 100, 420, 200)
+		GUICtrlCreateIcon("imageres.dll", 78, 210, 120, 16, 16)
+		GUICtrlCreateRadio("Active Mode" & @CRLF & _
+			@CRLF & _
+			"Active Mode uses Image File Execution Options to redirect the launch of an Edge install to MSEdge Redirect. " & _
+			"MSEdge Redirect will only run when a selected Edge is launched, similary to EdgeDeflector.", _
+			230, 120, 380, 70, $BS_TOP+$BS_MULTILINE)
+
+		GUICtrlCreateCheckbox("Edge Stable", 250, 190, 90, 20)
+		GUICtrlCreateCheckbox("Edge Beta", 340, 190, 90, 20)
+		GUICtrlCreateCheckbox("Edge Dev", 430, 190, 90, 20)
+		GUICtrlCreateCheckbox("Edge Canary", 520, 190, 90, 20)
+
+		GUICtrlCreateRadio("Reactive Mode" & @CRLF & _
+			@CRLF & _
+			"Reactive Mode keeps MSEdge Redirect in the background, monitoring program launches. " & _
+			"If an MICROSOFT-EDGE: URI is detected, Edge is quickly closed and the parameters redirected to your default browser.", _
+			230, 220, 380, 70, $BS_TOP+$BS_MULTILINE)
+		GUICtrlSetState(-1, $GUI_CHECKED)
+
+	GUISetState(@SW_SHOW, $hInstallGUI)
+
+	Sleep(15000)
+	Exit
 
 	DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\logs\")
 	DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\langs\")
