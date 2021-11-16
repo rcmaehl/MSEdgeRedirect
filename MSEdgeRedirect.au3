@@ -14,6 +14,7 @@
 #AutoIt3Wrapper_AU3Check_Parameters=-d -w 1 -w 2 -w 3 -w 4 -w 5 -w 6 -w 7 -v1 -v2 -v3
 #AutoIt3Wrapper_Run_Au3Stripper=y
 #Au3Stripper_Parameters=/so
+#AutoIt3Wrapper_Res_Icon_Add=Assets\MSEdgeRedirect.ico
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
 #include <Date.au3>
@@ -25,6 +26,10 @@
 #include <WinAPIShPath.au3>
 #include <TrayConstants.au3>
 #include <MsgBoxConstants.au3>
+
+#include "Includes\_Theming.au3"
+
+#include "Includes\ResourcesEx.au3"
 
 Global $hLogs[3] = _
 	[FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\AppFailures.log", $FO_APPEND), _
@@ -269,6 +274,10 @@ Func RunSetup($bUpdate = False)
 
 	Local $bIsAdmin = IsAdmin()
 
+	Local $hInstallGUI = GUICreate("MSEdge Redirect " & $sVersion & " Setup", 640, 480)
+
+	GUICtrlCreateLabel("", 0, 0, 180, 480)
+
 	If Not $bIsAdmin Then
 		If MsgBox($MB_YESNO+$MB_ICONWARNING+$MB_DEFBUTTON2+$MB_SETFOREGROUND, _
 			"Not Running As Admin", _
@@ -281,6 +290,8 @@ Func RunSetup($bUpdate = False)
 
 	DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\logs\")
 	DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\langs\")
+
+
 
 EndFunc
 
@@ -343,20 +354,26 @@ EndFunc
 
 Func _DecodeAndRun($sCMDLine)
 
+	Local $sCaller
 	Local $aLaunchContext
 
 	Select
 		Case StringInStr($sCMDLine, "Windows.Widgets")
+			$sCaller = "Windows.Widgets"
 			ContinueCase
 		Case StringRegExp($sCMDLine, "microsoft-edge:[\/]*?\?launchContext1")
 			$aLaunchContext = StringSplit($sCMDLine, "=")
 			If $aLaunchContext[0] >= 3 Then
+				If $sCaller = "" Then $sCaller = $aLaunchContext[2]
+				FileWrite($hLogs[1], _NowCalc() & " - Redirected Edge Call from: " & $sCaller & @CRLF)
 				$sCMDLine = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
 				If _WinAPI_UrlIs($sCMDLine) Then
 					ShellExecute($sCMDLine)
 				Else
 					FileWrite($hLogs[2], _NowCalc() & " - Invalid Regexed URL: " & $sCMDLine & @CRLF)
 				EndIf
+			ElseIf
+				FileWrite($hLogs[2], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
 			EndIf
 		Case Else
 			$sCMDLine = StringRegExpReplace($sCMDLine, "--single-argument microsoft-edge:[\/]*", "")
