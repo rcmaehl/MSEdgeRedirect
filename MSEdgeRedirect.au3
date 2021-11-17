@@ -100,12 +100,10 @@ Func ProcessCMDLine()
 
 	If $iParams > 0 Then
 
-	#cs
-		_ArrayDisplay($CmdLine)
-		If _ArraySearch($aEdges, $CmdLine[1]) Then ; Image File Execution Options Mode
+		;_ArrayDisplay($CmdLine)
+		If _ArraySearch($aEdges, $CmdLine[1]) > 0 Then ; Image File Execution Options Mode
 			ActiveMode($CmdLine)
 		EndIf
-	#ce
 
 		Do
 			Switch $CmdLine[1]
