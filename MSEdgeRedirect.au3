@@ -51,7 +51,7 @@ Opt("GUICloseOnESC", 0)
 
 If @Compiled And @OSArch = "X64" And _WinAPI_IsWow64Process() Then
 	MsgBox($MB_ICONERROR+$MB_OK, "Wrong Version", "The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
-	FileWrite($hLogs[0], _NowCalc() & " - " & "32 Bit Version on 64 Bit System." & @CRLF)
+	FileWrite($hLogs[0], _NowCalc() & " - " & "32 Bit Version on 64 Bit System. EXITING!" & @CRLF)
 	For $iLoop = 0 To UBound($hLogs) - 1
 		FileClose($hLogs[$iLoop])
 	Next
@@ -168,8 +168,6 @@ Func ReactiveMode($bHide = False)
 	Local $aAdjust
 
 	Local $hMsg
-
-	; UseWMI()
 
 	; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
 	Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
@@ -310,9 +308,9 @@ Func RunSetup($bUpdate = False)
 		GUICtrlCreateCheckbox("Edge Dev", 430, 190, 90, 20)
 		GUICtrlCreateCheckbox("Edge Canary", 520, 190, 90, 20)
 
-		GUICtrlCreateRadio("Reactive Mode" & @CRLF & _
+		GUICtrlCreateRadio("Daemon Mode" & @CRLF & _
 			@CRLF & _
-			"Reactive Mode keeps MSEdge Redirect in the background, monitoring program launches. " & _
+			"Daemon Mode keeps MSEdge Redirect in the background, monitoring program launches. " & _
 			"If a MICROSOFT-EDGE: URI is detected, Edge is rapidly closed and the parameters are redirected to your default browser.", _
 			230, 220, 380, 70, $BS_TOP+$BS_MULTILINE)
 		GUICtrlSetState(-1, $GUI_CHECKED)
@@ -329,38 +327,8 @@ Func RunSetup($bUpdate = False)
 
 EndFunc
 
-Func SINK_OnObjectReady($OB)
-
-	Local $Str, $Owner, $Ret
-	#forceref $Ret
-
-	Local $sCommandline
-
-    Switch $OB.Path_.Class
-		Case "__InstanceCreationEvent"
-			If StringInStr($OB.TargetInstance.CommandLine, "microsoft-edge:") Then
-				ProcessClose($OB.TargetInstance.ProcessID)
-				$sCommandline = StringReplace($OB.TargetInstance.CommandLine, '"' & $ob.targetinstance.executablepath & '" ', "")
-				If _ArraySearch($aEdges, $ob.targetinstance.executablepath, 1, $aEdges[0]) Then
-					_DecodeAndRun($sCommandline)
-				Else
-					FileWrite($hLogs[2], _NowCalc() & " - Invalid MSEdge: " & $ob.targetinstance.executablepath & @CRLF)
-				EndIf
-			EndIf
-            $str &= $OB.TargetInstance.ProcessID & "-"
-            $str &= $ob.targetinstance.name & "-"
-            $str &= $ob.targetinstance.csname & "-"
-            $ret = $ob.targetinstance.getowner($owner)
-            $str &= $ob.targetinstance.creationdate & "-"
-            $str &= $ob.targetinstance.parentprocessid & "-"
-            $str &= $ob.targetinstance.executablepath & @cr
-            consolewrite("!->> Started  " & $str)
-            $str = ""
-    EndSwitch
-    Return 1
-EndFunc
-
-Func SetupAppdata()
+; Remove Once Installer Complete
+Func SetupAppdata() 
 	Select
 		Case Not FileExists(@LocalAppDataDir & "\MSEdgeRedirect\")
 			DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\logs\")
@@ -370,20 +338,6 @@ Func SetupAppdata()
 		Case Else
 			;;;
 	EndSelect
-EndFunc
-
-Func UseWMI()
-	Local Static $oError = ObjEvent("AutoIt.Error", "_SkipError")
-	#forceref $oError
-
-	Local Static $Obj = ObjGet("winmgmts:\\.\root\CIMV2")
-	Local Static $hObj = ObjCreate("WbemScripting.SWbemSink")
-
-	If IsObj($Obj) And IsObj($hObj) Then
-		ObjEvent($hObj, "SINK_")
-		$Obj.ExecNotificationQueryAsync($hObj, "SELECT * FROM __InstanceCreationEvent WITHIN 0.01 WHERE TargetInstance ISA 'Win32_Process'")
-	EndIf
-	#forceref SINK_OnObjectReady
 EndFunc
 
 Func _DecodeAndRun($sCMDLine)
@@ -457,20 +411,19 @@ Func _GetLatestRelease($sCurrent)
 
 EndFunc   ;==>_GetLatestRelease
 
-Func _SkipError($oError)
-	#forceref $oError
-    Return 0
-EndFunc
-
-;===============================================================================
-; _UnicodeURLDecode()
-; Description: : Tranlates a URL-friendly string to a normal string
-; Parameter(s): : $toDecode - The URL-friendly string to decode
-; Return Value(s): : The URL decoded string
-; Author(s): : nfwu, Dhilip89
-; Note(s): : Modified from _URLDecode() that's only support non-unicode.
-;
-;===============================================================================
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _UnicodeURLDecode
+; Description ...: Tranlates a URL-friendly string to a normal string
+; Syntax ........: _UnicodeURLDecode($toDecode)
+; Parameters ....: $$toDecode           - The URL-friendly string to decode
+; Return values .: The URL decoded string
+; Author ........: nfwu, Dhilip89
+; Modified ......: 11/17/2021
+; Remarks .......: Modified from _URLDecode() that only supported non-unicode.
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
 Func _UnicodeURLDecode($toDecode)
     Local $strChar = "", $iOne, $iTwo
     Local $aryHex = StringSplit($toDecode, "")
