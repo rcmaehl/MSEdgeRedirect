@@ -25,6 +25,7 @@
 #include <WinAPIProc.au3>
 #include <WinAPIShPath.au3>
 #include <TrayConstants.au3>
+#include <ComboConstants.au3>
 #include <GUIConstantsEx.au3>
 #include <MsgBoxConstants.au3>
 
@@ -276,7 +277,9 @@ EndFunc
 Func RunSetup($bUpdate = False)
 	#forceref $bUpdate
 
+	Local $hMsg
 	Local $bIsAdmin = IsAdmin()
+	Local $hChannels[4]
 
 	Local $hInstallGUI = GUICreate("MSEdge Redirect " & $sVersion & " Setup", 640, 480)
 
@@ -297,38 +300,107 @@ Func RunSetup($bUpdate = False)
 
 	GUICtrlCreateGroup("Mode", 200, 100, 420, 200)
 		GUICtrlCreateIcon("imageres.dll", 78, 210, 120, 16, 16)
-		GUICtrlCreateRadio("Active Mode" & @CRLF & _
+		Local $hActive = GUICtrlCreateRadio("Active Mode" & @CRLF & _
 			@CRLF & _
 			"Active Mode uses Image File Execution Options to redirect the launch of an Edge install to MSEdge Redirect. " & _
 			"MSEdge Redirect will only run when a selected Edge is launched, similary to the old EdgeDeflector app.", _
 			230, 120, 380, 70, $BS_TOP+$BS_MULTILINE)
 
-		GUICtrlCreateCheckbox("Edge Stable", 250, 190, 90, 20)
-		GUICtrlCreateCheckbox("Edge Beta", 340, 190, 90, 20)
-		GUICtrlCreateCheckbox("Edge Dev", 430, 190, 90, 20)
-		GUICtrlCreateCheckbox("Edge Canary", 520, 190, 90, 20)
+		$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 250, 190, 90, 20)
+		$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 340, 190, 90, 20)
+		$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 430, 190, 90, 20)
+		$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 520, 190, 90, 20)
 
-		GUICtrlCreateRadio("Daemon Mode" & @CRLF & _
+		GUICtrlSetState($hChannels[0], $GUI_DISABLE)
+		GUICtrlSetState($hChannels[1], $GUI_DISABLE)
+		GUICtrlSetState($hChannels[2], $GUI_DISABLE)
+		GUICtrlSetState($hChannels[3], $GUI_DISABLE)
+
+#cs
+		If Not $bIsAdmin Then
+			GUICtrlSetState($hActive, $GUI_DISABLE)
+		EndIf
+#ce
+
+		Local $hService = GUICtrlCreateRadio("Service Mode" & @CRLF & _
 			@CRLF & _
-			"Daemon Mode keeps MSEdge Redirect in the background, monitoring program launches. " & _
-			"If a MICROSOFT-EDGE: URI is detected, Edge is rapidly closed and the parameters are redirected to your default browser.", _
+			"Services Mode keeps MSEdge Redirect in the background, monitoring program launches. " & _
+			"If a MICROSOFT-EDGE: URI is detected, Edge is quickly closed and the parameters are redirected to your default browser.", _
 			230, 220, 380, 70, $BS_TOP+$BS_MULTILINE)
 		GUICtrlSetState(-1, $GUI_CHECKED)
 
 	GUICtrlCreateGroup("Options", 200, 300, 420, 100)
+		Local $hStartup = GUICtrlCreateCheckbox("Start MSEdge Redirect Service With Windows", 230, 320, 240, 20)
+		Local $hNoIcon = GUICtrlCreateCheckbox("Hide MSEdge Redirect Icon on Launch", 230, 340, 240, 20)
+		Local $hSearch = GUICtrlCreateCheckbox("Replace Bing Search Results with:", 230, 360, 240, 20)
+		Local $hEngine = GUICtrlCreateCombo("", 470, 355, 140, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+		GUICtrlSetState(-1, $GUI_DISABLE)
+
+	$hInstall = GUICtrlCreateButton("Install", 200, 400, 420, 60)
+	GUICtrlSetFont(-1, 16, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+
 
 	GUISetState(@SW_SHOW, $hInstallGUI)
 
-	Sleep(15000)
-	Exit
+	While True
+		$hMsg = GUIGetMsg()
+
+		Select
+
+			Case $hMsg = $GUI_EVENT_CLOSE
+				Exit
+
+			Case $hMsg = $hActive or $hMsg = $hService
+				If _IsChecked($hService) Then
+					GUICtrlSetState($hStartup, $GUI_ENABLE)
+					GUICtrlSetState($hNoIcon, $GUI_ENABLE)
+					GUICtrlSetState($hChannels[0], $GUI_DISABLE)
+					GUICtrlSetState($hChannels[1], $GUI_DISABLE)
+					GUICtrlSetState($hChannels[2], $GUI_DISABLE)
+					GUICtrlSetState($hChannels[3], $GUI_DISABLE)
+				Else
+					GUICtrlSetState($hStartup, $GUI_DISABLE)
+					GUICtrlSetState($hNoIcon, $GUI_DISABLE)
+					GUICtrlSetState($hChannels[0], $GUI_ENABLE)
+					GUICtrlSetState($hChannels[1], $GUI_ENABLE)
+					GUICtrlSetState($hChannels[2], $GUI_ENABLE)
+					GUICtrlSetState($hChannels[3], $GUI_ENABLE)
+				EndIf
+
+			Case $hMsg = $hSearch
+				If _IsChecked($hSearch) Then
+					GUICtrlSetState($hEngine, $GUI_ENABLE)
+				Else
+					GUICtrlSetState($hEngine, $GUI_DISABLE)
+				EndIf
+
+			Case Else
+				;;;
+
+		EndSelect
+
+	WEnd
 
 	DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\logs\")
 	DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\langs\")
 
 EndFunc
 
+Func SetIFEO($aChannels)
+	RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe")
+	RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe", "UseFilter", "REG_DWORD", 1)
+	For $iLoop = 1 To $aEdges[4] Step 1
+		If $aChannels[$iLoop - 1] Then
+			RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop)
+			RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger", "REG_SZ", @ScriptFullPath)
+			RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "FilterFullPath", "REG_SZ", $aEdges[$iLoop])
+		EndIf
+	Next
+EndFunc
+
+
 ; Remove Once Installer Complete
-Func SetupAppdata() 
+Func SetupAppdata()
 	Select
 		Case Not FileExists(@LocalAppDataDir & "\MSEdgeRedirect\")
 			DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\logs\")
@@ -410,6 +482,10 @@ Func _GetLatestRelease($sCurrent)
 	Return _VersionCompare($aCombined[0][0], $sCurrent)
 
 EndFunc   ;==>_GetLatestRelease
+
+Func _IsChecked($idControlID)
+	Return BitAND(GUICtrlRead($idControlID), $GUI_CHECKED) = $GUI_CHECKED
+EndFunc   ;==>_IsChecked
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _UnicodeURLDecode
