@@ -298,18 +298,29 @@ Func RunSetup($bUpdate = False)
 	GUICtrlCreateLabel("Click Install to install MS Edge Redirect after customizing your preferred options", 200, 50, 420, 40)
 	GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 
-	GUICtrlCreateGroup("Mode", 200, 100, 420, 200)
-		GUICtrlCreateIcon("imageres.dll", 78, 210, 120, 16, 16)
-		Local $hActive = GUICtrlCreateRadio("Active Mode" & @CRLF & _
+	GUICtrlCreateGroup("Mode", 200, 100, 420, 240)
+		Local $hService = GUICtrlCreateRadio("Service Mode - (Soft Replace, Per User, Installs in Appdata)" & @CRLF & _
+			@CRLF & _
+			"Services Mode keeps MSEdge Redirect in the background, monitoring program launches. " & _
+			"If a MICROSOFT-EDGE: URI is detected, Edge is rapidly closed and the data is redirected to your default browser.", _
+			230, 120, 380, 70, $BS_TOP+$BS_MULTILINE)
+		GUICtrlSetState(-1, $GUI_CHECKED)
+
+		Local $hStartup = GUICtrlCreateCheckbox("Start MSEdge Redirect Service With Windows", 250, 190, 320, 20)
+		Local $hNoIcon = GUICtrlCreateCheckbox("Hide MSEdge Redirect Service Icon from Tray", 250, 210, 320, 20)
+
+		GUICtrlCreateIcon("imageres.dll", 78, 210, 240, 16, 16)
+		Local $hActive = GUICtrlCreateRadio("Active Mode - (Full Replace, All Users, Installs in Program Files)" & @CRLF & _
 			@CRLF & _
 			"Active Mode uses Image File Execution Options to redirect the launch of an Edge install to MSEdge Redirect. " & _
 			"MSEdge Redirect will only run when a selected Edge is launched, similary to the old EdgeDeflector app.", _
-			230, 120, 380, 70, $BS_TOP+$BS_MULTILINE)
+			230, 240, 380, 70, $BS_TOP+$BS_MULTILINE)
 
-		$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 250, 190, 90, 20)
-		$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 340, 190, 90, 20)
-		$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 430, 190, 90, 20)
-		$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 520, 190, 90, 20)
+		$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 250, 310, 90, 20)
+		$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 340, 310, 90, 20)
+		GUICtrlSetState(-1, $GUI_CHECKED)
+		$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 430, 310, 90, 20)
+		$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 520, 310, 90, 20)
 
 		GUICtrlSetState($hChannels[0], $GUI_DISABLE)
 		GUICtrlSetState($hChannels[1], $GUI_DISABLE)
@@ -322,21 +333,12 @@ Func RunSetup($bUpdate = False)
 		EndIf
 #ce
 
-		Local $hService = GUICtrlCreateRadio("Service Mode" & @CRLF & _
-			@CRLF & _
-			"Services Mode keeps MSEdge Redirect in the background, monitoring program launches. " & _
-			"If a MICROSOFT-EDGE: URI is detected, Edge is quickly closed and the parameters are redirected to your default browser.", _
-			230, 220, 380, 70, $BS_TOP+$BS_MULTILINE)
-		GUICtrlSetState(-1, $GUI_CHECKED)
-
-	GUICtrlCreateGroup("Options", 200, 300, 420, 100)
-		Local $hStartup = GUICtrlCreateCheckbox("Start MSEdge Redirect Service With Windows", 230, 320, 240, 20)
-		Local $hNoIcon = GUICtrlCreateCheckbox("Hide MSEdge Redirect Icon on Launch", 230, 340, 240, 20)
-		Local $hSearch = GUICtrlCreateCheckbox("Replace Bing Search Results with:", 230, 360, 240, 20)
-		Local $hEngine = GUICtrlCreateCombo("", 470, 355, 140, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+	GUICtrlCreateGroup("Search", 200, 340, 420, 60)
+		Local $hSearch = GUICtrlCreateCheckbox("Replace Bing Search Results with:", 230, 365, 240, 20)
+		Local $hEngine = GUICtrlCreateCombo("", 470, 365, 140, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
-	$hInstall = GUICtrlCreateButton("Install", 200, 400, 420, 60)
+	$hInstall = GUICtrlCreateButton("Install", 200, 410, 420, 50)
 	GUICtrlSetFont(-1, 16, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 
 
