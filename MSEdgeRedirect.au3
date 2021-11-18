@@ -203,7 +203,7 @@ Func ReactiveMode($bHide = False)
 				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
 				If StringInStr($sCommandline, "microsoft-edge:") Then
 					ProcessClose($aProcessList[$iLoop][1])
-					If _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]), 1, $aEdges[0]) Then
+					If _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]), 1, $aEdges[0]) > 0 Then
 						_DecodeAndRun($sCommandline)
 					EndIf
 				EndIf
