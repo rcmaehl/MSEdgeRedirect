@@ -75,17 +75,6 @@ Func ActiveMode(ByRef $aCMDLine)
 
 EndFunc
 
-Func RunArchCheck()
-	If @Compiled And @OSArch = "X64" And _WinAPI_IsWow64Process() Then
-		MsgBox($MB_ICONERROR+$MB_OK, "Wrong Version", "The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
-		FileWrite($hLogs[0], _NowCalc() & " - " & "32 Bit Version on 64 Bit System. EXITING!" & @CRLF)
-		For $iLoop = 0 To UBound($hLogs) - 1
-			FileClose($hLogs[$iLoop])
-		Next
-		Exit 1
-	EndIf
-EndFunc
-
 Func ProcessCMDLine()
 
 	Local $bHide = False
@@ -263,6 +252,17 @@ Func ReactiveMode($bHide = False)
 
 EndFunc
 
+Func RunArchCheck()
+	If @Compiled And @OSArch = "X64" And _WinAPI_IsWow64Process() Then
+		MsgBox($MB_ICONERROR+$MB_OK, "Wrong Version", "The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
+		FileWrite($hLogs[0], _NowCalc() & " - " & "32 Bit Version on 64 Bit System. EXITING!" & @CRLF)
+		For $iLoop = 0 To UBound($hLogs) - 1
+			FileClose($hLogs[$iLoop])
+		Next
+		Exit 1
+	EndIf
+EndFunc
+
 Func RunHTTPCheck()
 
 	Local $sHive = ""
@@ -283,6 +283,15 @@ Func RunHTTPCheck()
 		Exit 1
 	EndIf
 
+EndFunc
+
+Func RunInstall($bAllUsers)
+
+	If $bAllUsers Then
+		FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH)
+	Else
+		FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH)
+	EndIf
 EndFunc
 
 Func RunRemoval()
@@ -480,15 +489,6 @@ Func RunSetup($bUpdate = False)
 
 	WEnd
 
-EndFunc
-
-Func RunInstall($bAllUsers)
-
-	If $bAllUsers Then
-		FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH)
-	Else
-		FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH)
-	EndIf
 EndFunc
 
 Func SetAppRegistry($bAllUsers)
