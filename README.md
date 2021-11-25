@@ -16,7 +16,7 @@ If you're on older Windows builds, check out: https://github.com/da2x/EdgeDeflec
 
 ## Disclaimer
 
-### PLEASE NOTE: MSEdgeRedirect is still BETA. Performance is still being improved. I have an upcoming improvement in a future build that will operate similarly to previous solutions, however, it will require both Edge and either Edge Beta, Dev, or Canary.
+### PLEASE NOTE: MSEdgeRedirect is still BETA. Changes are to be expected, and performance to be improved. Dev builds now have similar performance to EdgeDeflector when using Active Mode.
 
 ## Download
 
