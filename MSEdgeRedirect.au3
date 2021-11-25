@@ -263,6 +263,36 @@ Func ReactiveMode($bHide = False)
 EndFunc
 
 Func RunRemoval()
+
+	If IsAdmin() Then
+		$sLocation = "C:\Program Files\MSEdgeRedirect\"
+		If _WinAPI_IsWow64Process() Then
+			$sHive = "HKLM64"
+		Else
+			$sHive = "HKLM"
+		EndIf
+	Else
+		$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
+		If _WinAPI_IsWow64Process() Then
+			$sHive = "HKCU64"
+		Else
+			$sHive = "HKCU"
+		EndIf
+	EndIf
+
+	; App Paths
+	RegDelete($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe")
+
+	; URI Handler for Pre Win11 22494 Installs
+	RegDelete($sHive & "\Software\Classes\MSEdgeRedirect.microsoft-edge")
+
+	; Generic Program Info
+	RegDelete($sHive & "\Software\Classes\MSEdgeRedirect")
+	RegDelete($sHive & "\Software\Classes\Applications\MSEdgeRedirect.exe")
+
+	; Uninstall Info
+	RegDelete($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect")
+
 EndFunc
 
 Func RunSetup($bUpdate = False)
@@ -410,11 +440,9 @@ Func RunSetup($bUpdate = False)
 					RunInstall(True)
 					SetAppRegistry(True)
 					SetIFEORegistry($hChannels)
-
 				Else
-
-
-
+					RunInstall(False)
+					SetAppRegistry(False)
 				EndIf
 
 			Case Else
@@ -429,28 +457,64 @@ EndFunc
 Func RunInstall($bAllUsers)
 
 	If $bAllUsers Then
-		FileCopy(@ScriptFullPath, "C:\Program Files\MSEdge Redirect\MSEdgeRedirect.exe", $FC_CREATEPATH)
+		FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH)
 	Else
-
+		FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH)
 	EndIf
 EndFunc
 
 Func SetAppRegistry($bAllUsers)
 
+	$sHive = ""
+	$sLocation = ""
+
 	If $bAllUsers Then
-		RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe", "", "REG_SZ", "C:\Program Files\MSEdge Redirect\MSEdgeRedirect.exe")
-		RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe", "Path", "REG_SZ", "C:\Program Files\MSEdge Redirect")
-		; Pre Win11 22494 Installs
-		RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe", "SupportedProtocols", "REG_SZ", "microsoft-edge")
-		RegWrite("HKEY_LOCAL_MACHINE\Software\Classes\MSEdgeRedirect.microsoft-edge", "", "REG_SZ", "URL:microsoft-edge")
-		RegWrite("HKEY_LOCAL_MACHINE\Software\Classes\MSEdgeRedirect.microsoft-edge", "URL Protocol", "REG_SZ", "")
-		RegWrite("HKEY_LOCAL_MACHINE\Software\Classes\MSEdgeRedirect.microsoft-edge\shell\open\command", "", "REG_SZ", '"C:\Program Files\MSEdge Redirect\MSEdgeRedirect.exe" "%1"')
-
+		$sLocation = "C:\Program Files\MSEdgeRedirect\"
+		If _WinAPI_IsWow64Process() Then
+			$sHive = "HKLM64"
+		Else
+			$sHive = "HKLM"
+		EndIf
 	Else
-		RegWrite("HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe", "", "REG_SZ", "C:\Program Files\MSEdge Redirect\MSEdgeRedirect.exe")
-		RegWrite("HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe", "PATH", "REG_SZ", "C:\Program Files\MSEdge Redirect")
-
+		$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
+		If _WinAPI_IsWow64Process() Then
+			$sHive = "HKCU64"
+		Else
+			$sHive = "HKCU"
+		EndIf
 	EndIf
+
+	; App Paths
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe", "", "REG_SZ", $sLocation & "\MSEdgeRedirect.exe")
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe", "Path", "REG_SZ", $sLocation)
+
+	; URI Handler for Pre Win11 22494 Installs
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe", "SupportedProtocols", "REG_SZ", "microsoft-edge")
+	RegWrite($sHive & "\Software\Classes\MSEdgeRedirect.microsoft-edge", "", "REG_SZ", "URL:microsoft-edge")
+	RegWrite($sHive & "\Software\Classes\MSEdgeRedirect.microsoft-edge", "URL Protocol", "REG_SZ", "")
+	RegWrite($sHive & "\Software\Classes\MSEdgeRedirect.microsoft-edge\shell\open\command", "", "REG_SZ", '"' & $sLocation & '\MSEdgeRedirect.exe" "%1"')
+
+	; Generic Program Info
+	RegWrite($sHive & "\Software\Classes\MSEdgeRedirect\DefaultIcon", "", "REG_SZ", '"' & $sLocation & '\MSEdgeRedirect.exe",0')
+	RegWrite($sHive & "\Software\Classes\MSEdgeRedirect\shell\open\command", "", "REG_SZ", '"' & $sLocation & '\MSEdgeRedirect.exe" "%1"')
+	RegWrite($sHive & "\Software\Classes\Applications\MSEdgeRedirect.exe", "FriendlyAppName", "REG_SZ", "MSEdgeRedirect")
+	RegWrite($sHive & "\Software\Classes\Applications\MSEdgeRedirect.exe\DefaultIcon", "", "REG_SZ", '"' & $sLocation & '\MSEdgeRedirect.exe",0')
+
+	; Uninstall Info
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayIcon", "REG_SZ", '"' & $sLocation & '\MSEdgeRedirect.exe",0')
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayName", "REG_SZ", "MSEdgeRedirect")
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion", "REG_SZ", $sVersion)
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "EstimatedSize", "REG_DWORD", 1536)
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "InstallDate", "REG_SZ", StringReplace(_NowCalcDate(), "/", ""))
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "InstallLocation", "REG_SZ", $sLocation)
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "Language", "REG_DWORD", 1033)
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "NoModify", "REG_DWORD", 1)
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "NoRepair", "REG_DWORD", 1)
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "Publisher", "REG_SZ", "Robert Maehl Software")
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "UninstallString", "REG_SZ", '"' & $sLocation & '\MSEdgeRedirect.exe" /uninstall')
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "URLInfoAbout", "REG_SZ", "https://msedgeredirect.com")
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "URLUpdateInfo", "REG_SZ", "https://msedgeredirect.com/releases")
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "Version", "REG_SZ", $sVersion)
 
 EndFunc
 
@@ -467,8 +531,6 @@ Func SetIFEORegistry($aChannels)
 	Next
 EndFunc
 
-
-; Remove Once Installer Complete
 Func SetupAppdata()
 	Select
 		Case Not FileExists(@LocalAppDataDir & "\MSEdgeRedirect\")
@@ -485,9 +547,9 @@ Func _IsInstalled()
 
 	Local $sInstalledVer
 
-	$sInstalledVer = RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdge Redirect", "DisplayVersion")
+	$sInstalledVer = RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
 	If @error Then
-		$sInstalledVer = RegRead("HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdge Redirect", "DisplayVersion")
+		$sInstalledVer = RegRead("HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
 		If @error Then
 			RunSetup()
 		EndIf
@@ -495,7 +557,6 @@ Func _IsInstalled()
 	If _VersionCompare($sVersion, $sInstalledVer) Then RunSetup(True)
 
 EndFunc
-
 
 Func _DecodeAndRun($sCMDLine)
 
