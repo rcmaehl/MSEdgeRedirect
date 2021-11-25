@@ -24,6 +24,7 @@
 #include <WinAPIHObj.au3>
 #include <WinAPIProc.au3>
 #include <WinAPIShPath.au3>
+#include <EditConstants.au3>
 #include <TrayConstants.au3>
 #include <ComboConstants.au3>
 #include <GUIConstantsEx.au3>
@@ -33,10 +34,9 @@
 
 #include "Includes\ResourcesEx.au3"
 
-Global $hLogs[3] = _
-	[FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\AppFailures.log", $FO_APPEND), _
-	FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\AppGeneral.log", $FO_APPEND), _
-	FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\URIFailures.log", $FO_APPEND)]
+Opt("TrayMenuMode", 3)
+Opt("TrayAutoPause", 0)
+Opt("GUICloseOnESC", 0)
 
 Global $aEdges[5] = [4, _
 	"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", _
@@ -46,19 +46,14 @@ Global $aEdges[5] = [4, _
 
 Global $sVersion = "0.3.0.0"
 
-Opt("TrayMenuMode", 3)
-Opt("TrayAutoPause", 0)
-Opt("GUICloseOnESC", 0)
+SetupAppdata()
 
-If @Compiled And @OSArch = "X64" And _WinAPI_IsWow64Process() Then
-	MsgBox($MB_ICONERROR+$MB_OK, "Wrong Version", "The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
-	FileWrite($hLogs[0], _NowCalc() & " - " & "32 Bit Version on 64 Bit System. EXITING!" & @CRLF)
-	For $iLoop = 0 To UBound($hLogs) - 1
-		FileClose($hLogs[$iLoop])
-	Next
-	Exit 1
-EndIf
+Global $hLogs[3] = _
+	[FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\AppFailures.log", $FO_APPEND), _
+	FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\AppGeneral.log", $FO_APPEND), _
+	FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\URIFailures.log", $FO_APPEND)]
 
+RunArchCheck()
 ProcessCMDLine()
 
 Func ActiveMode(ByRef $aCMDLine)
@@ -79,19 +74,15 @@ Func ActiveMode(ByRef $aCMDLine)
 
 EndFunc
 
-Func IsInstalled()
-
-	Local $sInstalledVer
-
-	$sInstalledVer = RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdge Redirect", "DisplayVersion")
-	If @error Then
-		$sInstalledVer = RegRead("HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdge Redirect", "DisplayVersion")
-		If @error Then
-			RunSetup()
-		EndIf
+Func RunArchCheck()
+	If @Compiled And @OSArch = "X64" And _WinAPI_IsWow64Process() Then
+		MsgBox($MB_ICONERROR+$MB_OK, "Wrong Version", "The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
+		FileWrite($hLogs[0], _NowCalc() & " - " & "32 Bit Version on 64 Bit System. EXITING!" & @CRLF)
+		For $iLoop = 0 To UBound($hLogs) - 1
+			FileClose($hLogs[$iLoop])
+		Next
+		Exit 1
 	EndIf
-	If _VersionCompare($sVersion, $sInstalledVer) Then RunSetup(True)
-
 EndFunc
 
 Func ProcessCMDLine()
@@ -156,7 +147,7 @@ Func ProcessCMDLine()
 		Exit
 	EndIf
 
-	;IsInstalled()
+	_IsInstalled()
 	ReactiveMode($bHide)
 
 EndFunc
@@ -281,6 +272,8 @@ Func RunSetup($bUpdate = False)
 	Local $bIsAdmin = IsAdmin()
 	Local $hChannels[4]
 
+	#forceref $bIsAdmin
+
 	Local $hInstallGUI = GUICreate("MSEdge Redirect " & $sVersion & " Setup", 640, 480)
 
 	GUICtrlCreateLabel("", 0, 0, 180, 480)
@@ -293,15 +286,37 @@ Func RunSetup($bUpdate = False)
 		_SetBkIcon(-1, "", 0x00A4EF, @ScriptDir & "\assets\MSEdgeRedirect.ico", -1, 128, 128)
 	EndIf
 
+	#Region License Page
+	Local $hLicense = GUICreate("", 460, 480, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
+	FileInstall("./LICENSE", @LocalAppDataDir & "\MSEdgeRedirect\License.txt")
+
+	GUICtrlCreateLabel("Pleae read the following License. You must accept the terms of the license before continuing with the installation.", 20, 20, 420, 40)
+
+	GUICtrlCreateEdit("TL;DR: It's FOSS, you can edit it, repackage it, eat it (not recommneded), or throw it at your neighbor Steve (depends on the Steve), but changes to it must be LGPL v3 too." & _
+		@CRLF & @CRLF & _
+		FileRead(@LocalAppDataDir & "\MSEdgeRedirect\License.txt"), 20, 60, 420, 280, $ES_READONLY + $WS_VSCROLL)
+
+	Local $hAgree = GUICtrlCreateRadio("I accept this license", 20, 350, 420, 20)
+	Local $hDisagree = GUICtrlCreateRadio("I don't accept this license", 20, 370, 420, 20)
+	GUICtrlSetState(-1, $GUI_CHECKED)
+
+	Local $hNext = GUICtrlCreateButton("NEXT", 20, 410, 420, 50)
+	GUICtrlSetState(-1, $GUI_DISABLE)
+
+	GUISwitch($hInstallGUI)
+	#EndRegion
+
+
+	#Region Install Settings
 	GUICtrlCreateLabel("Install MSEdge Redirect " & $sVersion, 200, 20, 420, 30)
 	GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 	GUICtrlCreateLabel("Click Install to install MS Edge Redirect after customizing your preferred options", 200, 50, 420, 40)
 	GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 
 	GUICtrlCreateGroup("Mode", 200, 100, 420, 240)
-		Local $hService = GUICtrlCreateRadio("Service Mode - (Soft Replace, Per User, Installs in Appdata)" & @CRLF & _
+		Local $hService = GUICtrlCreateRadio("Service Mode - Per User" & @CRLF & _
 			@CRLF & _
-			"Services Mode keeps MSEdge Redirect in the background, monitoring program launches. " & _
+			"Service Mode keeps MSEdge Redirect in the background, monitoring program launches. " & _
 			"If a MICROSOFT-EDGE: URI is detected, Edge is rapidly closed and the data is redirected to your default browser.", _
 			230, 120, 380, 70, $BS_TOP+$BS_MULTILINE)
 		GUICtrlSetState(-1, $GUI_CHECKED)
@@ -310,7 +325,7 @@ Func RunSetup($bUpdate = False)
 		Local $hNoIcon = GUICtrlCreateCheckbox("Hide MSEdge Redirect Service Icon from Tray", 250, 210, 320, 20)
 
 		GUICtrlCreateIcon("imageres.dll", 78, 210, 240, 16, 16)
-		Local $hActive = GUICtrlCreateRadio("Active Mode - (Full Replace, All Users, Installs in Program Files)" & @CRLF & _
+		Local $hActive = GUICtrlCreateRadio("Active Mode - All Users" & @CRLF & _
 			@CRLF & _
 			"Active Mode uses Image File Execution Options to redirect the launch of an Edge install to MSEdge Redirect. " & _
 			"MSEdge Redirect will only run when a selected Edge is launched, similary to the old EdgeDeflector app.", _
@@ -333,14 +348,18 @@ Func RunSetup($bUpdate = False)
 		EndIf
 #ce
 
-	GUICtrlCreateGroup("Search", 200, 340, 420, 60)
+	GUICtrlCreateGroup("Search (Coming Soon)", 200, 340, 420, 60)
 		Local $hSearch = GUICtrlCreateCheckbox("Replace Bing Search Results with:", 230, 365, 240, 20)
+		GUICtrlSetState(-1, $GUI_DISABLE)
 		Local $hEngine = GUICtrlCreateCombo("", 470, 365, 140, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 
-	$hInstall = GUICtrlCreateButton("Install", 200, 410, 420, 50)
+	Local $hInstall = GUICtrlCreateButton("Install", 200, 410, 420, 50)
 	GUICtrlSetFont(-1, 16, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+	#forceref $hInstall
+	#EndRegion
 
+	GUISetState(@SW_SHOW, $hLicense)
 
 	GUISetState(@SW_SHOW, $hInstallGUI)
 
@@ -351,6 +370,16 @@ Func RunSetup($bUpdate = False)
 
 			Case $hMsg = $GUI_EVENT_CLOSE
 				Exit
+
+			Case $hMsg = $hAgree or $hMsg = $hDisagree
+				If _IsChecked($hAgree) Then
+					GUICtrlSetState($hNext, $GUI_ENABLE)
+				Else
+					GUICtrlSetState($hNext, $GUI_DISABLE)
+				EndIf
+
+			Case $hMsg = $hNext
+				GUISetState(@SW_HIDE, $hLicense)
 
 			Case $hMsg = $hActive or $hMsg = $hService
 				If _IsChecked($hService) Then
@@ -376,6 +405,18 @@ Func RunSetup($bUpdate = False)
 					GUICtrlSetState($hEngine, $GUI_DISABLE)
 				EndIf
 
+			Case $hMsg = $hInstall
+				If _IsChecked($hActive) Then
+					RunInstall(True)
+					SetAppRegistry(True)
+					SetIFEORegistry($hChannels)
+
+				Else
+
+
+
+				EndIf
+
 			Case Else
 				;;;
 
@@ -383,16 +424,42 @@ Func RunSetup($bUpdate = False)
 
 	WEnd
 
-	DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\logs\")
-	DirCreate(@LocalAppDataDir & "\MSEdgeRedirect\langs\")
+EndFunc
+
+Func RunInstall($bAllUsers)
+
+	If $bAllUsers Then
+		FileCopy(@ScriptFullPath, "C:\Program Files\MSEdge Redirect\MSEdgeRedirect.exe", $FC_CREATEPATH)
+	Else
+
+	EndIf
+EndFunc
+
+Func SetAppRegistry($bAllUsers)
+
+	If $bAllUsers Then
+		RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe", "", "REG_SZ", "C:\Program Files\MSEdge Redirect\MSEdgeRedirect.exe")
+		RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe", "Path", "REG_SZ", "C:\Program Files\MSEdge Redirect")
+		; Pre Win11 22494 Installs
+		RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe", "SupportedProtocols", "REG_SZ", "microsoft-edge")
+		RegWrite("HKEY_LOCAL_MACHINE\Software\Classes\MSEdgeRedirect.microsoft-edge", "", "REG_SZ", "URL:microsoft-edge")
+		RegWrite("HKEY_LOCAL_MACHINE\Software\Classes\MSEdgeRedirect.microsoft-edge", "URL Protocol", "REG_SZ", "")
+		RegWrite("HKEY_LOCAL_MACHINE\Software\Classes\MSEdgeRedirect.microsoft-edge\shell\open\command", "", "REG_SZ", '"C:\Program Files\MSEdge Redirect\MSEdgeRedirect.exe" "%1"')
+
+	Else
+		RegWrite("HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe", "", "REG_SZ", "C:\Program Files\MSEdge Redirect\MSEdgeRedirect.exe")
+		RegWrite("HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe", "PATH", "REG_SZ", "C:\Program Files\MSEdge Redirect")
+
+	EndIf
 
 EndFunc
 
-Func SetIFEO($aChannels)
+
+Func SetIFEORegistry($aChannels)
 	RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe")
 	RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe", "UseFilter", "REG_DWORD", 1)
 	For $iLoop = 1 To $aEdges[4] Step 1
-		If $aChannels[$iLoop - 1] Then
+		If _IsChecked($aChannels[$iLoop - 1]) Then
 			RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop)
 			RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger", "REG_SZ", @ScriptFullPath)
 			RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "FilterFullPath", "REG_SZ", $aEdges[$iLoop])
@@ -413,6 +480,22 @@ Func SetupAppdata()
 			;;;
 	EndSelect
 EndFunc
+
+Func _IsInstalled()
+
+	Local $sInstalledVer
+
+	$sInstalledVer = RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdge Redirect", "DisplayVersion")
+	If @error Then
+		$sInstalledVer = RegRead("HKEY_CURRENT_USER\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdge Redirect", "DisplayVersion")
+		If @error Then
+			RunSetup()
+		EndIf
+	EndIf
+	If _VersionCompare($sVersion, $sInstalledVer) Then RunSetup(True)
+
+EndFunc
+
 
 Func _DecodeAndRun($sCMDLine)
 
