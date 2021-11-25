@@ -54,6 +54,7 @@ Global $hLogs[3] = _
 	FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\URIFailures.log", $FO_APPEND)]
 
 RunArchCheck()
+RunHTTPCheck()
 ProcessCMDLine()
 
 Func ActiveMode(ByRef $aCMDLine)
@@ -259,6 +260,28 @@ Func ReactiveMode($bHide = False)
 		FileClose($hLogs[$iLoop])
 	Next
 	Exit
+
+EndFunc
+
+Func RunHTTPCheck()
+
+	Local $sHive = ""
+
+	If _WinAPI_IsWow64Process() Then
+		$sHive = "HKCU64"
+	Else
+		$sHive = "HKCU"
+	EndIf
+
+	If RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice", "ProgId") = "MSEdgeHTM" Or _
+		RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgId") = "MSEdgeHTM" Then
+		MsgBox($MB_ICONERROR+$MB_OK, "Edge Set As Default", "You must set a different Default Browser to use MSEdgeRedirect!")
+		FileWrite($hLogs[0], _NowCalc() & " - " & "Found MS Edge set as default browser, EXITING!" & @CRLF)
+		For $iLoop = 0 To UBound($hLogs) - 1
+			FileClose($hLogs[$iLoop])
+		Next
+		Exit 1
+	EndIf
 
 EndFunc
 
