@@ -42,7 +42,7 @@ Global $aEdges[5] = [4, _
 	"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", _
 	"C:\Program Files (x86)\Microsoft\Edge Beta\Application\msedge.exe", _
 	"C:\Program Files (x86)\Microsoft\Edge Dev\Application\msedge.exe", _
-	@LocalAppDataDir & "Microsoft\Edge SXS\Application\msedge.exe"]
+	@LocalAppDataDir & "\Microsoft\Edge SXS\Application\msedge.exe"]
 
 Global $sVersion = "0.3.0.0"
 
@@ -264,6 +264,10 @@ EndFunc
 
 Func RunRemoval()
 
+	Local $sHive = ""
+	Local $sLocation = ""
+	#forceref $sLocation
+
 	If IsAdmin() Then
 		$sLocation = "C:\Program Files\MSEdgeRedirect\"
 		If _WinAPI_IsWow64Process() Then
@@ -289,6 +293,9 @@ Func RunRemoval()
 	; Generic Program Info
 	RegDelete($sHive & "\Software\Classes\MSEdgeRedirect")
 	RegDelete($sHive & "\Software\Classes\Applications\MSEdgeRedirect.exe")
+
+	; IFEO
+	RegDelete($sHive & "SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe")
 
 	; Uninstall Info
 	RegDelete($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect")
@@ -372,11 +379,9 @@ Func RunSetup($bUpdate = False)
 		GUICtrlSetState($hChannels[2], $GUI_DISABLE)
 		GUICtrlSetState($hChannels[3], $GUI_DISABLE)
 
-#cs
 		If Not $bIsAdmin Then
 			GUICtrlSetState($hActive, $GUI_DISABLE)
 		EndIf
-#ce
 
 	GUICtrlCreateGroup("Search (Coming Soon)", 200, 340, 420, 60)
 		Local $hSearch = GUICtrlCreateCheckbox("Replace Bing Search Results with:", 230, 365, 240, 20)
@@ -465,8 +470,8 @@ EndFunc
 
 Func SetAppRegistry($bAllUsers)
 
-	$sHive = ""
-	$sLocation = ""
+	Local $sHive = ""
+	Local $sLocation = ""
 
 	If $bAllUsers Then
 		$sLocation = "C:\Program Files\MSEdgeRedirect\"
@@ -519,14 +524,23 @@ Func SetAppRegistry($bAllUsers)
 EndFunc
 
 
-Func SetIFEORegistry($aChannels)
-	RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe")
-	RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe", "UseFilter", "REG_DWORD", 1)
-	For $iLoop = 1 To $aEdges[4] Step 1
+Func SetIFEORegistry(ByRef $aChannels)
+
+	Local $sHive = ""
+
+	If _WinAPI_IsWow64Process() Then
+		$sHive = "HKLM64"
+	Else
+		$sHive = "HKLM"
+	EndIf
+
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe")
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe", "UseFilter", "REG_DWORD", 1)
+	For $iLoop = 1 To $aEdges[0] Step 1
 		If _IsChecked($aChannels[$iLoop - 1]) Then
-			RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop)
-			RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger", "REG_SZ", @ScriptFullPath)
-			RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "FilterFullPath", "REG_SZ", $aEdges[$iLoop])
+			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop)
+			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger", "REG_SZ", @ScriptFullPath)
+			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "FilterFullPath", "REG_SZ", $aEdges[$iLoop])
 		EndIf
 	Next
 EndFunc
