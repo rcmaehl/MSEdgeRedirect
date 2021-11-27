@@ -6,9 +6,9 @@
 [![Join the Discord chat](https://img.shields.io/badge/Discord-chat-7289da.svg?&logo=discord)](https://discord.gg/uBnBcBx)
 
 # MSEdgeRedirect
-A Tool to Redirect News, Search, and Weather Results to Your Default Browser.
+A Tool to Redirect News, Search, Widgets, Weather and More to Your Default Browser
 
-This tool filters and passes the command line arguments of Microsoft Edge processes into your default browser instead of hooking into the `microsoft-edge:` handler, this should provide resiliency against future changes.
+This tool filters and passes the command line arguments of Microsoft Edge processes into your default browser instead of hooking into the `microsoft-edge:` handler, this should provide resiliency against future changes. Additionally, an Image File Execution Options mode is available to operate similarly to the Old EdgeDeflector
 
 No Default App walkthrough or other steps, just set and forget.
 
@@ -16,7 +16,7 @@ If you're on older Windows builds, check out: https://github.com/da2x/EdgeDeflec
 
 ## Disclaimer
 
-### PLEASE NOTE: MSEdgeRedirect is still BETA. Changes are to be expected, and performance to be improved. Dev builds now have similar performance to EdgeDeflector when using Active Mode.
+### PLEASE NOTE: MSEdgeRedirect is still BETA. Changes are to be expected, and performance to be improved.
 
 ## Download
 
