@@ -40,6 +40,7 @@ Redirection Modes|URI Handler<br/><br/><br/>|IFEO<br/><br/><br/>|IFEO<br/><br/><
 Redirects Search|☑|☑|☑|☑|☑
 Installs without Admin|☑| | | |☑, Optionally
 Windows 11 Support| |☑|☑| |☑
+Windows 10 21H2+ Support| |☑|☑| |☑
 Installs System Wide| |☑|☑|☑, Optionally|☑, Optionally
 Updater Module| | |☑|☑|☑
 Search Engine Customizations| | |Google Only|☑, 14|8 Coming Soon
