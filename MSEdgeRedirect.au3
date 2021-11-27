@@ -73,6 +73,7 @@ Func ProcessCMDLine()
 	Local $aMUI[2] = [Null, @MUILang]
 	Local $bHide = False
 	Local $iParams = $CmdLine[0]
+	Local $bPortable = False
 
 	If $iParams > 0 Then
 
@@ -103,6 +104,9 @@ Func ProcessCMDLine()
 					Exit 0
 				Case "/h", "/hide"
 					$bHide = True
+					_ArrayDelete($CmdLine, 1)
+				Case "/p", "/portable"
+					$bPortable = True
 					_ArrayDelete($CmdLine, 1)
 				Case "/u", "/update"
 					Select
@@ -141,7 +145,7 @@ Func ProcessCMDLine()
 		Exit
 	EndIf
 
-	_IsInstalled()
+	If Not $bPortable Then _IsInstalled()
 	ReactiveMode($bHide)
 
 EndFunc
