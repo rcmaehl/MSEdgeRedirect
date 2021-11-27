@@ -33,6 +33,19 @@ CPU|32-bit Single Core|64-bit Dual Core or Higher
 RAM (Memory)|40MB Free|100MB Free
 Disk (Storage)|5MB Free|100MB Free
 
+## Program Comparisons
+ |Edge Deflector|ChrEdgeFkOff|NoMoreEdge|Search Deflector|MSEdge Redirect
+----|----|----|----|----|----
+Redirection Modes|URI Handler<br/><br/><br/>|IFEO<br/><br/><br/>|IFEO<br/><br/><br/>|URI Handler<br/><br/><br/>|URI Handler,<br/> URI Detection,<br/>or IFEO
+Redirects Search|☑|☑|☑|☑|☑
+Windows 11 Support| |☑|☑| |☑
+Install Needs Admin?| |☑|☑|☑|☑, Optionally
+Installs System Wide| |☑|☑|☑, Optionally|☑, Optionally
+Updater Module| | |☑|☑|☑
+Search Engine Customizations| | |Google Only|☑, 14|8 Coming Soon
+Customizable Edge Support| | | | |☑
+Prevents IFEO Infinite Looping| | | | |☑
+
 ## Compiling
 
 1. Download and run "AutoIt Full Installation" from [official website](https://www.autoitscript.com/site/autoit/downloads). 
