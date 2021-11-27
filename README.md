@@ -38,16 +38,17 @@ Disk (Storage)|5MB Free|100MB Free
 ----|----|----|----|----|----
 Redirection Modes|URI Handler<br/><br/><br/>|IFEO<br/><br/><br/>|IFEO<br/><br/><br/>|URI Handler<br/><br/><br/>|URI Handler,<br/> URI Detection,<br/>or IFEO
 Redirects Search|☑|☑|☑|☑|☑
-Installs without Admin|☑| | | |☑, Optionally <sup>*</sup>
+Installs without Admin|☑| | | |☑<sup>*</sup>
 Windows 11 Support| |☑|☑| |☑
 Windows 10 21H2+ Support| |☑|☑| |☑
-Installs System Wide| |☑|☑|☑, Optionally|☑, Optionally <sup>†</sup>
+Installs System Wide| |☑|☑|☑, Optionally|☑<sup>†</sup>
 Update Checker Module| | |☑|☑|☑
 Search Engine Customizations| | |☑, 8|☑, 14|9 Coming Soon
 Customizable Edge Support| | | | |☑
 Prevents IFEO Infinite Looping| | | | |☑
+Can be used Portably (USB)| | | | |☑<sup>‡</sup>
 
-<sub><sup>\* When using Service Mode, † When using Active Mode</sub></sup>
+<sub><sup>\* When using Service Mode, † When using Active Mode, ‡ When using /portable flag</sub></sup>
 
 ## Compiling
 
