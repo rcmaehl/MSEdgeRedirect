@@ -38,8 +38,8 @@ Disk (Storage)|5MB Free|100MB Free
 ----|----|----|----|----|----
 Redirection Modes|URI Handler<br/><br/><br/>|IFEO<br/><br/><br/>|IFEO<br/><br/><br/>|URI Handler<br/><br/><br/>|URI Handler,<br/> URI Detection,<br/>or IFEO
 Redirects Search|☑|☑|☑|☑|☑
+Installs without Admin|☑| | | |☑, Optionally
 Windows 11 Support| |☑|☑| |☑
-Install Needs Admin| |☑|☑|☑|☑, Optionally
 Installs System Wide| |☑|☑|☑, Optionally|☑, Optionally
 Updater Module| | |☑|☑|☑
 Search Engine Customizations| | |Google Only|☑, 14|8 Coming Soon
