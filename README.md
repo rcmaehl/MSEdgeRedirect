@@ -42,7 +42,7 @@ Installs without Admin|☑| | | |☑, Optionally <sup>*</sup>
 Windows 11 Support| |☑|☑| |☑
 Windows 10 21H2+ Support| |☑|☑| |☑
 Installs System Wide| |☑|☑|☑, Optionally|☑, Optionally <sup>†</sup>
-Updater Module| | |☑|☑|☑
+Update Checker Module| | |☑|☑|☑
 Search Engine Customizations| | |Google Only|☑, 14|8 Coming Soon
 Customizable Edge Support| | | | |☑
 Prevents IFEO Infinite Looping| | | | |☑
