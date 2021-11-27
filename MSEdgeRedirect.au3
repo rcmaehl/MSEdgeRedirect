@@ -65,7 +65,6 @@ Func ActiveMode(ByRef $aCMDLine)
 		$sCMDLine &= $aCMDLine[$iLoop] & " "
 	Next
 	_DecodeAndRun($sCMDLine)
-	Exit
 
 EndFunc
 
@@ -86,6 +85,7 @@ Func ProcessCMDLine()
 				Case 1
 					If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _Translate($aMUI[1], "Update Available"), _Translate($aMUI[1], "An Update is Available, would you like to download it?"), 10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases")
 			EndSwitch
+			Exit
 		EndIf
 
 		Do
@@ -191,7 +191,7 @@ Func ReactiveMode($bHide = False)
 					ProcessClose($aProcessList[$iLoop][1])
 					If _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]), 1, $aEdges[0]) > 0 Then
 						_DecodeAndRun($sCommandline)
-					EndIf
+					EndIfz
 				EndIf
 			Next
 			$bMSER = Not $bMSER
