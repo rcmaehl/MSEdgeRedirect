@@ -44,7 +44,7 @@ Global $aEdges[5] = [4, _
 	"C:\Program Files (x86)\Microsoft\Edge Dev\Application\msedge.exe", _
 	@LocalAppDataDir & "\Microsoft\Edge SXS\Application\msedge.exe"]
 
-Global $sVersion = "0.4.0.0"
+Global $sVersion = "0.4.1.0"
 
 SetupAppdata()
 
@@ -309,11 +309,10 @@ Func RunInstall($bAllUsers, $bStartup = False, $bHide = False)
 	EndIf
 EndFunc
 
-Func RunRemoval()
+Func RunRemoval($bUpdate = False)
 
 	Local $sHive = ""
 	Local $sLocation = ""
-	#forceref $sLocation
 
 	If IsAdmin() Then
 		$sLocation = "C:\Program Files\MSEdgeRedirect\"
@@ -350,20 +349,22 @@ Func RunRemoval()
 	FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
 	FileDelete(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect.lnk")
 
-	Run(@ComSpec & " /c " & 'ping google.com && del /Q "' & $sLocation & '*"', "", @SW_HIDE)
-	Exit
+	If $bUpdate Then
+		FileDelete($sLocation & "*")
+	Else
+		Run(@ComSpec & " /c " & 'ping google.com && del /Q "' & $sLocation & '*"', "", @SW_HIDE)
+		Exit
+	EndIf
 
 EndFunc
 
 Func RunSetup($bUpdate = False)
-	#forceref $bUpdate
 
+	Local $aMUI[2] = [Null, @MUILang]
 	Local $hMsg
 	Local $sArgs = ""
 	Local $bIsAdmin = IsAdmin()
 	Local $hChannels[4]
-
-	#forceref $bIsAdmin
 
 	Switch _GetLatestRelease($sVersion)
 		Case -1
@@ -371,6 +372,15 @@ Func RunSetup($bUpdate = False)
 		Case 1
 			If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _Translate($aMUI[1], "Update Available"), _Translate($aMUI[1], "An Update is Available, would you like to download it?"), 10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases")
 	EndSwitch
+
+	If StringInStr($bUpdate, "HKLM") And Not $bIsAdmin Then
+		MsgBox($MB_ICONERROR+$MB_OK, "Admin Required", "Unable to update an Admin Install without Admin Rights!")
+		FileWrite($hLogs[0], _NowCalc() & " - " & "Non Admin Update Attempt on Admin Install. EXITING!" & @CRLF)
+		For $iLoop = 0 To UBound($hLogs) - 1
+			FileClose($hLogs[$iLoop])
+		Next
+		Exit 1
+	EndIf
 
 	; Disable Scaling
 	If @OSVersion = 'WIN_10' Then DllCall(@SystemDir & "\User32.dll", "bool", "SetProcessDpiAwarenessContext", "HWND", "DPI_AWARENESS_CONTEXT" - 1)
@@ -391,9 +401,13 @@ Func RunSetup($bUpdate = False)
 	Local $hLicense = GUICreate("", 460, 480, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 	FileInstall("./LICENSE", @LocalAppDataDir & "\MSEdgeRedirect\License.txt")
 
-	GUICtrlCreateLabel("Pleae read the following License. You must accept the terms of the license before continuing with the installation.", 20, 20, 420, 40)
+	If $bUpdate Then
+		GUICtrlCreateLabel("Pleae read the following License. You must accept the terms of the license before continuing with the upgrade.", 20, 20, 420, 40)
+	Else
+		GUICtrlCreateLabel("Pleae read the following License. You must accept the terms of the license before continuing with the installation.", 20, 20, 420, 40)
+	EndIf
 
-	GUICtrlCreateEdit("TL;DR: It's FOSS, you can edit it, repackage it, eat it (not recommneded), or throw it at your neighbor Steve (depends on the Steve), but changes to it must be LGPL v3 too." & _
+	GUICtrlCreateEdit("TL;DR: It's FOSS, you can edit it, repackage it, eat it (not recommended), or throw it at your neighbor Steve (depends on the Steve), but changes to it must be LGPL v3 too." & _
 		@CRLF & @CRLF & _
 		FileRead(@LocalAppDataDir & "\MSEdgeRedirect\License.txt"), 20, 60, 420, 280, $ES_READONLY + $WS_VSCROLL)
 
@@ -407,12 +421,18 @@ Func RunSetup($bUpdate = False)
 	GUISwitch($hInstallGUI)
 	#EndRegion
 
-
 	#Region Install Settings
-	GUICtrlCreateLabel("Install MSEdge Redirect " & $sVersion, 200, 20, 420, 30)
-	GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-	GUICtrlCreateLabel("Click Install to install MS Edge Redirect after customizing your preferred options", 200, 50, 420, 40)
-	GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+	If $bUpdate Then
+		GUICtrlCreateLabel("MSEdge Redirect " & $sVersion & " Update", 200, 20, 420, 30)
+		GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+		GUICtrlCreateLabel("Click Install to update MS Edge Redirect after customizing your preferred options", 200, 50, 420, 40)
+		GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+	Else
+		GUICtrlCreateLabel("Install MSEdge Redirect " & $sVersion, 200, 20, 420, 30)
+		GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+		GUICtrlCreateLabel("Click Install to install MS Edge Redirect after customizing your preferred options", 200, 50, 420, 40)
+		GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+	EndIf
 
 	GUICtrlCreateGroup("Mode", 200, 100, 420, 240)
 		Local $hService = GUICtrlCreateRadio("Service Mode - Per User" & @CRLF & _
@@ -453,7 +473,6 @@ Func RunSetup($bUpdate = False)
 
 	Local $hInstall = GUICtrlCreateButton("Install", 200, 410, 420, 50)
 	GUICtrlSetFont(-1, 16, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-	#forceref $hInstall
 	#EndRegion
 
 	GUISetState(@SW_SHOW, $hLicense)
@@ -514,6 +533,7 @@ Func RunSetup($bUpdate = False)
 				EndIf
 
 			Case $hMsg = $hInstall
+				If $bUpdate Then RunRemoval(True)
 				If _IsChecked($hActive) Then
 					RunInstall(True)
 					SetAppRegistry(True)
@@ -627,6 +647,7 @@ EndFunc
 Func SetSearchRegistry($bAllUsers)
 
 	Local $sHive = ""
+	#forceref $sHive
 
 	If $bAllUsers Then
 		If _WinAPI_IsWow64Process() Then
@@ -663,9 +684,12 @@ Func _IsInstalled()
 		$sInstalledVer = RegRead($sHive2 & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
 		If @error Then
 			RunSetup()
+		ElseIf _VersionCompare($sVersion, $sInstalledVer) Then
+			RunSetup($sHive2)
 		EndIf
+	ElseIf _VersionCompare($sVersion, $sInstalledVer) Then
+		RunSetup($sHive1)
 	EndIf
-	If _VersionCompare($sVersion, $sInstalledVer) Then RunSetup(True)
 
 EndFunc
 
@@ -673,6 +697,7 @@ Func _DecodeAndRun($sCMDLine)
 
 	Local $sCaller
 	Local $sSearch
+	#forceref $sSearch
 	Local $aLaunchContext
 
 	Select
