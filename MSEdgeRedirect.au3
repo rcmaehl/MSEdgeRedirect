@@ -4,7 +4,7 @@
 #AutoIt3Wrapper_Outfile_x64=MSEdgeRedirect.exe
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
-#AutoIt3Wrapper_Res_Description=A Tool to Redirect News, Search, and Weather Results to Your Default Browser
+#AutoIt3Wrapper_Res_Description=A Tool to Redirect News, Search, Widgets, Weather and More to Your Default Browser
 #AutoIt3Wrapper_Res_Fileversion=0.4.0.0
 #AutoIt3Wrapper_Res_ProductName=MSEdgeRedirect
 #AutoIt3Wrapper_Res_ProductVersion=0.4.0.0
@@ -417,26 +417,24 @@ Func RunSetup($bUpdate = False)
 	GUICtrlCreateGroup("Mode", 200, 100, 420, 240)
 		Local $hService = GUICtrlCreateRadio("Service Mode - Per User" & @CRLF & _
 			@CRLF & _
-			"Service Mode keeps MSEdge Redirect in the background, monitoring program launches. " & _
-			"If a MICROSOFT-EDGE: URI is detected, Edge is rapidly closed and the data is redirected to your default browser.", _
-			230, 120, 380, 70, $BS_TOP+$BS_MULTILINE)
+			"MSEdge Redirect stays running in the background. Detected Edge data is redirected to your default browser.", _
+			230, 120, 380, 60, $BS_TOP+$BS_MULTILINE)
 		GUICtrlSetState(-1, $GUI_CHECKED)
 
-		Local $hStartup = GUICtrlCreateCheckbox("Start MSEdge Redirect Service With Windows", 250, 190, 320, 20)
-		Local $hNoIcon = GUICtrlCreateCheckbox("Hide MSEdge Redirect Service Icon from Tray", 250, 210, 320, 20)
+		Local $hStartup = GUICtrlCreateCheckbox("Start MSEdge Redirect Service With Windows", 250, 180, 320, 20)
+		Local $hNoIcon = GUICtrlCreateCheckbox("Hide MSEdge Redirect Service Icon from Tray", 250, 200, 320, 20)
 
-		GUICtrlCreateIcon("imageres.dll", 78, 210, 240, 16, 16)
+		GUICtrlCreateIcon("imageres.dll", 78, 210, 230, 16, 16)
 		Local $hActive = GUICtrlCreateRadio("Active Mode - All Users" & @CRLF & _
 			@CRLF & _
-			"Active Mode uses Image File Execution Options to redirect the launch of an Edge install to MSEdge Redirect. " & _
-			"MSEdge Redirect will only run when a selected Edge is launched, similary to the old EdgeDeflector app.", _
-			230, 240, 380, 70, $BS_TOP+$BS_MULTILINE)
+			"MSEdge Redirect only runs when a selected Edge is launched, similary to the old EdgeDeflector app.", _
+			230, 230, 380, 60, $BS_TOP+$BS_MULTILINE)
 
-		$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 250, 310, 90, 20)
+		$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 250, 290, 90, 20)
 		GUICtrlSetState(-1, $GUI_CHECKED)
-		$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 340, 310, 90, 20)
-		$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 430, 310, 90, 20)
-		$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 520, 310, 90, 20)
+		$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 340, 290, 90, 20)
+		$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 430, 290, 90, 20)
+		$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 520, 290, 90, 20)
 
 		GUICtrlSetState($hChannels[0], $GUI_DISABLE)
 		GUICtrlSetState($hChannels[1], $GUI_DISABLE)
@@ -593,7 +591,6 @@ Func SetAppRegistry($bAllUsers)
 
 EndFunc
 
-
 Func SetIFEORegistry(ByRef $aChannels)
 
 	Local $sHive = ""
@@ -627,6 +624,26 @@ Func SetupAppdata()
 	EndSelect
 EndFunc
 
+Func SetSearchRegistry($bAllUsers)
+
+	Local $sHive = ""
+
+	If $bAllUsers Then
+		If _WinAPI_IsWow64Process() Then
+			$sHive = "HKLM64"
+		Else
+			$sHive = "HKLM"
+		EndIf
+	Else
+		If _WinAPI_IsWow64Process() Then
+			$sHive = "HKCU64"
+		Else
+			$sHive = "HKCU"
+		EndIf
+	EndIf
+
+EndFunc
+
 Func _IsInstalled()
 
 	Local $sHive1 = ""
@@ -655,6 +672,7 @@ EndFunc
 Func _DecodeAndRun($sCMDLine)
 
 	Local $sCaller
+	Local $sSearch
 	Local $aLaunchContext
 
 	Select
