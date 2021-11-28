@@ -676,6 +676,8 @@ Func _DecodeAndRun($sCMDLine)
 	Local $aLaunchContext
 
 	Select
+		Case StringInStr($sCMDLine, "--default-search-provider=?")
+			FileWrite($hLogs[2], _NowCalc() & " - Skipped Settings URL: " & $sCMDLine & @CRLF)
 		Case StringInStr($sCMDLine, "Windows.Widgets")
 			$sCaller = "Windows.Widgets"
 			ContinueCase
