@@ -61,10 +61,21 @@ Func ActiveMode(ByRef $aCMDLine)
 
 	Local $sCMDLine = ""
 
-	For $iLoop = 2 To $aCMDLine[0]
-		$sCMDLine &= $aCMDLine[$iLoop] & " "
-	Next
-	_DecodeAndRun($sCMDLine)
+	Select
+		Case $aCMDLine[0] = 1 ; No Parameters
+			ReDim $aCMDLine[3]
+			$aCMDLine[2] = ""
+			ContinueCase
+		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--inprivate" ; In Private Browsing, No Parameters
+			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
+			ShellExecute($aCMDLine[1], $aCMDLine[2])
+			Exit
+		Case Else
+			For $iLoop = 2 To $aCMDLine[0]
+				$sCMDLine &= $aCMDLine[$iLoop] & " "
+			Next
+			_DecodeAndRun($sCMDLine)
+	EndSelect
 
 EndFunc
 
@@ -628,6 +639,7 @@ Func SetIFEORegistry(ByRef $aChannels)
 			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop)
 			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger", "REG_SZ", "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
 			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "FilterFullPath", "REG_SZ", $aEdges[$iLoop])
+			FileCopy($aEdges[$iLoop], StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"))
 		EndIf
 	Next
 EndFunc
