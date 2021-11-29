@@ -44,11 +44,13 @@ Windows 10 21H2+ Support| |☑|☑| |☑
 Installs System Wide| |☑|☑|☑, Optionally|☑<sup>†</sup>
 Update Checker Module| | |☑|☑|☑
 Search Engine Customizations| | |☑, 8|☑, 14|9 Coming Soon
+Keeps Edge Available to User|☑| |☑|☑|☑
 Customizable Edge Support| | | | |☑
 Prevents IFEO Infinite Looping| | | | |☑
 Can be used Portably (USB)| | | | |☑<sup>‡</sup>
 
-<sub><sup>\* When using Service Mode, † When using Active Mode, ‡ When using /portable flag</sub></sup>
+
+<sub><sup>\* When using Service Mode, † When using Active Mode, ‡ When using /portable flag, uses Service Mode</sub></sup>
 
 ## Compiling
 
