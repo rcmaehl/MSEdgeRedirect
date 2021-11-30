@@ -1,31 +1,21 @@
 ---
 name: Something Else
-about: Create a report to help us improve
+about: Create a request to help us improve
 title: ''
-labels: ''
+labels: 'enhancement'
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
-
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
-
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**Describe the request**
+A clear and concise description of what the request is.
 
 **Screenshots**
-If applicable, add screenshots to help explain your problem.
+If applicable, add screenshots to help explain your request.
 
 **Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Version [e.g. 2.3.0.0]
+ - OS: [e.g. Windows 11]
+ - Build [e.g. 22494]
 
 **Additional context**
-Add any other context about the problem here.
+Add any other context about the request here.

@@ -44,11 +44,13 @@ Windows 10 21H2+ Support| |☑|☑| |☑
 Installs System Wide| |☑|☑|☑, Optionally|☑<sup>†</sup>
 Update Checker Module| | |☑|☑|☑
 Search Engine Customizations| | |☑, 8|☑, 14|9 Coming Soon
+Keeps Edge Available to User|☑| |☑|☑|☑
 Customizable Edge Support| | | | |☑
 Prevents IFEO Infinite Looping| | | | |☑
 Can be used Portably (USB)| | | | |☑<sup>‡</sup>
 
-<sub><sup>\* When using Service Mode, † When using Active Mode, ‡ When using /portable flag</sub></sup>
+
+<sub><sup>\* When using Service Mode, † When using Active Mode, ‡ When using /portable flag, uses Service Mode</sub></sup>
 
 ## Compiling
 
@@ -71,7 +73,7 @@ See [LICENSE](LICENSE) for the full license text.
 
 ### It isn’t working for me!
 
-Make sure the application is running in the system tray, then run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that is properly redirected, [file a bug report!](https://github.com/rcmaehl/MSEdgeRedirect/issues/new?assignees=&labels=&template=bug_report.md&title=)
+Make sure the application is running in the system tray, then run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that is not properly redirected, [file a bug report!](https://github.com/rcmaehl/MSEdgeRedirect/issues/new?assignees=&labels=&template=bug_report.md&title=)
 
 ### Will searches inside <app name here> still use Bing?
 

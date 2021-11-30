@@ -2,7 +2,7 @@
 name: Bug report
 about: Create a report to help us improve
 title: ''
-labels: ''
+labels: 'bug'
 assignees: ''
 
 ---
@@ -23,7 +23,7 @@ Steps to reproduce the behavior:
 
 **File Upload**
 
-/!\ Leave edge open and run `Get-WmiObject Win32_Process -Filter "name = 'msedge.exe'" | Select-Object CommandLine | Format-Table -Wrap -AutoSize | Out-File ./edge.txt` and attach the generated file
+⚠️ Leave edge open and run `Get-WmiObject Win32_Process -Filter "name = 'msedge.exe'" | Select-Object CommandLine | Format-Table -Wrap -AutoSize | Out-File ./edge.txt` and attach the generated file
 
 **Desktop (please complete the following information):**
  - Windows Version: [e.g. 11]
