@@ -46,7 +46,7 @@ Update Checker Module| | |☑|☑|☑
 Search Engine Customizations| | |☑, 8|☑, 14|9 Coming Soon
 Keeps Edge Available to User|☑| |☑|☑|☑
 Customizable Edge Support| | | | |☑
-Prevents IFEO Infinite Looping| | | | |☑
+Prevents IFEO Infinite Looping| |Setup Only|Setup Only| |☑
 Can be used Portably (USB)| | | | |☑<sup>‡</sup>
 
 
