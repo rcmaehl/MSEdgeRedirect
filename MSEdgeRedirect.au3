@@ -4,6 +4,7 @@
 #AutoIt3Wrapper_Outfile_x64=MSEdgeRedirect.exe
 #AutoIt3Wrapper_Compile_Both=y
 #AutoIt3Wrapper_UseX64=y
+#AutoIt3Wrapper_Res_Comment=https://www.msedgeredirect.com
 #AutoIt3Wrapper_Res_Description=A Tool to Redirect News, Search, Widgets, Weather and More to Your Default Browser
 #AutoIt3Wrapper_Res_Fileversion=0.4.1.1
 #AutoIt3Wrapper_Res_ProductName=MSEdgeRedirect
@@ -11,6 +12,7 @@
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
+#AutoIt3Wrapper_Res_Compatibility=Win8,Win81,Win10
 #AutoIt3Wrapper_AU3Check_Parameters=-d -w 1 -w 2 -w 3 -w 4 -w 5 -w 6 -w 7 -v1 -v2 -v3
 #AutoIt3Wrapper_Run_Au3Stripper=y
 #Au3Stripper_Parameters=/so
@@ -69,6 +71,14 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--inprivate" ; In Private Browsing, No Parameters
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
+			Exit
+		Case StringInStr($aCMDLine[2], "--app-id") ; TikTok and other Apps
+			For $iLoop = 2 To $aCMDLine[0]
+				If StringInStr($aCMDLine[$iLoop], "--app-fallback-url") Then
+					$sCMDLine = StringReplace($aCMDLine[$iLoop], "--app-fallback-url=", "")
+					_DecodeAndRun($sCMDLine)
+				EndIf
+			Next
 			Exit
 		Case Else
 			For $iLoop = 2 To $aCMDLine[0]
