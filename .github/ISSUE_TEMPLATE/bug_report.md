@@ -21,9 +21,13 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
-**File Upload**
+**⚠️ File Upload ⚠️**
 
-⚠️ Leave edge open and run `Get-WmiObject Win32_Process -Filter "name = 'msedge.exe'" | Select-Object CommandLine | Format-Table -Wrap -AutoSize | Out-File ./edge.txt` and attach the generated file
+1. Leave edge open
+2. Open Powershell
+3. Run `gwmi Win32_Process | where { $_.name -like "msedge*.exe"} | Select-Object CommandLine | Format-Table -Wrap -AutoSize | Out-File $env:LOCALAPPDATA\MSEdgeRedirect\logs\edge.txt`
+4. Open %localappdata%\MSEdgeRedirect\logs
+5. Attach the log files
 
 **Desktop (please complete the following information):**
  - Windows Version: [e.g. 11]
