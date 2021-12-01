@@ -44,9 +44,9 @@ Windows 10 21H2+ Support| |☑|☑| |☑
 Installs System Wide| |☑|☑|☑, Optionally|☑<sup>†</sup>
 Update Checker Module| | |☑|☑|☑
 Search Engine Customizations| | |☑, 8|☑, 14|9 Coming Soon
-Keeps Edge Available to User|☑| |☑|☑|☑
+Keeps Edge Available to User|☑|☑|☑|☑|☑
 Customizable Edge Support| | | | |☑
-Prevents IFEO Infinite Looping| |Setup Only|Setup Only| |☑
+Prevents IFEO Infinite Looping| |☑|Setup Only| |☑
 Can be used Portably (USB)| | | | |☑<sup>‡</sup>
 
 
