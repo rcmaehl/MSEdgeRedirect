@@ -80,6 +80,13 @@ Func ActiveMode(ByRef $aCMDLine)
 				EndIf
 			Next
 			Exit
+		Case _ArraySearch($aCMDLine[0], ".pdf")
+			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
+			For $iLoop = 2 To $aCMDLine[0]
+				$sCMDLine &= $aCMDLine[$iLoop] & " "
+			Next
+			ShellExecute($aCMDLine[1], $sCMDLine)
+			Exit
 		Case Else
 			For $iLoop = 2 To $aCMDLine[0]
 				$sCMDLine &= $aCMDLine[$iLoop] & " "
@@ -131,6 +138,8 @@ Func ProcessCMDLine()
 				Case "/p", "/portable"
 					$bPortable = True
 					_ArrayDelete($CmdLine, 1)
+				Case "/si", "/silentinstall"
+					;;;
 				Case "/u", "/update"
 					Select
 						Case UBound($CmdLine) = 2
@@ -379,7 +388,7 @@ Func RunRemoval($bUpdate = False)
 
 EndFunc
 
-Func RunSetup($bUpdate = False)
+Func RunSetup($bUpdate = False, $bSilent = False)
 
 	Local $aMUI[2] = [Null, @MUILang]
 	Local $hMsg
