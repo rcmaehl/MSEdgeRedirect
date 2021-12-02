@@ -36,17 +36,16 @@ Disk (Storage)|5MB Free|100MB Free
 ## Program Comparisons
  |Edge Deflector|ChrEdgeFkOff|NoMoreEdge|Search Deflector|MSEdge Redirect
 ----|----|----|----|----|----
-Redirection Modes|URI Handler<br/><br/><br/>|IFEO<br/><br/><br/>|IFEO<br/><br/><br/>|URI Handler<br/><br/><br/>|URI Handler,<br/> URI Detection,<br/>or IFEO
+Redirection Modes|URI Handler<br/><br/><br/>|IFEO<br/><br/><br/>|IFEO<br/><br/><br/>|URI Handler<br/><br/><br/>|URI Handler,<br/> URI Detection<sup>*</sup>,<br/>or IFEO<sup>†</sup>
 Redirects Search|☑|☑|☑|☑|☑
 Installs without Admin|☑| | | |☑<sup>*</sup>
 Windows 11 Support| |☑|☑| |☑
 Windows 10 21H2+ Support| |☑|☑| |☑
 Installs System Wide| |☑|☑|☑, Optionally|☑<sup>†</sup>
 Update Checker Module| | |☑|☑|☑
-Search Engine Customizations| | |☑, 8|☑, 14|9 Coming Soon
-Keeps Edge Available to User|☑|☑|☑|☑|☑
-Customizable Edge Support| | | | |☑
-Prevents IFEO Infinite Looping| |☑|Setup Only| |☑
+Search Engine Customizations| | |☑, 8|☑, 14|
+Search Engine Shortcut Support| | |☑, DDG !Bang| | 
+Customizable Edge Support| | |☑| |☑
 Can be used Portably (USB)| | | | |☑<sup>‡</sup>
 
 
