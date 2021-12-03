@@ -103,6 +103,8 @@ Func ProcessCMDLine()
 	Local $iParams = $CmdLine[0]
 	Local $bPortable = False
 
+	If DriveGetType(@ScriptDir) = "Removable" Then $bPortable = True
+
 	If $iParams > 0 Then
 
 		;_ArrayDisplay($CmdLine)
