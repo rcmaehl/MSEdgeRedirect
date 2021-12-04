@@ -763,9 +763,9 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 
 		Case RegRead("HKCU\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting) And Not $bPortable
 
-		Case IniRead(@LocalAppDataDir & "\MSEdgeRedirect\", "Settings", $sSetting, Null) <> Null And Not $bPortable
+		Case Not IniRead(@LocalAppDataDir & "\MSEdgeRedirect\Settings.ini", "Settings", $sSetting, Null) = Null And Not $bPortable
 
-		Case IniRead(@ScriptDir & "\MSEdgeRedirect\", "Settings", $sSetting, Null) <> Null
+		Case Not IniRead(@ScriptDir & "\MSEdgeRedirect\Settings.ini", "Settings", $sSetting, Null) = Null
 
 		Case Else
 			;;;
