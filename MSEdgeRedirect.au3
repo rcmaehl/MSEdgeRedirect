@@ -405,6 +405,7 @@ Func RunRemoval($bUpdate = False)
 EndFunc
 
 Func RunSetup($bUpdate = False, $bSilent = False)
+	#forceref $bSilent
 
 	Local $aMUI[2] = [Null, @MUILang]
 	Local $hMsg
@@ -769,6 +770,8 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 		Case Else
 			;;;
 
+	EndSelect
+
 	Return $vReturn
 
 EndFunc
@@ -787,20 +790,18 @@ Func _IsInstalled()
 		$sHive2 = "HKCU"
 	EndIf
 
-	$sInstalledVer = RegRead($sHive1 & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
+	$aReturn[2] = RegRead($sHive1 & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
 	If @error Then
-		$sInstalledVer = RegRead($sHive2 & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
+		$aReturn[2] = RegRead($sHive2 & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
 		If @error Then
 			;;;
 		Else
 			$aReturn[0] = True
 			$aReturn[1] = $sHive2
-			$aReturn[2] = $sInstalledVer
 		EndIf
 	Else
 		$aReturn[0] = True
 		$aReturn[1] = $sHive1
-		$aReturn[2] = $sInstalledVer
 	EndIf
 
 	Return $aReturn
