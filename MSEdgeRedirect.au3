@@ -101,6 +101,8 @@ Func ProcessCMDLine()
 	Local $aMUI[2] = [Null, @MUILang]
 	Local $bHide = False
 	Local $iParams = $CmdLine[0]
+	Local $bSilent = False
+	Local $aInstall[3]
 	Local $bPortable = False
 
 	If DriveGetType(@ScriptDir) = "Removable" Then $bPortable = True
@@ -141,7 +143,8 @@ Func ProcessCMDLine()
 					$bPortable = True
 					_ArrayDelete($CmdLine, 1)
 				Case "/si", "/silentinstall"
-					;;;
+					$bSilent = True
+					_ArrayDelete($CmdLine, 1)
 				Case "/u", "/update"
 					Select
 						Case UBound($CmdLine) = 2
@@ -179,7 +182,18 @@ Func ProcessCMDLine()
 		Exit
 	EndIf
 
-	If Not $bPortable Then _IsInstalled()
+	If Not $bPortable Then
+		$aInstall = _IsInstalled()
+
+		Select
+			Case Not $aInstall[0] ; Not Installed
+				RunSetup(False, $bSilent)
+			Case _VersionCompare($sVersion, $aInstall[2]) ; Installed, Out of Date
+				RunSetup($aInstall[1], $bSilent)
+			Case Else ; Installed, Up to Date
+				;;;
+		EndSelect
+	EndIf
 	ReactiveMode($bHide)
 
 EndFunc
@@ -702,7 +716,7 @@ Func _IsInstalled()
 
 	Local $sHive1 = ""
 	Local $sHive2 = ""
-	Local $sInstalledVer
+	Local $aReturn[3] = [False, "", ""]
 
 	If _WinAPI_IsWow64Process() Then
 		$sHive1 = "HKLM64"
@@ -716,13 +730,19 @@ Func _IsInstalled()
 	If @error Then
 		$sInstalledVer = RegRead($sHive2 & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
 		If @error Then
-			RunSetup()
-		ElseIf _VersionCompare($sVersion, $sInstalledVer) Then
-			RunSetup($sHive2)
+			;;;
+		Else
+			$aReturn[0] = True
+			$aReturn[1] = $sHive2
+			$aReturn[2] = $sInstalledVer
 		EndIf
-	ElseIf _VersionCompare($sVersion, $sInstalledVer) Then
-		RunSetup($sHive1)
+	Else
+		$aReturn[0] = True
+		$aReturn[1] = $sHive1
+		$aReturn[2] = $sInstalledVer
 	EndIf
+
+	Return $aReturn
 
 EndFunc
 
