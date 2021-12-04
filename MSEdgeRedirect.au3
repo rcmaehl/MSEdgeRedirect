@@ -712,40 +712,6 @@ Func SetSearchRegistry($bAllUsers)
 
 EndFunc
 
-Func _IsInstalled()
-
-	Local $sHive1 = ""
-	Local $sHive2 = ""
-	Local $aReturn[3] = [False, "", ""]
-
-	If _WinAPI_IsWow64Process() Then
-		$sHive1 = "HKLM64"
-		$sHive2 = "HKCU64"
-	Else
-		$sHive1 = "HKLM"
-		$sHive2 = "HKCU"
-	EndIf
-
-	$sInstalledVer = RegRead($sHive1 & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
-	If @error Then
-		$sInstalledVer = RegRead($sHive2 & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
-		If @error Then
-			;;;
-		Else
-			$aReturn[0] = True
-			$aReturn[1] = $sHive2
-			$aReturn[2] = $sInstalledVer
-		EndIf
-	Else
-		$aReturn[0] = True
-		$aReturn[1] = $sHive1
-		$aReturn[2] = $sInstalledVer
-	EndIf
-
-	Return $aReturn
-
-EndFunc
-
 Func _DecodeAndRun($sCMDLine)
 
 	Local $sCaller
@@ -781,6 +747,64 @@ Func _DecodeAndRun($sCMDLine)
 				FileWrite($hLogs[2], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
 			EndIf
 	EndSelect
+EndFunc
+
+
+Func _GetSettingValue($sSetting, $bPortable = False)
+
+	Local $vReturn = Null
+
+	Select
+
+		Case RegRead("HKLM\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting)
+
+		Case RegRead("HKLM\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting) And Not $bPortable
+
+		Case RegRead("HKCU\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting) And Not $bPortable
+
+		Case IniRead(@LocalAppDataDir & "\MSEdgeRedirect\", "Settings", $sSetting, Null) <> Null And Not $bPortable
+
+		Case IniRead(@ScriptDir & "\MSEdgeRedirect\", "Settings", $sSetting, Null) <> Null
+
+		Case Else
+			;;;
+
+	Return $vReturn
+
+EndFunc
+
+Func _IsInstalled()
+
+	Local $sHive1 = ""
+	Local $sHive2 = ""
+	Local $aReturn[3] = [False, "", ""]
+
+	If _WinAPI_IsWow64Process() Then
+		$sHive1 = "HKLM64"
+		$sHive2 = "HKCU64"
+	Else
+		$sHive1 = "HKLM"
+		$sHive2 = "HKCU"
+	EndIf
+
+	$sInstalledVer = RegRead($sHive1 & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
+	If @error Then
+		$sInstalledVer = RegRead($sHive2 & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
+		If @error Then
+			;;;
+		Else
+			$aReturn[0] = True
+			$aReturn[1] = $sHive2
+			$aReturn[2] = $sInstalledVer
+		EndIf
+	Else
+		$aReturn[0] = True
+		$aReturn[1] = $sHive1
+		$aReturn[2] = $sInstalledVer
+	EndIf
+
+	Return $aReturn
+
 EndFunc
 
 ; #FUNCTION# ====================================================================================================================
