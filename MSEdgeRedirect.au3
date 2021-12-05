@@ -80,7 +80,7 @@ Func ActiveMode(ByRef $aCMDLine)
 				EndIf
 			Next
 			Exit
-		Case _ArraySearch($aCMDLine[0], ".pdf")
+		Case _ArraySearch($aCMDLine[0], ".pdf") > -1
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			For $iLoop = 2 To $aCMDLine[0]
 				$sCMDLine &= $aCMDLine[$iLoop] & " "
