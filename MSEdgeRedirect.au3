@@ -713,6 +713,51 @@ Func SetSearchRegistry($bAllUsers)
 
 EndFunc
 
+Func _ChangeSearchEngine($sURL, $sEngine = Null)
+
+	If StringInStr($sURL, "bing.com/search?q=") Then
+		$sURL = StringRegExpReplace($sURL, "(.*)(q=)", "")
+
+		Switch $sEngine
+
+			Case "Ask"
+				Return "https://www.ask.com/web?q=" & $sURL
+
+			Case "Baidu"
+				Return "https://www.ask.com/web?q=" & $sURL
+
+			Case "DuckDuckGo"
+				Return "https://www.ask.com/web?q=" & $sURL
+
+			Case "Ecosia"
+				Return "https://www.ask.com/web?q=" & $sURL
+
+			Case "Google"
+				Return "https://www.ask.com/web?q=" & $sURL
+
+			Case "Sogou"
+				Return "https://www.ask.com/web?q=" & $sURL
+
+			Case "Yahoo"
+				Return "https://www.ask.com/web?q=" & $sURL
+
+			Case "Yandex"
+				Return "https://www.ask.com/web?q=" & $sURL
+
+			Case Null
+				Return $sURL
+
+			Case Else
+				Return $sEngine & $sURL
+
+		EndSwitch
+	Else
+		Return $sURL
+	EndIf
+
+EndFunc
+
+
 Func _DecodeAndRun($sCMDLine)
 
 	Local $sCaller
