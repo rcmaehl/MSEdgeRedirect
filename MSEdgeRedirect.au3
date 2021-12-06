@@ -46,7 +46,7 @@ Global $aEdges[5] = [4, _
 	"C:\Program Files (x86)\Microsoft\Edge Dev\Application\msedge.exe", _
 	@LocalAppDataDir & "\Microsoft\Edge SXS\Application\msedge.exe"]
 
-Global $sVersion = "0.4.1.1"
+Global $sVersion = "0.4.1.2"
 
 SetupAppdata()
 
@@ -379,6 +379,9 @@ Func RunRemoval($bUpdate = False)
 	; App Paths
 	RegDelete($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe")
 
+	; App Settings
+	RegDelete($sHive & "\SOFTWARE\Robert Maehl Software\MSEdgeRedirect")
+
 	; URI Handler for Pre Win11 22494 Installs
 	RegDelete($sHive & "\Software\Classes\MSEdgeRedirect.microsoft-edge")
 
@@ -410,8 +413,14 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 	Local $aMUI[2] = [Null, @MUILang]
 	Local $hMsg
 	Local $sArgs = ""
+	Local $sEngine
+	Local $aHandler
+	Local $sHandler
 	Local $bIsAdmin = IsAdmin()
 	Local $hChannels[4]
+
+;	If $bSilent Then
+
 
 	Switch _GetLatestRelease($sVersion)
 		Case -1
@@ -420,6 +429,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 			If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _Translate($aMUI[1], "Update Available"), _Translate($aMUI[1], "An Update is Available, would you like to download it?"), 10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases")
 	EndSwitch
 
+#cs
 	If StringInStr($bUpdate, "HKLM") And Not $bIsAdmin Then
 		MsgBox($MB_ICONERROR+$MB_OK, "Admin Required", "Unable to update an Admin Install without Admin Rights!")
 		FileWrite($hLogs[0], _NowCalc() & " - " & "Non Admin Update Attempt on Admin Install. EXITING!" & @CRLF)
@@ -428,6 +438,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 		Next
 		Exit 1
 	EndIf
+#ce
 
 	; Disable Scaling
 	If @OSVersion = 'WIN_10' Then DllCall(@SystemDir & "\User32.dll", "bool", "SetProcessDpiAwarenessContext", "HWND", "DPI_AWARENESS_CONTEXT" - 1)
@@ -470,38 +481,38 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 
 	#Region Install Settings
 	If $bUpdate Then
-		GUICtrlCreateLabel("MSEdge Redirect " & $sVersion & " Update", 200, 20, 420, 30)
+		GUICtrlCreateLabel("MSEdge Redirect " & $sVersion & " Update", 200, 10, 420, 30)
 		GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-		GUICtrlCreateLabel("Click Install to update MS Edge Redirect after customizing your preferred options", 200, 50, 420, 40)
+		GUICtrlCreateLabel("Click Install to update MS Edge Redirect after customizing your preferred options", 200, 40, 420, 40)
 		GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 	Else
-		GUICtrlCreateLabel("Install MSEdge Redirect " & $sVersion, 200, 20, 420, 30)
+		GUICtrlCreateLabel("Install MSEdge Redirect " & $sVersion, 200, 10, 420, 30)
 		GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-		GUICtrlCreateLabel("Click Install to install MS Edge Redirect after customizing your preferred options", 200, 50, 420, 40)
+		GUICtrlCreateLabel("Click Install to install MS Edge Redirect after customizing your preferred options", 200, 40, 420, 40)
 		GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 	EndIf
 
-	GUICtrlCreateGroup("Mode", 200, 100, 420, 240)
+	GUICtrlCreateGroup("Mode", 200, 80, 420, 220)
 		Local $hService = GUICtrlCreateRadio("Service Mode - Per User" & @CRLF & _
 			@CRLF & _
 			"MSEdge Redirect stays running in the background. Detected Edge data is redirected to your default browser.", _
-			230, 120, 380, 60, $BS_TOP+$BS_MULTILINE)
+			230, 100, 380, 60, $BS_TOP+$BS_MULTILINE)
 		GUICtrlSetState(-1, $GUI_CHECKED)
 
-		Local $hStartup = GUICtrlCreateCheckbox("Start MSEdge Redirect Service With Windows", 250, 180, 320, 20)
-		Local $hNoIcon = GUICtrlCreateCheckbox("Hide MSEdge Redirect Service Icon from Tray", 250, 200, 320, 20)
+		Local $hStartup = GUICtrlCreateCheckbox("Start MSEdge Redirect Service With Windows", 250, 160, 320, 20)
+		Local $hNoIcon = GUICtrlCreateCheckbox("Hide MSEdge Redirect Service Icon from Tray", 250, 180, 320, 20)
 
-		GUICtrlCreateIcon("imageres.dll", 78, 210, 230, 16, 16)
+		GUICtrlCreateIcon("imageres.dll", 78, 210, 210, 16, 16)
 		Local $hActive = GUICtrlCreateRadio("Active Mode - All Users" & @CRLF & _
 			@CRLF & _
 			"MSEdge Redirect only runs when a selected Edge is launched, similary to the old EdgeDeflector app.", _
-			230, 230, 380, 60, $BS_TOP+$BS_MULTILINE)
+			230, 210, 380, 60, $BS_TOP+$BS_MULTILINE)
 
-		$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 250, 290, 90, 20)
+		$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 250, 270, 90, 20)
 		GUICtrlSetState(-1, $GUI_CHECKED)
-		$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 340, 290, 90, 20)
-		$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 430, 290, 90, 20)
-		$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 520, 290, 90, 20)
+		$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 340, 270, 90, 20)
+		$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 430, 270, 90, 20)
+		$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 520, 270, 90, 20)
 
 		GUICtrlSetState($hChannels[0], $GUI_DISABLE)
 		GUICtrlSetState($hChannels[1], $GUI_DISABLE)
@@ -512,11 +523,15 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 			GUICtrlSetState($hActive, $GUI_DISABLE)
 		EndIf
 
-	GUICtrlCreateGroup("Search (Coming Soon)", 200, 340, 420, 60)
-		Local $hSearch = GUICtrlCreateCheckbox("Replace Bing Search Results with:", 230, 365, 240, 20)
+	GUICtrlCreateGroup("Options", 200, 300, 420, 100)
+		Local $hNoApps = GUICtrlCreateCheckbox("De-embed Windows Store 'Apps'", 230, 320, 380, 20)
+		Local $hNoPDFs = GUICtrlCreateCheckbox("Redirect PDFs to:", 230, 340, 240, 20)
+		Local $hPDFPath = GUICtrlCreateLabel("",470, 340, 140, 20)
+		Local $hSearch = GUICtrlCreateCheckbox("Replace Bing Search Results with:", 230, 360, 240, 20)
+		Local $hEngine = GUICtrlCreateCombo("", 470, 355, 140, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+		GUICtrlSetData(-1, "Ask|Baidu|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
 		GUICtrlSetState(-1, $GUI_DISABLE)
-		Local $hEngine = GUICtrlCreateCombo("", 470, 365, 140, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
-		GUICtrlSetState(-1, $GUI_DISABLE)
+
 
 	Local $hInstall = GUICtrlCreateButton("Install", 200, 410, 420, 50)
 	GUICtrlSetFont(-1, 16, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
@@ -579,8 +594,34 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 					GUICtrlSetState($hEngine, $GUI_DISABLE)
 				EndIf
 
+			Case $hMsg = $hEngine And GUICtrlRead($hEngine) = "Custom"
+				$sEngine = InputBox("Enter Search Engine URL", "Enter the URL format of the custom search Engine to use", "https://duckduckgo.com/?q=")
+				If @error Or Not _WinAPI_UrlIs($sEngine) Then GUICtrlSetData($hEngine, "Google")
+
+			Case $hMsg = $hNoPDFs
+				If _IsChecked($hNoPDFs) Then
+					Do
+						$sHandler = FileOpenDialog("Select a PDF Handler", @ProgramFilesDir, "Executables (*.exe)", $FD_FILEMUSTEXIST)
+					Until Not @error
+					$aHandler = StringSplit($sHandler, "\")
+					GUICtrlSetData($hPDFPath, $aHandler[$aHandler[0]])
+				Else
+					GUICtrlSetData($hPDFPath, "")
+				EndIf
+
 			Case $hMsg = $hInstall
 				If $bUpdate Then RunRemoval(True)
+				SetOptionsRegistry("NoApps", _IsChecked($hNoApps), _IsChecked($hActive))
+				SetOptionsRegistry("NoBing", _IsChecked($hSearch), _IsChecked($hActive))
+				If _IsChecked($hSearch) Then
+					If GUICtrlRead($hEngine) = "Custom" Then
+						SetOptionsRegistry("SearchPath", $sEngine, _IsChecked($hActive))
+					Else
+						SetOptionsRegistry("SearchPath", GUICtrlRead($hEngine), _IsChecked($hActive))
+					EndIf
+				EndIf
+				SetOptionsRegistry("NoPDFs", _IsChecked($hNoPDFs), _IsChecked($hActive))
+				If _IsChecked($hNoPDFs) Then SetOptionsRegistry("PDFApp", $sHandler, _IsChecked($hActive))
 				If _IsChecked($hActive) Then
 					RunInstall(True)
 					SetAppRegistry(True)
@@ -680,6 +721,45 @@ Func SetIFEORegistry(ByRef $aChannels)
 	Next
 EndFunc
 
+Func SetOptionsRegistry($sName, $vValue, $bAllUsers, $bManaged = False)
+
+	Local Static $sHive = ""
+	Local Static $sPolicy = ""
+	#forceref $sHive
+
+	If $sHive = "" Then
+		If $bAllUsers Then
+			If _WinAPI_IsWow64Process() Then
+				$sHive = "HKLM64"
+			Else
+				$sHive = "HKLM"
+			EndIf
+		Else
+			If _WinAPI_IsWow64Process() Then
+				$sHive = "HKCU64"
+			Else
+				$sHive = "HKCU"
+			EndIf
+		EndIf
+
+		If $bManaged Then $sPolicy = "Policies\"
+	EndIf
+
+	MsgBox(0, "", $sHive & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\")
+
+	Select
+		Case IsBool($vValue)
+			RegWrite($sHive & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sName, "REG_DWORD", $vValue)
+
+		Case IsString($vValue)
+			RegWrite($sHive & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sName, "REG_SZ", $vValue)
+
+		Case Else
+			RegWrite($sHive & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sName, "REG_SZ", $vValue)
+	EndSelect
+
+EndFunc
+
 Func SetupAppdata()
 	Select
 		Case Not FileExists(@LocalAppDataDir & "\MSEdgeRedirect\")
@@ -690,27 +770,6 @@ Func SetupAppdata()
 		Case Else
 			;;;
 	EndSelect
-EndFunc
-
-Func SetSearchRegistry($bAllUsers)
-
-	Local $sHive = ""
-	#forceref $sHive
-
-	If $bAllUsers Then
-		If _WinAPI_IsWow64Process() Then
-			$sHive = "HKLM64"
-		Else
-			$sHive = "HKLM"
-		EndIf
-	Else
-		If _WinAPI_IsWow64Process() Then
-			$sHive = "HKCU64"
-		Else
-			$sHive = "HKCU"
-		EndIf
-	EndIf
-
 EndFunc
 
 Func _ChangeSearchEngine($sURL, $sEngine = Null)
