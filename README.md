@@ -84,4 +84,5 @@ MSEdge Redirect only redirects links that attempt to open in MS Edge. It will no
 
 ### How do I uninstall?
 
-Simply delete MSEdgeRedirect.exe!
+**0.4.0.0 & Newer:** Use Programs and Features\
+**BEFORE 0.4.0.0:** Simply delete MSEdgeRedirect.exe!
