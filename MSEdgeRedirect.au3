@@ -194,6 +194,7 @@ Func ProcessCMDLine()
 				RunSetup($aInstall[1], $bSilent)
 			Case StringInStr($aInstall[1], "HKCU") ; Installed, Up to Date, Service Mode
 				ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
+				ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", "", @LocalAppDataDir & "\MSEdgeRedirect\")
 			Case Else
 				Exit
 		EndSelect
@@ -847,7 +848,7 @@ Func _DecodeAndRun($sCMDLine)
 				FileWrite($hLogs[2], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
 			EndIf
 		Case Else
-			$sCMDLine = StringRegExpReplace($sCMDLine, "--single-argument microsoft-edge:[\/]*", "")
+			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "")
 			If _WinAPI_UrlIs($sCMDLine) Then
 				ShellExecute($sCMDLine)
 			Else
