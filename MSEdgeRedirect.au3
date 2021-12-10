@@ -785,25 +785,25 @@ Func _ChangeSearchEngine($sURL, $sEngine = Null)
 				Return "https://www.ask.com/web?q=" & $sURL
 
 			Case "Baidu"
-				Return "https://www.ask.com/web?q=" & $sURL
+				Return "https://www.baidu.com/s?wd=" & $sURL
 
 			Case "DuckDuckGo"
-				Return "https://www.ask.com/web?q=" & $sURL
+				Return "https://duckduckgo.com/?q=" & $sURL
 
 			Case "Ecosia"
-				Return "https://www.ask.com/web?q=" & $sURL
+				Return "https://www.ecosia.org/search?q=" & $sURL
 
 			Case "Google"
-				Return "https://www.ask.com/web?q=" & $sURL
+				Return "https://www.google.com/search?q=" & $sURL
 
 			Case "Sogou"
-				Return "https://www.ask.com/web?q=" & $sURL
+				Return "https://www.sogou.com/web?query=" & $sURL
 
 			Case "Yahoo"
-				Return "https://www.ask.com/web?q=" & $sURL
+				Return "https://search.yahoo.com/search?p=" & $sURL
 
 			Case "Yandex"
-				Return "https://www.ask.com/web?q=" & $sURL
+				Return "https://yandex.com/search/?text=" & $sURL
 
 			Case Null
 				Return $sURL
@@ -823,8 +823,11 @@ Func _DecodeAndRun($sCMDLine)
 
 	Local $sCaller
 	Local $sSearch
+	Local $sEngine
 	#forceref $sSearch
 	Local $aLaunchContext
+
+	$sEngine = _GetSettingValue("SearchPath")
 
 	Select
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
@@ -839,6 +842,7 @@ Func _DecodeAndRun($sCMDLine)
 				FileWrite($hLogs[1], _NowCalc() & " - Redirected Edge Call from: " & $sCaller & @CRLF)
 				$sCMDLine = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
 				If _WinAPI_UrlIs($sCMDLine) Then
+					$sCMDLine = _ChangeSearchEngine($sCMDLine, $sEngine)
 					ShellExecute($sCMDLine)
 				Else
 					FileWrite($hLogs[2], _NowCalc() & " - Invalid Regexed URL: " & $sCMDLine & @CRLF)
@@ -849,6 +853,7 @@ Func _DecodeAndRun($sCMDLine)
 		Case Else
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "")
 			If _WinAPI_UrlIs($sCMDLine) Then
+				$sCMDLine = _ChangeSearchEngine($sCMDLine, $sEngine)
 				ShellExecute($sCMDLine)
 			Else
 				FileWrite($hLogs[2], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
