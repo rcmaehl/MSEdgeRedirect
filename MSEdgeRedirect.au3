@@ -822,7 +822,6 @@ EndFunc
 Func _DecodeAndRun($sCMDLine)
 
 	Local $sCaller
-	Local $sSearch
 	Local $sEngine
 	#forceref $sSearch
 	Local $aLaunchContext
