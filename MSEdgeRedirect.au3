@@ -823,7 +823,6 @@ Func _DecodeAndRun($sCMDLine)
 
 	Local $sCaller
 	Local $sEngine
-	#forceref $sSearch
 	Local $aLaunchContext
 
 	$sEngine = _GetSettingValue("SearchPath")
