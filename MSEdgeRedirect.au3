@@ -806,7 +806,7 @@ Func _ChangeSearchEngine($sURL, $sEngine = Null)
 				Return "https://yandex.com/search/?text=" & $sURL
 
 			Case Null
-				Return $sURL
+				Return "https://bing.com/search?q=" & $sURL
 
 			Case Else
 				Return $sEngine & $sURL
