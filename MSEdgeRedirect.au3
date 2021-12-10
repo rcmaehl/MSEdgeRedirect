@@ -866,7 +866,6 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 
 	Local $sHive1 = ""
 	Local $sHive2 = ""
-	Local $aReturn[3] = [False, "", ""]
 
 	If _WinAPI_IsWow64Process() Then
 		$sHive1 = "HKLM64"
