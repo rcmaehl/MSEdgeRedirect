@@ -329,8 +329,8 @@ Func RunHTTPCheck()
 		$sHive = "HKCU"
 	EndIf
 
-	If RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice", "ProgId") = "MSEdgeHTM" Or _
-		RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgId") = "MSEdgeHTM" Then
+	If StringInStr(RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice", "ProgId"), "MSEdge") Or _
+		StringInStr(RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgId"), "MSEdge") Then
 		MsgBox($MB_ICONERROR+$MB_OK, "Edge Set As Default", "You must set a different Default Browser to use MSEdgeRedirect!")
 		FileWrite($hLogs[0], _NowCalc() & " - " & "Found MS Edge set as default browser, EXITING!" & @CRLF)
 		For $iLoop = 0 To UBound($hLogs) - 1
@@ -744,8 +744,6 @@ Func SetOptionsRegistry($sName, $vValue, $bAllUsers, $bManaged = False)
 
 		If $bManaged Then $sPolicy = "Policies\"
 	EndIf
-
-	MsgBox(0, "", $sHive & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\")
 
 	Select
 		Case IsBool($vValue)
