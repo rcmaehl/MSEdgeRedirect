@@ -864,13 +864,49 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 
 	Local $vReturn = Null
 
+	Local $sHive1 = ""
+	Local $sHive2 = ""
+	Local $aReturn[3] = [False, "", ""]
+
+	If _WinAPI_IsWow64Process() Then
+		$sHive1 = "HKLM64"
+		$sHive2 = "HKCU64"
+	Else
+		$sHive1 = "HKLM"
+		$sHive2 = "HKCU"
+	EndIf
+
 	Select
 
-		Case RegRead("HKLM\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting)
+		Case RegRead($sHive1 & "\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting)
+			Switch @extended
+				Case "REG_SZ"
+					Return RegRead($sHive1 & "\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting)
+				Case "REG_DWORD"
+					Return Number(RegRead($sHive1 & "\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting))
+				Case Else
+					FileWrite($hLogs[0], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
+			EndSwitch
 
-		Case RegRead("HKLM\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting) And Not $bPortable
+		Case RegRead($sHive1 & "\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting) And Not $bPortable
+			Switch @extended
+				Case "REG_SZ"
+					Return RegRead($sHive1 & "\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting)
+				Case "REG_DWORD"
+					Return Number(RegRead($sHive1 & "\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting))
+				Case Else
+					FileWrite($hLogs[0], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
+			EndSwitch
 
-		Case RegRead("HKCU\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting) And Not $bPortable
+		Case RegRead($sHive2 & "\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting) And Not $bPortable
+			Switch @extended
+				Case "REG_SZ"
+					Return RegRead($sHive2 & "\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting)
+				Case "REG_DWORD"
+					Return Number(RegRead($sHive2 & "\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting))
+				Case Else
+					FileWrite($hLogs[0], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
+			EndSwitch
 
 		Case Not IniRead(@LocalAppDataDir & "\MSEdgeRedirect\Settings.ini", "Settings", $sSetting, Null) = Null And Not $bPortable
 
