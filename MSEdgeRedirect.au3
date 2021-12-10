@@ -185,13 +185,17 @@ Func ProcessCMDLine()
 	If Not $bPortable Then
 		$aInstall = _IsInstalled()
 
+		_ArrayDisplay($aInstall)
+
 		Select
 			Case Not $aInstall[0] ; Not Installed
 				RunSetup(False, $bSilent)
 			Case _VersionCompare($sVersion, $aInstall[2]) ; Installed, Out of Date
 				RunSetup($aInstall[1], $bSilent)
-			Case Else ; Installed, Up to Date
-				;;;
+			Case StringInStr($aInstall[1], "HKCU") ; Installed, Up to Date, Service Mode
+				ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
+			Case Else
+				Exit
 		EndSelect
 	EndIf
 	ReactiveMode($bHide)
