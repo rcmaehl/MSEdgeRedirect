@@ -804,6 +804,9 @@ Func _ChangeSearchEngine($sURL, $sEngine = Null)
 			Case "Baidu"
 				Return "https://www.baidu.com/s?wd=" & $sURL
 
+			Case "Custom"
+				Return _GetSettingValue("SearchPath") & $sURL
+
 			Case "DuckDuckGo"
 				Return "https://duckduckgo.com/?q=" & $sURL
 
