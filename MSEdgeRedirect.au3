@@ -216,6 +216,9 @@ Func ReactiveMode($bHide = False)
 
 	_WinAPI_AdjustTokenPrivileges($hToken, $SE_DEBUG_NAME, $SE_PRIVILEGE_ENABLED, $aAdjust)
 
+	TrayCreateItem($sVersion)
+	TrayItemSetState(-1, $TRAY_DISABLE)
+	TrayCreateItem("")
 	Local $hStartup = TrayCreateItem("Start With Windows")
 	Local $hUpdate = TrayCreateItem("Check for Updates")
 	TrayCreateItem("")
