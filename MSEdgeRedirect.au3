@@ -636,11 +636,8 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 					SetOptionsRegistry("NoApps", _IsChecked($hNoApps), _IsChecked($hActive))
 					SetOptionsRegistry("NoBing", _IsChecked($hSearch), _IsChecked($hActive))
 					If _IsChecked($hSearch) Then
-						If GUICtrlRead($hEngine) = "Custom" Then
-							SetOptionsRegistry("SearchPath", $sEngine, _IsChecked($hActive))
-						Else
-							SetOptionsRegistry("SearchPath", GUICtrlRead($hEngine), _IsChecked($hActive))
-						EndIf
+						SetOptionsRegistry("Search", GUICtrlRead($hEngine), _IsChecked($hActive))
+						If GUICtrlRead($hEngine) = "Custom" Then SetOptionsRegistry("SearchPath", $sEngine, _IsChecked($hActive))
 					EndIf
 					SetOptionsRegistry("NoPDFs", _IsChecked($hNoPDFs), _IsChecked($hActive))
 					If _IsChecked($hNoPDFs) Then SetOptionsRegistry("PDFApp", $sHandler, _IsChecked($hActive))
