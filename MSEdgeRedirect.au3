@@ -125,7 +125,7 @@ Func ProcessCMDLine()
 
 		Do
 			Switch $CmdLine[1]
-				Case "/?", "/h", "/help"
+				Case "/?", "/help"
 					MsgBox(0, "Help and Flags", _
 							"Checks PC for Windows 11 Release Compatibility" & @CRLF & _
 							@CRLF & _
