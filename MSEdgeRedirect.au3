@@ -185,8 +185,6 @@ Func ProcessCMDLine()
 	If Not $bPortable Then
 		$aInstall = _IsInstalled()
 
-		_ArrayDisplay($aInstall)
-
 		Select
 			Case Not $aInstall[0] ; Not Installed
 				RunSetup(False, $bSilent)
