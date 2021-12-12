@@ -349,16 +349,27 @@ Func RunHTTPCheck()
 
 EndFunc
 
-Func RunInstall($bAllUsers, $bStartup = False, $bHide = False)
+Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 
 	Local $sArgs = ""
+	Local Enum $bManaged, $vMode
+	Local Enum $bNoApps, $bNoBing, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup
 
-	If $bAllUsers Then
+	SetOptionsRegistry("NoApps", $aSettings[$bNoApps], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoBing", $aSettings[$bNoBing], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoPDFs", $aSettings[$bNoPDFs], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoTray", $aSettings[$bNoTray], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoUpdates", $aSettings[$bNoUpdates], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("PDFApp", $aSettings[$sPDFApp], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("Search", $aSettings[$sSearch], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("SearchPath", $aSettings[$sSearchPath], $aConfig[$vMode], $aConfig[$bManaged])
+
+	If $aConfig[$vMode] Then
 		FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE)
 	Else
-		If $bHide Then $sArgs = "/hide"
+		If $aSettings[$bNoTray] Then $sArgs = "/hide"
 		FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE)
-		If $bStartup Then FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @StartupDir & "\MSEdgeRedirect.lnk")
+		If $aSettings[$bStartup] Then FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @StartupDir & "\MSEdgeRedirect.lnk")
 		FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs)
 	EndIf
 EndFunc
@@ -472,23 +483,12 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 		$aSettings[$sStartMenu] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "StartMenu", $aSettings[$sStartMenu])
 		$aSettings[$bStartup] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "Startup", $aSettings[$bStartup]))
 
-		SetOptionsRegistry("NoApps", $aSettings[$bNoApps], $aConfig[$vMode], $aConfig[$bManaged])
-		SetOptionsRegistry("NoBing", $aSettings[$bNoBing], $aConfig[$vMode], $aConfig[$bManaged])
-		SetOptionsRegistry("NoPDFs", $aSettings[$bNoPDFs], $aConfig[$vMode], $aConfig[$bManaged])
-		SetOptionsRegistry("NoTray", $aSettings[$bNoTray], $aConfig[$vMode], $aConfig[$bManaged])
-		SetOptionsRegistry("NoUpdates", $aSettings[$bNoUpdates], $aConfig[$vMode], $aConfig[$bManaged])
-		SetOptionsRegistry("PDFApp", $aSettings[$sPDFApp], $aConfig[$vMode], $aConfig[$bManaged])
-		SetOptionsRegistry("Search", $aSettings[$sSearch], $aConfig[$vMode], $aConfig[$bManaged])
-		SetOptionsRegistry("SearchPath", $aSettings[$sSearchPath], $aConfig[$vMode], $aConfig[$bManaged])
-
+		RunInstall($aConfig, $aSettings)
+		SetAppRegistry($aConfig[$vMode])
 		If $aConfig[$vMode] Then
-			RunInstall(True)
-			SetAppRegistry(True)
 			SetIFEORegistry($aChannels)
 		Else
 			If $aSettings[$bNoTray] Then $sArgs = "/hide"
-			RunInstall(False, $aSettings[$bStartup], $aSettings[$bNoTray])
-			SetAppRegistry(False)
 			ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
 		EndIf
 		Exit
@@ -682,26 +682,28 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 
 				Case $hMsg = $hInstall
 					If $bUpdate Then RunRemoval(True)
-					SetOptionsRegistry("NoApps", _IsChecked($hNoApps), _IsChecked($hActive))
-					SetOptionsRegistry("NoBing", _IsChecked($hSearch), _IsChecked($hActive))
-					If _IsChecked($hSearch) Then
-						SetOptionsRegistry("Search", GUICtrlRead($hEngine), _IsChecked($hActive))
-						If GUICtrlRead($hEngine) = "Custom" Then SetOptionsRegistry("SearchPath", $sEngine, _IsChecked($hActive))
-					EndIf
-					SetOptionsRegistry("NoPDFs", _IsChecked($hNoPDFs), _IsChecked($hActive))
-					If _IsChecked($hNoPDFs) Then SetOptionsRegistry("PDFApp", $sHandler, _IsChecked($hActive))
-					If _IsChecked($hActive) Then
-						RunInstall(True)
-						SetAppRegistry(True)
+
+					$aConfig[$vMode] = _IsChecked($hActive)
+
+					$aSettings[$bNoApps] = _IsChecked($hNoApps)
+					$aSettings[$bNoBing] = _IsChecked($hSearch)
+					$aSettings[$bNoPDFs] = _IsChecked($hNoPDFs),
+					$aSettings[$bNoTray] = _IsChecked($hNoIcon)
+					$aSettings[$sPDFApp] = $sHandler
+					$aSettings[$sSearch] = GUICtrlRead($hEngine)
+					$aSettings[$sSearchPath] = $sEngine
+					$aSettings[$bStartup] = _IsChecked($hStartup)
+
+					GUISetState(@SW_HIDE, $hInstallGUI)
+					RunInstall($aConfig, $aSettings)
+					SetAppRegistry($aConfig[$vMode])
+					If $aConfig[$vMode] Then
 						For $iLoop = 0 To 3 Step 1
 							$aChannels[$iLoop] = _IsChecked($hChannels[$iLoop])
 						Next
 						SetIFEORegistry($aChannels)
 					Else
-						If _IsChecked($hNoIcon) Then $sArgs = "/hide"
-						RunInstall(False, _IsChecked($hStartup), _IsChecked($hNoIcon))
-						SetAppRegistry(False)
-						GUISetState(@SW_HIDE, $hInstallGUI)
+						If $aSettings[$bNoTray] Then $sArgs = "/hide"
 						ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
 					EndIf
 					Exit
