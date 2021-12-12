@@ -5,3 +5,4 @@ MSEdgeRedirect_stripped.au3
 MSEdgeRedirect_onEvent.au3
 del.au3
 ETC/MSER.reg
+Setup.ini

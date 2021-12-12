@@ -136,6 +136,9 @@ Func ProcessCMDLine()
 							@CRLF & _
 							@CRLF)
 					Exit 0
+				Case "/change"
+					RunSetup(True, $bSilent)
+					Exit
 				Case "/h", "/hide"
 					$bHide = True
 					_ArrayDelete($CmdLine, 1)
@@ -418,30 +421,76 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 	Local $aMUI[2] = [Null, @MUILang]
 	Local $hMsg
 	Local $sArgs = ""
-	Local $bSystem
+	Local $sEdges
 	Local $sEngine
 	Local $aHandler
 	Local $sHandler
-	Local $bManaged
 	Local $bIsAdmin = IsAdmin()
 	Local $hChannels[4]
+	Local $aChannels[4] = [True, True, False, False]
+
+	Local $aConfig[2] = [False, "Service"] ; Default Setup.ini Values
+	Local Enum $bManaged, $vMode
+
+	Local $aSettings[10] = [False, False, False, False, False, "", "", "", "Full", True]
+	Local Enum $bNoApps, $bNoBing, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup
 
 	If $bSilent Then
 
 		If Not FileExists(@ScriptDir & "\Setup.ini") Then Exit 2 ; ERROR_FILE_NOT_FOUND
-		$bManaged = IniRead(@ScriptDir & "\Setup.ini", "Config", "Managed", False)
-		If $bManaged = "true" Then
-			$bManaged = True
+
+		$aConfig[$bManaged] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Config", "Managed", False))
+		$aConfig[$vMode] = IniRead(@ScriptDir & "\Setup.ini", "Config", "Mode", "Service")
+
+		If $aConfig[$vMode] = "active" Then
+			$aConfig[$vMode] = True
 		Else
-			$bManaged = False
+			$aConfig[$vMode] = False
 		EndIf
-		$bSystem = IniRead(@ScriptDir & "\Setup.ini", "Config", "Mode", "Service")
-		If $bSystem = "active" Then
-			$bSystem = True
+
+		$sEdges = IniRead(@ScriptDir & "\Setup.ini", "Settings", "Edges", "")
+		If StringInStr($sEdges, "Stable") Then $aChannels[0] = True
+		If StringInStr($sEdges, "Beta") Then $aChannels[1] = True
+		If StringInStr($sEdges, "Dev") Then $aChannels[2] = True
+		If StringInStr($sEdges, "Canary") Then $aChannels[3] = True
+
+		_ArrayDisplay($aChannels)
+
+		For $iLoop = 0 To 3 Step 1
+			If $aChannels[$iLoop] = True Then ExitLoop
+			If $iLoop = 3 Then Exit 160 ; ERROR_BAD_ARGUMENTS
+		Next
+
+		$aSettings[$bNoApps] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoApps", $aSettings[$bNoApps]))
+		$aSettings[$bNoBing] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoBing", $aSettings[$bNoBing]))
+		$aSettings[$bNoPDFs] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoPDFs", $aSettings[$bNoPDFs]))
+		$aSettings[$bNoTray] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoTray", $aSettings[$bNoTray]))
+		$aSettings[$bNoUpdates] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoUpdates", $aSettings[$bNoUpdates]))
+		$aSettings[$sPDFApp] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "PDFApp", $aSettings[$sPDFApp])
+		$aSettings[$sSearch] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "Search", $aSettings[$sSearch])
+		$aSettings[$sSearchPath] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "SearchPath", $aSettings[$sSearchPath])
+		$aSettings[$sStartMenu] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "StartMenu", $aSettings[$sStartMenu])
+		$aSettings[$bStartup] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "Startup", $aSettings[$bStartup]))
+
+		SetOptionsRegistry("NoApps", $aSettings[$bNoApps], $aConfig[$vMode], $aConfig[$bManaged])
+		SetOptionsRegistry("NoBing", $aSettings[$bNoBing], $aConfig[$vMode], $aConfig[$bManaged])
+		SetOptionsRegistry("NoPDFs", $aSettings[$bNoPDFs], $aConfig[$vMode], $aConfig[$bManaged])
+		SetOptionsRegistry("NoTray", $aSettings[$bNoTray], $aConfig[$vMode], $aConfig[$bManaged])
+		SetOptionsRegistry("NoUpdates", $aSettings[$bNoUpdates], $aConfig[$vMode], $aConfig[$bManaged])
+		SetOptionsRegistry("PDFApp", $aSettings[$sPDFApp], $aConfig[$vMode], $aConfig[$bManaged])
+		SetOptionsRegistry("Search", $aSettings[$sSearch], $aConfig[$vMode], $aConfig[$bManaged])
+		SetOptionsRegistry("SearchPath", $aSettings[$sSearchPath], $aConfig[$vMode], $aConfig[$bManaged])
+
+		If $aConfig[$vMode] Then
+			RunInstall(True)
+			SetAppRegistry(True)
+			SetIFEORegistry($aChannels)
 		Else
-			$bSystem = False
+			If $aSettings[$bNoTray] Then $sArgs = "/hide"
+			RunInstall(False, $aSettings[$bStartup], $aSettings[$bNoTray])
+			SetAppRegistry(False)
+			ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
 		EndIf
-		MsgBox(0, $bManaged, $bSystem)
 		Exit
 
 	Else
@@ -644,7 +693,10 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 					If _IsChecked($hActive) Then
 						RunInstall(True)
 						SetAppRegistry(True)
-						SetIFEORegistry($hChannels)
+						For $iLoop = 0 To 3 Step 1
+							$aChannels[$iLoop] = _IsChecked($hChannels[$iLoop])
+						Next
+						SetIFEORegistry($aChannels)
 					Else
 						If _IsChecked($hNoIcon) Then $sArgs = "/hide"
 						RunInstall(False, _IsChecked($hStartup), _IsChecked($hNoIcon))
@@ -733,7 +785,7 @@ Func SetIFEORegistry(ByRef $aChannels)
 	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe")
 	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe", "UseFilter", "REG_DWORD", 1)
 	For $iLoop = 1 To $aEdges[0] Step 1
-		If _IsChecked($aChannels[$iLoop - 1]) Then
+		If $aChannels[$iLoop - 1] Then
 			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop)
 			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger", "REG_SZ", "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
 			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "FilterFullPath", "REG_SZ", $aEdges[$iLoop])
@@ -928,8 +980,10 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 			EndSwitch
 
 		Case Not IniRead(@LocalAppDataDir & "\MSEdgeRedirect\Settings.ini", "Settings", $sSetting, Null) = Null And Not $bPortable
+			$vReturn = _Bool(IniRead(@LocalAppDataDir & "\MSEdgeRedirect\Settings.ini", "Settings", $sSetting, False))
 
 		Case Not IniRead(@ScriptDir & "\MSEdgeRedirect\Settings.ini", "Settings", $sSetting, Null) = Null
+			$vReturn = _Bool(IniRead(@ScriptDir & "\MSEdgeRedirect\Settings.ini", "Settings", $sSetting, False))
 
 		Case Else
 			;;;
@@ -938,6 +992,16 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 
 	Return $vReturn
 
+EndFunc
+
+Func _Bool($sString)
+	If $sString = "True" Then
+		Return True
+	ElseIf $sString = "False" Then
+		Return False
+	Else
+		Return $sString
+	EndIf
 EndFunc
 
 Func _IsInstalled()
