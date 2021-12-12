@@ -146,7 +146,7 @@ Func ProcessCMDLine()
 					$bPortable = True
 					_ArrayDelete($CmdLine, 1)
 				Case "/repair"
-					_RunRepair()
+					RunRepair()
 					Exit
 				Case "/si", "/silentinstall"
 					$bSilent = True
