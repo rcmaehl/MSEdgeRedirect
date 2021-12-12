@@ -354,6 +354,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 	Local $sArgs = ""
 	Local Enum $bManaged, $vMode
 	Local Enum $bNoApps, $bNoBing, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup
+	#forceref $sStartMenu
 
 	SetOptionsRegistry("NoApps", $aSettings[$bNoApps], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoBing", $aSettings[$bNoBing], $aConfig[$vMode], $aConfig[$bManaged])
@@ -687,7 +688,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 
 					$aSettings[$bNoApps] = _IsChecked($hNoApps)
 					$aSettings[$bNoBing] = _IsChecked($hSearch)
-					$aSettings[$bNoPDFs] = _IsChecked($hNoPDFs),
+					$aSettings[$bNoPDFs] = _IsChecked($hNoPDFs)
 					$aSettings[$bNoTray] = _IsChecked($hNoIcon)
 					$aSettings[$sPDFApp] = $sHandler
 					$aSettings[$sSearch] = GUICtrlRead($hEngine)
