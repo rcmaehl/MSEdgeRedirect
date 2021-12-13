@@ -72,7 +72,7 @@ Func ActiveMode(ByRef $aCMDLine)
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
 			Exit
-		Case StringInStr($aCMDLine[2], "--app-id") ; TikTok and other Apps
+		Case StringInStr($aCMDLine[2], "--app-id") And _GetSettingValue("NoApps") ; TikTok and other Apps
 			For $iLoop = 2 To $aCMDLine[0]
 				If StringInStr($aCMDLine[$iLoop], "--app-fallback-url") Then
 					$sCMDLine = StringReplace($aCMDLine[$iLoop], "--app-fallback-url=", "")
@@ -865,12 +865,12 @@ Func SetupAppdata()
 	EndSelect
 EndFunc
 
-Func _ChangeSearchEngine($sURL, $sEngine = Null)
+Func _ChangeSearchEngine($sURL)
 
 	If StringInStr($sURL, "bing.com/search?q=") Then
 		$sURL = StringRegExpReplace($sURL, "(.*)(q=)", "")
 
-		Switch $sEngine
+		Switch _GetSettingValue("Search")
 
 			Case "Ask"
 				Return "https://www.ask.com/web?q=" & $sURL
@@ -903,7 +903,7 @@ Func _ChangeSearchEngine($sURL, $sEngine = Null)
 				Return "https://bing.com/search?q=" & $sURL
 
 			Case Else
-				Return $sEngine & $sURL
+				Return _GetSettingValue("SearchPath") & $sURL
 
 		EndSwitch
 	Else
@@ -916,10 +916,10 @@ EndFunc
 Func _DecodeAndRun($sCMDLine)
 
 	Local $sCaller
-	Local $sEngine
+	Local $bNoBing
 	Local $aLaunchContext
 
-	$sEngine = _GetSettingValue("SearchPath")
+	$bNoBing = _GetSettingValue("NoBing")
 
 	Select
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
@@ -934,7 +934,7 @@ Func _DecodeAndRun($sCMDLine)
 				FileWrite($hLogs[1], _NowCalc() & " - Redirected Edge Call from: " & $sCaller & @CRLF)
 				$sCMDLine = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
 				If _WinAPI_UrlIs($sCMDLine) Then
-					$sCMDLine = _ChangeSearchEngine($sCMDLine, $sEngine)
+					If $bNoBing Then $sCMDLine = _ChangeSearchEngine($sCMDLine)
 					ShellExecute($sCMDLine)
 				Else
 					FileWrite($hLogs[2], _NowCalc() & " - Invalid Regexed URL: " & $sCMDLine & @CRLF)
@@ -945,7 +945,7 @@ Func _DecodeAndRun($sCMDLine)
 		Case Else
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "")
 			If _WinAPI_UrlIs($sCMDLine) Then
-				$sCMDLine = _ChangeSearchEngine($sCMDLine, $sEngine)
+				If $bNoBing Then $sCMDLine = _ChangeSearchEngine($sCMDLine)
 				ShellExecute($sCMDLine)
 			Else
 				FileWrite($hLogs[2], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
