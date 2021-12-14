@@ -476,6 +476,8 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 			$aConfig[$vMode] = False
 		EndIf
 
+		If ($aConfig[$bManaged] Or $aConfig[$vMode]) And Not IsAdmin() Then Exit 5 ; ERROR_ACCESS_DENIED
+
 		$sEdges = IniRead(@ScriptDir & "\Setup.ini", "Settings", "Edges", "")
 		If StringInStr($sEdges, "Stable") Then $aChannels[0] = True
 		If StringInStr($sEdges, "Beta") Then $aChannels[1] = True
@@ -497,6 +499,11 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 		$aSettings[$sSearchPath] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "SearchPath", $aSettings[$sSearchPath])
 		$aSettings[$sStartMenu] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "StartMenu", $aSettings[$sStartMenu])
 		$aSettings[$bStartup] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "Startup", $aSettings[$bStartup]))
+
+		For $iLoop = $bNoApps To $bNoUpdates Step 1
+			If Not IsBool($aSettings[$iLoop]) Then Exit 160 ; ERROR_BAD_ARGUMENTS
+		Next
+		If Not IsBool($aSettings[$bStartup]) Then Exit 160 ; ERROR_BAD_ARGUMENTS
 
 		RunInstall($aConfig, $aSettings)
 		SetAppRegistry($aConfig[$vMode])
@@ -865,6 +872,16 @@ Func SetupAppdata()
 	EndSelect
 EndFunc
 
+Func _Bool($sString)
+	If $sString = "True" Then
+		Return True
+	ElseIf $sString = "False" Then
+		Return False
+	Else
+		Return $sString
+	EndIf
+EndFunc
+
 Func _ChangeSearchEngine($sURL)
 
 	If StringInStr($sURL, "bing.com/search?q=") Then
@@ -1014,16 +1031,6 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 
 	Return $vReturn
 
-EndFunc
-
-Func _Bool($sString)
-	If $sString = "True" Then
-		Return True
-	ElseIf $sString = "False" Then
-		Return False
-	Else
-		Return $sString
-	EndIf
 EndFunc
 
 Func _IsInstalled()
