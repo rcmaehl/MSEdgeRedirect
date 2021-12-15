@@ -326,7 +326,7 @@ Func RunArchCheck()
 		For $iLoop = 0 To UBound($hLogs) - 1
 			FileClose($hLogs[$iLoop])
 		Next
-		Exit 1
+		Exit 216 ; ERROR_EXE_MACHINE_TYPE_MISMATCH
 	EndIf
 EndFunc
 
@@ -347,7 +347,7 @@ Func RunHTTPCheck()
 		For $iLoop = 0 To UBound($hLogs) - 1
 			FileClose($hLogs[$iLoop])
 		Next
-		Exit 1
+		Exit 4315 ; ERROR_MEDIA_INCOMPATIBLE
 	EndIf
 
 EndFunc
@@ -532,7 +532,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 			For $iLoop = 0 To UBound($hLogs) - 1
 				FileClose($hLogs[$iLoop])
 			Next
-			Exit 1
+			Exit 5 ; ERROR_ACCESS_DENIED
 		EndIf
 
 		; Disable Scaling
