@@ -167,11 +167,6 @@ Func ProcessCMDLine()
 		;;;
 	EndIf
 
-	If _Singleton("MSER", 3) = 0 Then
-		Sleep(300)
-		Exit
-	EndIf
-
 	If Not $bPortable Then
 		$aInstall = _IsInstalled()
 
@@ -181,7 +176,17 @@ Func ProcessCMDLine()
 			Case _VersionCompare($sVersion, $aInstall[2]) ; Installed, Out of Date
 				RunSetup($aInstall[1], $bSilent)
 			Case StringInStr($aInstall[1], "HKCU") ; Installed, Up to Date, Service Mode
-				If Not @ScriptDir = @LocalAppDataDir & "\MSEdgeRedirect" Then ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", "", @LocalAppDataDir & "\MSEdgeRedirect\")
+				If Not @ScriptDir = @LocalAppDataDir & "\MSEdgeRedirect" Then
+					ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", "", @LocalAppDataDir & "\MSEdgeRedirect\")
+				Else
+					$aPIDs = ProcessList("msedgeredirect.exe")
+					For $iLoop = 1 To $aPIDs[0][0] Step 1
+						If Not $aPIDs[$iLoop][1] = @AutoItPID Then
+							$bHide = False
+							ProcessClose($aPIDs[$iLoop][1])
+						EndIf
+					Next
+				EndIf
 			Case Else
 				Exit
 		EndSelect
