@@ -234,7 +234,7 @@ Func ReactiveMode($bHide = False)
 			$aProcessList = ProcessList("msedge.exe")
 			For $iLoop = 1 To $aProcessList[0][0] - 1
 				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
-				If StringInStr($sCommandline, "microsoft-edge:") And Not StringInStr($sCommandline, "--inprivate") Then
+				If (StringInStr($sCommandline, "microsoft-edge:") And Not StringInStr($sCommandline, "--inprivate")) Or StringInStr($sCommandline, "--app-id") Then
 					ProcessClose($aProcessList[$iLoop][1])
 					If _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]), 1, $aEdges[0]) > 0 Then
 						_DecodeAndRun($sCommandline)
@@ -928,7 +928,7 @@ Func _DecodeAndRun($sCMDLine)
 			ShellExecute(_GetSettingValue("PDFApp"), $sCMDLine)
 		Case StringInStr($sCMDLine, "--app-id") And _GetSettingValue("NoApps") ; TikTok and other Apps
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*)(--app-fallback-url=)", "")
-			$sCMDLine = StringRegExpReplace($sCMDLine, "(?=\s--windows-store-app)(.*)", "")
+			$sCMDLine = StringRegExpReplace($sCMDLine, "(?= --)(.*)", "")
 			ShellExecute($sCMDLine)
 		Case StringInStr($sCMDLine, "Windows.Widgets")
 			$sCaller = "Windows.Widgets"
