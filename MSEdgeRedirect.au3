@@ -679,11 +679,13 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 
 				Case $hMsg = $hNoPDFs
 					If _IsChecked($hNoPDFs) Then
-						Do
-							$sHandler = FileOpenDialog("Select a PDF Handler", @ProgramFilesDir, "Executables (*.exe)", $FD_FILEMUSTEXIST)
-						Until Not @error
-						$aHandler = StringSplit($sHandler, "\")
-						GUICtrlSetData($hPDFPath, $aHandler[$aHandler[0]])
+						$sHandler = FileOpenDialog("Select a PDF Handler", @ProgramFilesDir, "Executables (*.exe)", $FD_FILEMUSTEXIST)
+						If @error Then
+							GUICtrlSetState($hNoPDFs, $GUI_UNCHECKED)
+						Else
+							$aHandler = StringSplit($sHandler, "\")
+							GUICtrlSetData($hPDFPath, $aHandler[$aHandler[0]])
+						EndIf
 					Else
 						GUICtrlSetData($hPDFPath, "")
 					EndIf
