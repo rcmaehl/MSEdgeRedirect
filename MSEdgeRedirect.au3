@@ -71,22 +71,6 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--inprivate" ; In Private Browsing, No Parameters
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
-			Exit
-		Case StringInStr($aCMDLine[2], "--app-id") And _GetSettingValue("NoApps") ; TikTok and other Apps
-			For $iLoop = 2 To $aCMDLine[0]
-				If StringInStr($aCMDLine[$iLoop], "--app-fallback-url") Then
-					$sCMDLine = StringReplace($aCMDLine[$iLoop], "--app-fallback-url=", "")
-					_DecodeAndRun($sCMDLine)
-				EndIf
-			Next
-			Exit
-		Case _ArraySearch($aCMDLine[0], ".pdf") > -1 And _GetSettingValue("NoPDFs")
-			$aCMDLine[1] = StringReplace($aCMDLine[1], $aCMDLine[1], _GetSettingValue("PDFApp"))
-			For $iLoop = 2 To $aCMDLine[0]
-				$sCMDLine &= $aCMDLine[$iLoop] & " "
-			Next
-			ShellExecute($aCMDLine[1], $sCMDLine)
-			Exit
 		Case Else
 			For $iLoop = 2 To $aCMDLine[0]
 				$sCMDLine &= $aCMDLine[$iLoop] & " "
@@ -250,7 +234,7 @@ Func ReactiveMode($bHide = False)
 			$aProcessList = ProcessList("msedge.exe")
 			For $iLoop = 1 To $aProcessList[0][0] - 1
 				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
-				If StringInStr($sCommandline, "microsoft-edge:") Then
+				If StringInStr($sCommandline, "microsoft-edge:") And Not StringInStr($sCommandline, "--inprivate") Then
 					ProcessClose($aProcessList[$iLoop][1])
 					If _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]), 1, $aEdges[0]) > 0 Then
 						_DecodeAndRun($sCommandline)
@@ -933,14 +917,17 @@ EndFunc
 Func _DecodeAndRun($sCMDLine)
 
 	Local $sCaller
-	Local $bNoBing
 	Local $aLaunchContext
-
-	$bNoBing = _GetSettingValue("NoBing")
 
 	Select
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
 			FileWrite($hLogs[2], _NowCalc() & " - Skipped Settings URL: " & $sCMDLine & @CRLF)
+		Case StringInStr($sCMDLine, ".pdf") And _GetSettingValue("NoPDFs")
+			ShellExecute(_GetSettingValue("PDFApp"), $sCMDLine)
+		Case StringInStr($sCMDLine, "--app-id") And _GetSettingValue("NoApps") ; TikTok and other Apps
+			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*)(--app-fallback-url=)", "")
+			$sCMDLine = StringRegExpReplace($sCMDLine, "(?=\s--windows-store-app)(.*)", "")
+			ShellExecute($sCMDLine)
 		Case StringInStr($sCMDLine, "Windows.Widgets")
 			$sCaller = "Windows.Widgets"
 			ContinueCase
@@ -951,7 +938,7 @@ Func _DecodeAndRun($sCMDLine)
 				FileWrite($hLogs[1], _NowCalc() & " - Redirected Edge Call from: " & $sCaller & @CRLF)
 				$sCMDLine = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
 				If _WinAPI_UrlIs($sCMDLine) Then
-					If $bNoBing Then $sCMDLine = _ChangeSearchEngine($sCMDLine)
+					If _GetSettingValue("NoBing") Then $sCMDLine = _ChangeSearchEngine($sCMDLine)
 					ShellExecute($sCMDLine)
 				Else
 					FileWrite($hLogs[2], _NowCalc() & " - Invalid Regexed URL: " & $sCMDLine & @CRLF)
@@ -962,7 +949,7 @@ Func _DecodeAndRun($sCMDLine)
 		Case Else
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "")
 			If _WinAPI_UrlIs($sCMDLine) Then
-				If $bNoBing Then $sCMDLine = _ChangeSearchEngine($sCMDLine)
+				If _GetSettingValue("NoBing") Then $sCMDLine = _ChangeSearchEngine($sCMDLine)
 				ShellExecute($sCMDLine)
 			Else
 				FileWrite($hLogs[2], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
