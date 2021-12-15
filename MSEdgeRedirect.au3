@@ -374,8 +374,14 @@ EndFunc
 
 Func RunRemoval($bUpdate = False)
 
+	Local $aPIDs
 	Local $sHive = ""
 	Local $sLocation = ""
+
+	$aPIDs = ProcessList("msedgeredirect.exe")
+	For $iLoop = 1 To $aPIDs[0][0]
+		If Not $aPIDs[$iLoop][0] = @AutoItPID Then ProcessClose($aPIDs[$iLoop][0])
+	Next
 
 	If IsAdmin() Then
 		$sLocation = "C:\Program Files\MSEdgeRedirect\"
