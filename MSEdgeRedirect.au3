@@ -425,6 +425,18 @@ Func RunRemoval($bUpdate = False)
 EndFunc
 
 Func RunRepair()
+
+	If IsAdmin() Then
+		For $iLoop = 1 To $aEdges[0] Step 1
+			If FileExists(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe")) Then
+				FileCopy($aEdges[$iLoop], StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"), $FC_OVERWRITE)
+			EndIf
+		Next
+		Exit
+	Else
+		Exit 5 ; ERROR_ACCESS_DENIED
+	EndIf
+
 EndFunc
 
 Func RunSetup($bUpdate = False, $bSilent = False)
@@ -804,7 +816,7 @@ Func SetIFEORegistry(ByRef $aChannels)
 			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop)
 			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger", "REG_SZ", "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
 			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "FilterFullPath", "REG_SZ", $aEdges[$iLoop])
-			FileCopy($aEdges[$iLoop], StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"))
+			FileCopy($aEdges[$iLoop], StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"), $FC_OVERWRITE)
 		EndIf
 	Next
 EndFunc
