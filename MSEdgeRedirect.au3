@@ -379,8 +379,8 @@ Func RunRemoval($bUpdate = False)
 	Local $sLocation = ""
 
 	$aPIDs = ProcessList("msedgeredirect.exe")
-	For $iLoop = 1 To $aPIDs[0][0]
-		If Not $aPIDs[$iLoop][0] = @AutoItPID Then ProcessClose($aPIDs[$iLoop][0])
+	For $iLoop = 1 To $aPIDs[0][0] Step 1
+		If Not $aPIDs[$iLoop][1] = @AutoItPID Then ProcessClose($aPIDs[$iLoop][0])
 	Next
 
 	If IsAdmin() Then
