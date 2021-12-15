@@ -360,13 +360,16 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 		Switch $aSettings[$sStartMenu]
 
 			Case "Full"
-				FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect - Settings.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", "/change")
+				DirCreate(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect")
+				FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\Settings.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", "/change")
 				ContinueCase
 
 			Case "App Only"
-				FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs)
+				DirCreate(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect")
+				FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs)
 
 			Case Else
+				;;;
 
 		EndSwitch
 	EndIf
@@ -419,8 +422,7 @@ Func RunRemoval($bUpdate = False)
 	RegDelete($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect")
 
 	FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
-	FileDelete(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect.lnk")
-	FileDelete(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect - Settings.lnk")
+	DirRemove(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect", $DIR_REMOVE)
 
 	If IsAdmin() Then
 		For $iLoop = 1 To $aEdges[0] Step 1
