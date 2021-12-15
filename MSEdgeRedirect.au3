@@ -420,6 +420,15 @@ Func RunRemoval($bUpdate = False)
 
 	FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
 	FileDelete(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect.lnk")
+	FileDelete(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect - Settings.lnk")
+
+	If IsAdmin() Then
+		For $iLoop = 1 To $aEdges[0] Step 1
+			If FileExists(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe")) Then
+				FileDelete(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"))
+			EndIf
+		Next
+	EndIf
 
 	If $bUpdate Then
 		FileDelete($sLocation & "*")
