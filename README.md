@@ -22,7 +22,7 @@ If you're on older Windows builds, check out: https://github.com/da2x/EdgeDeflec
 
 [Download latest stable release](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe)
 
-[Download latest testing release](https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/MSER/main/mser.zip)
+[Download latest testing release](https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/MSER/main/mser.zip)\
 **Keep in mind that you will have to update testing releases manually**
 
 ### System Requirements
