@@ -22,7 +22,7 @@ If you're on older Windows builds, check out: https://github.com/da2x/EdgeDeflec
 
 [Download latest stable release](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe)
 
-[Download latest testing release](https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/mser/main/mser.zip)\
+[Download latest testing release](https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/MSER/main/mser.zip)\
 **Keep in mind that you will have to update testing releases manually**
 
 ### System Requirements
@@ -47,6 +47,8 @@ Search Engine Customizations| | |☑, 8|☑, 14|☑, 9
 Search Engine Shortcut Support| | |☑, DDG !Bang| | 
 Customizable Edge Support| | |☑| |☑
 Can be used Portably (USB)| | | | |☑<sup>‡</sup>
+Can be silently deployed| | | | |☑
+Supports GPO Registry Keys| | | | |☑
 
 
 <sub><sup>\* When using Service Mode, † When using Active Mode, ‡ When using /portable flag, uses Service Mode</sub></sup>
@@ -70,18 +72,22 @@ See [LICENSE](LICENSE) for the full license text.
 
 ## FAQ
 
-### It isn’t working for me!
+### MSEdgeRedirect isn't listed in the "How do you want to open this?" Menu?
+
+Select the **Featured** Microsoft Edge. MSEdgeRedirect will still properly function.
+
+### It isn’t working for me?
 
 Make sure the application is running in the system tray, then run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that is not properly redirected, [file a bug report!](https://github.com/rcmaehl/MSEdgeRedirect/issues/new?assignees=&labels=&template=bug_report.md&title=)
 
-### Will searches inside <app name here> still use Bing?
+### Will searches inside \<app name here\> still use Bing?
 
 MSEdge Redirect only redirects links that attempt to open in MS Edge. It will not affect results generated within other applications.
 
 ### Can you change Bing results to Google Results?
 
-**Not Yet**, I plan to add a selector for your prefered search engine in a future version.
-
+Yes, as of 0.5.0.0, you can select One of 8 available Search Engines, or set your own!
+  
 ### How do I uninstall?
 
 **0.4.0.0 & Newer:** Use Programs and Features\
