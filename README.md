@@ -80,14 +80,14 @@ Select the **Featured** Microsoft Edge. MSEdgeRedirect will still properly funct
 
 Make sure the application is running in the system tray, then run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that is not properly redirected, [file a bug report!](https://github.com/rcmaehl/MSEdgeRedirect/issues/new?assignees=&labels=&template=bug_report.md&title=)
 
-### Will searches inside <app name here> still use Bing?
+### Will searches inside \<app name here\> still use Bing?
 
 MSEdge Redirect only redirects links that attempt to open in MS Edge. It will not affect results generated within other applications.
 
 ### Can you change Bing results to Google Results?
 
-**Not Yet**, I plan to add a selector for your prefered search engine in a future version.
-
+Yes, as of 0.5.0.0, you can select One of 8 available Search Engines, or set your own!
+  
 ### How do I uninstall?
 
 **0.4.0.0 & Newer:** Use Programs and Features\
