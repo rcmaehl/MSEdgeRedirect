@@ -47,6 +47,8 @@ Search Engine Customizations| | |☑, 8|☑, 14|☑, 9
 Search Engine Shortcut Support| | |☑, DDG !Bang| | 
 Customizable Edge Support| | |☑| |☑
 Can be used Portably (USB)| | | | |☑<sup>‡</sup>
+Can be silently deployed| | | | |☑
+Supports GPO Registry Keys| | | | |☑
 
 
 <sub><sup>\* When using Service Mode, † When using Active Mode, ‡ When using /portable flag, uses Service Mode</sub></sup>
