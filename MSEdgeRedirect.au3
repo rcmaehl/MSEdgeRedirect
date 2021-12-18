@@ -688,6 +688,10 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 				Case $hMsg = $hActive or $hMsg = $hService
 					If _IsChecked($hActive) And Not IsAdmin() Then
 						If ShellExecute(@ScriptFullPath, "", @ScriptDir, "RunAs") Then Exit
+						GUICtrlSetState($hActive, $GUI_UNCHECKED)
+						GUICtrlSetState($hService, $GUI_CHECKED)
+						MsgBox($MB_ICONERROR+$MB_OK, "Admin Required", "Unable to install Active Mode without Admin Rights!")
+						FileWrite($hLogs[0], _NowCalc() & " - " & "Active Mode UAC Elevation Attempt Failed!" & @CRLF)
 					EndIf
 					If _IsChecked($hService) Then
 						GUICtrlSetState($hInstall, $GUI_ENABLE)
