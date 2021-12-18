@@ -628,10 +628,6 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 			GUICtrlSetState($hChannels[2], $GUI_DISABLE)
 			GUICtrlSetState($hChannels[3], $GUI_DISABLE)
 
-			If Not $bIsAdmin Then
-				GUICtrlSetState($hActive, $GUI_DISABLE)
-			EndIf
-
 		GUICtrlCreateGroup("Options", 20, 300, 420, 100)
 			Local $hNoApps = GUICtrlCreateCheckbox("De-embed Windows Store 'Apps'", 50, 320, 380, 20)
 			Local $hNoPDFs = GUICtrlCreateCheckbox("Redirect PDFs to:", 50, 340, 240, 20)
@@ -690,6 +686,9 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 					GUISetState(@SW_SHOW, $hSettings)
 
 				Case $hMsg = $hActive or $hMsg = $hService
+					If _IsChecked($hActive) And Not IsAdmin() Then
+						If ShellExecute(@ScriptFullPath, "", @ScriptDir, "RunAs") Then Exit
+					EndIf
 					If _IsChecked($hService) Then
 						GUICtrlSetState($hInstall, $GUI_ENABLE)
 						GUICtrlSetState($hStartup, $GUI_ENABLE)
