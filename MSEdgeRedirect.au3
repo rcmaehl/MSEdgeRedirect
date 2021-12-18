@@ -587,40 +587,41 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 		GUISwitch($hInstallGUI)
 		#EndRegion
 
-		#Region Install Settings
+		#Region Settings Page
+		Local $hSettings = GUICreate("", 460, 480, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 		If $bUpdate Then
-			GUICtrlCreateLabel("MSEdge Redirect " & $sVersion & " Update", 200, 10, 420, 30)
+			GUICtrlCreateLabel("MSEdge Redirect " & $sVersion & " Update", 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Install to update MS Edge Redirect after customizing your preferred options", 200, 40, 420, 40)
+			GUICtrlCreateLabel("Click Install to update MS Edge Redirect after customizing your preferred options", 20, 40, 420, 40)
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		Else
-			GUICtrlCreateLabel("Install MSEdge Redirect " & $sVersion, 200, 10, 420, 30)
+			GUICtrlCreateLabel("Install MSEdge Redirect " & $sVersion, 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Install to install MS Edge Redirect after customizing your preferred options", 200, 40, 420, 40)
+			GUICtrlCreateLabel("Click Install to install MS Edge Redirect after customizing your preferred options", 20, 40, 420, 40)
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
 
-		GUICtrlCreateGroup("Mode", 200, 80, 420, 220)
+		GUICtrlCreateGroup("Mode", 20, 80, 420, 220)
 			Local $hService = GUICtrlCreateRadio("Service Mode - Per User" & @CRLF & _
 				@CRLF & _
 				"MSEdge Redirect stays running in the background. Detected Edge data is redirected to your default browser.", _
-				230, 100, 380, 60, $BS_TOP+$BS_MULTILINE)
+				50, 100, 380, 60, $BS_TOP+$BS_MULTILINE)
 			GUICtrlSetState(-1, $GUI_CHECKED)
 
-			Local $hStartup = GUICtrlCreateCheckbox("Start MSEdge Redirect Service With Windows", 250, 160, 320, 20)
-			Local $hNoIcon = GUICtrlCreateCheckbox("Hide MSEdge Redirect Service Icon from Tray", 250, 180, 320, 20)
+			Local $hStartup = GUICtrlCreateCheckbox("Start MSEdge Redirect Service With Windows", 70, 160, 320, 20)
+			Local $hNoIcon = GUICtrlCreateCheckbox("Hide MSEdge Redirect Service Icon from Tray", 70, 180, 320, 20)
 
-			GUICtrlCreateIcon("imageres.dll", 78, 210, 210, 16, 16)
+			GUICtrlCreateIcon("imageres.dll", 78, 30, 210, 16, 16)
 			Local $hActive = GUICtrlCreateRadio("Active Mode - All Users" & @CRLF & _
 				@CRLF & _
 				"MSEdge Redirect only runs when a selected Edge is launched, similary to the old EdgeDeflector app.", _
-				230, 210, 380, 60, $BS_TOP+$BS_MULTILINE)
+				50, 210, 380, 60, $BS_TOP+$BS_MULTILINE)
 
-			$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 250, 270, 90, 20)
+			$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 70, 270, 90, 20)
 			GUICtrlSetState(-1, $GUI_CHECKED)
-			$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 340, 270, 90, 20)
-			$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 430, 270, 90, 20)
-			$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 520, 270, 90, 20)
+			$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 160, 270, 90, 20)
+			$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 250, 270, 90, 20)
+			$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 340, 270, 90, 20)
 
 			GUICtrlSetState($hChannels[0], $GUI_DISABLE)
 			GUICtrlSetState($hChannels[1], $GUI_DISABLE)
@@ -631,30 +632,50 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 				GUICtrlSetState($hActive, $GUI_DISABLE)
 			EndIf
 
-		GUICtrlCreateGroup("Options", 200, 300, 420, 100)
-			Local $hNoApps = GUICtrlCreateCheckbox("De-embed Windows Store 'Apps'", 230, 320, 380, 20)
-			Local $hNoPDFs = GUICtrlCreateCheckbox("Redirect PDFs to:", 230, 340, 240, 20)
-			Local $hPDFPath = GUICtrlCreateLabel("",470, 340, 140, 20)
-			Local $hSearch = GUICtrlCreateCheckbox("Replace Bing Search Results with:", 230, 360, 240, 20)
-			Local $hEngine = GUICtrlCreateCombo("", 470, 355, 140, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+		GUICtrlCreateGroup("Options", 20, 300, 420, 100)
+			Local $hNoApps = GUICtrlCreateCheckbox("De-embed Windows Store 'Apps'", 50, 320, 380, 20)
+			Local $hNoPDFs = GUICtrlCreateCheckbox("Redirect PDFs to:", 50, 340, 240, 20)
+			Local $hPDFPath = GUICtrlCreateLabel("",290, 340, 140, 20)
+			Local $hSearch = GUICtrlCreateCheckbox("Replace Bing Search Results with:", 50, 360, 240, 20)
+			Local $hEngine = GUICtrlCreateCombo("", 290, 355, 140, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Ask|Baidu|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
 
 
-		Local $hInstall = GUICtrlCreateButton("Install", 200, 410, 420, 50)
+		Local $hInstall = GUICtrlCreateButton("Install", 20, 410, 420, 50)
 		GUICtrlSetFont(-1, 16, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+		GUISwitch($hInstallGUI)
 		#EndRegion
 
-		GUISetState(@SW_SHOW, $hLicense)
+		#Region Finish Page
+		Local $hFinish = GUICreate("", 460, 480, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
+		If $bUpdate Then
+			GUICtrlCreateLabel("Updated Successfully", 20, 10, 420, 30)
+			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+		Else
+			GUICtrlCreateLabel("Installed Successfully", 20, 10, 420, 30)
+			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+		EndIf
+
+		Local $hClose = GUICtrlCreateButton("Close", 20, 410, 420, 50)
+		GUICtrlSetFont(-1, 16, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+
+		GUISwitch($hInstallGUI)
+		#EndRegion
 
 		GUISetState(@SW_SHOW, $hInstallGUI)
+		GUISetState(@SW_SHOW, $hLicense)
 
 		While True
 			$hMsg = GUIGetMsg()
 
 			Select
 
-				Case $hMsg = $GUI_EVENT_CLOSE
+				Case $hMsg = $GUI_EVENT_CLOSE or $hMsg = $hClose
+					If Not $aConfig[$vMode] Then
+						If $aSettings[$bNoTray] Then $sArgs = "/hide"
+						ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
+					EndIf
 					Exit
 
 				Case $hMsg = $hAgree or $hMsg = $hDisagree
@@ -666,6 +687,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 
 				Case $hMsg = $hNext
 					GUISetState(@SW_HIDE, $hLicense)
+					GUISetState(@SW_SHOW, $hSettings)
 
 				Case $hMsg = $hActive or $hMsg = $hService
 					If _IsChecked($hService) Then
@@ -733,7 +755,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 					$aSettings[$sSearchPath] = $sEngine
 					$aSettings[$bStartup] = _IsChecked($hStartup)
 
-					GUISetState(@SW_HIDE, $hInstallGUI)
+					GUISetState(@SW_HIDE, $hSettings)
 					RunInstall($aConfig, $aSettings)
 					SetAppRegistry($aConfig[$vMode])
 					If $aConfig[$vMode] Then
@@ -741,11 +763,8 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 							$aChannels[$iLoop] = _IsChecked($hChannels[$iLoop])
 						Next
 						SetIFEORegistry($aChannels)
-					Else
-						If $aSettings[$bNoTray] Then $sArgs = "/hide"
-						ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
 					EndIf
-					Exit
+					GUISetState(@SW_SHOW, $hFinish)
 
 				Case Else
 					;;;
