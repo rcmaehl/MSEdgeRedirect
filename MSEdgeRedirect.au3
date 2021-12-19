@@ -6,9 +6,9 @@
 #AutoIt3Wrapper_UseX64=y
 #AutoIt3Wrapper_Res_Comment=https://www.msedgeredirect.com
 #AutoIt3Wrapper_Res_Description=A Tool to Redirect News, Search, Widgets, Weather and More to Your Default Browser
-#AutoIt3Wrapper_Res_Fileversion=0.5.0.0
+#AutoIt3Wrapper_Res_Fileversion=0.5.0.1
 #AutoIt3Wrapper_Res_ProductName=MSEdgeRedirect
-#AutoIt3Wrapper_Res_ProductVersion=0.5.0.0
+#AutoIt3Wrapper_Res_ProductVersion=0.5.0.1
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
@@ -33,6 +33,7 @@
 #include <MsgBoxConstants.au3>
 
 #include "Includes\_Theming.au3"
+#include "Includes\_Translation.au3"
 
 #include "Includes\ResourcesEx.au3"
 
@@ -46,7 +47,7 @@ Global $aEdges[5] = [4, _
 	"C:\Program Files (x86)\Microsoft\Edge Dev\Application\msedge.exe", _
 	@LocalAppDataDir & "\Microsoft\Edge SXS\Application\msedge.exe"]
 
-Global $sVersion = "0.5.0.0"
+Global $sVersion = "0.5.0.1"
 
 SetupAppdata()
 
@@ -980,7 +981,11 @@ Func _DecodeAndRun($sCMDLine)
 		Case StringInStr($sCMDLine, "--app-id") And _GetSettingValue("NoApps") ; TikTok and other Apps
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*)(--app-fallback-url=)", "")
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(?= --)(.*)", "")
-			ShellExecute($sCMDLine)
+			If _WinAPI_UrlIs($sCMDLine) And Not _WinAPI_UrlIs($sCMDLine, $URLIS_FILEURL) Then
+				ShellExecute($sCMDLine)
+			Else
+				FileWrite($hLogs[2], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
+			EndIf
 		Case StringInStr($sCMDLine, "Windows.Widgets")
 			$sCaller = "Windows.Widgets"
 			ContinueCase
@@ -990,7 +995,7 @@ Func _DecodeAndRun($sCMDLine)
 				If $sCaller = "" Then $sCaller = $aLaunchContext[2]
 				FileWrite($hLogs[1], _NowCalc() & " - Redirected Edge Call from: " & $sCaller & @CRLF)
 				$sCMDLine = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
-				If _WinAPI_UrlIs($sCMDLine) Then
+				If _WinAPI_UrlIs($sCMDLine) And Not _WinAPI_UrlIs($sCMDLine, $URLIS_FILEURL) Then
 					If _GetSettingValue("NoBing") Then $sCMDLine = _ChangeSearchEngine($sCMDLine)
 					ShellExecute($sCMDLine)
 				Else
@@ -1001,7 +1006,7 @@ Func _DecodeAndRun($sCMDLine)
 			EndIf
 		Case Else
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "")
-			If _WinAPI_UrlIs($sCMDLine) Then
+			If _WinAPI_UrlIs($sCMDLine) And Not _WinAPI_UrlIs($sCMDLine, $URLIS_FILEURL) Then
 				If _GetSettingValue("NoBing") Then $sCMDLine = _ChangeSearchEngine($sCMDLine)
 				ShellExecute($sCMDLine)
 			Else
@@ -1010,6 +1015,70 @@ Func _DecodeAndRun($sCMDLine)
 	EndSelect
 EndFunc
 
+Func _GetDefaultBrowser()
+
+	Local $sProg
+	Local $sHive1
+	Local $sHive2
+
+	Local Static $sBrowser
+
+	If $sBrowser <> "" Then
+		;;;
+	Else
+		If _WinAPI_IsWow64Process() Then
+			$sHive1 = "HKCU64"
+			$sHive2 = "HKCR64"
+		Else
+			$sHive1 = "HKCU"
+			$sHive2 = "HKCR"
+		EndIf
+		$sProg = RegRead($sHive1 & "\SOFTWARE\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgID")
+		$sBrowser = RegRead($sHive2 & "\" & $sProg & "\shell\open\command", "")
+		$sBrowser = StringReplace($sBrowser, "%1", "")
+	EndIf
+
+	Return $sBrowser
+
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _GetLatestRelease
+; Description ...: Checks GitHub for the Latest Release
+; Syntax ........: _GetLatestRelease($sCurrent)
+; Parameters ....: $sCurrent            - a string containing the current program version
+; Return values .: Returns True if Update Available
+; Author ........: rcmaehl
+; Modified ......: 11/11/2021
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+Func _GetLatestRelease($sCurrent)
+
+	Local $dAPIBin
+	Local $sAPIJSON
+
+	$dAPIBin = InetRead("https://api.fcofix.org/repos/rcmaehl/MSEdgeRedirect/releases")
+	If @error Then Return SetError(1, 0, 0)
+	$sAPIJSON = BinaryToString($dAPIBin)
+	If @error Then Return SetError(2, 0, 0)
+
+	Local $aReleases = _StringBetween($sAPIJSON, '"tag_name":"', '",')
+	If @error Then Return SetError(3, 0, 0)
+	Local $aRelTypes = _StringBetween($sAPIJSON, '"prerelease":', ',')
+	If @error Then Return SetError(3, 1, 0)
+	Local $aCombined[UBound($aReleases)][2]
+
+	For $iLoop = 0 To UBound($aReleases) - 1 Step 1
+		$aCombined[$iLoop][0] = $aReleases[$iLoop]
+		$aCombined[$iLoop][1] = $aRelTypes[$iLoop]
+	Next
+
+	Return _VersionCompare($aCombined[0][0], $sCurrent)
+
+EndFunc   ;==>_GetLatestRelease
 
 Func _GetSettingValue($sSetting, $bPortable = False)
 
@@ -1073,6 +1142,10 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 
 EndFunc
 
+Func _IsChecked($idControlID)
+	Return BitAND(GUICtrlRead($idControlID), $GUI_CHECKED) = $GUI_CHECKED
+EndFunc   ;==>_IsChecked
+
 Func _IsInstalled()
 
 	Local $sHive1 = ""
@@ -1105,47 +1178,24 @@ Func _IsInstalled()
 
 EndFunc
 
-; #FUNCTION# ====================================================================================================================
-; Name ..........: _GetLatestRelease
-; Description ...: Checks GitHub for the Latest Release
-; Syntax ........: _GetLatestRelease($sCurrent)
-; Parameters ....: $sCurrent            - a string containing the current program version
-; Return values .: Returns True if Update Available
-; Author ........: rcmaehl
-; Modified ......: 11/11/2021
-; Remarks .......:
-; Related .......:
-; Link ..........:
-; Example .......: No
-; ===============================================================================================================================
-Func _GetLatestRelease($sCurrent)
+Func _IsSafeURL($sURL)
 
-	Local $dAPIBin
-	Local $sAPIJSON
+	Local $bSafe = False
 
-	$dAPIBin = InetRead("https://api.fcofix.org/repos/rcmaehl/MSEdgeRedirect/releases")
-	If @error Then Return SetError(1, 0, 0)
-	$sAPIJSON = BinaryToString($dAPIBin)
-	If @error Then Return SetError(2, 0, 0)
+	Select
+		Case _WinAPI_UrlIs($sURL, $URLIS_FILEURL)
+			ContinueCase
+		Case _WinAPI_UrlIs($sURL, $URLIS_OPAQUE)
+			$bSafe = False
+		Case _WinAPI_UrlIs($sURL, $URLIS_URL)
+			$bSafe = True
+		Case Else
+			;;;
+	EndSelect
 
-	Local $aReleases = _StringBetween($sAPIJSON, '"tag_name":"', '",')
-	If @error Then Return SetError(3, 0, 0)
-	Local $aRelTypes = _StringBetween($sAPIJSON, '"prerelease":', ',')
-	If @error Then Return SetError(3, 1, 0)
-	Local $aCombined[UBound($aReleases)][2]
+	Return $bSafe
 
-	For $iLoop = 0 To UBound($aReleases) - 1 Step 1
-		$aCombined[$iLoop][0] = $aReleases[$iLoop]
-		$aCombined[$iLoop][1] = $aRelTypes[$iLoop]
-	Next
-
-	Return _VersionCompare($aCombined[0][0], $sCurrent)
-
-EndFunc   ;==>_GetLatestRelease
-
-Func _IsChecked($idControlID)
-	Return BitAND(GUICtrlRead($idControlID), $GUI_CHECKED) = $GUI_CHECKED
-EndFunc   ;==>_IsChecked
+EndFunc
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _UnicodeURLDecode
@@ -1153,8 +1203,8 @@ EndFunc   ;==>_IsChecked
 ; Syntax ........: _UnicodeURLDecode($toDecode)
 ; Parameters ....: $$toDecode           - The URL-friendly string to decode
 ; Return values .: The URL decoded string
-; Author ........: nfwu, Dhilip89
-; Modified ......: 11/17/2021
+; Author ........: nfwu, Dhilip89, rcmaehl
+; Modified ......: 12/19/2021
 ; Remarks .......: Modified from _URLDecode() that only supported non-unicode.
 ; Related .......:
 ; Link ..........:
@@ -1165,9 +1215,9 @@ Func _UnicodeURLDecode($toDecode)
     Local $aryHex = StringSplit($toDecode, "")
     For $i = 1 To $aryHex[0]
         If $aryHex[$i] = "%" Then
-            $i = $i + 1
+            $i += 1
             $iOne = $aryHex[$i]
-            $i = $i + 1
+            $i += 1
             $iTwo = $aryHex[$i]
             $strChar = $strChar & Chr(Dec($iOne & $iTwo))
         Else
@@ -1178,50 +1228,3 @@ Func _UnicodeURLDecode($toDecode)
     Local $DecodedString = BinaryToString ($Process, 4)
     Return $DecodedString
 EndFunc   ;==>_UnicodeURLDecode
-
-#Region Translation Functions
-Func _GetFile($sFile, $sFormat = $FO_READ)
-	Local Const $hFileOpen = FileOpen($sFile, $sFormat)
-	If $hFileOpen = -1 Then
-		Return SetError(1, 0, '')
-	EndIf
-	Local Const $sData = FileRead($hFileOpen)
-	FileClose($hFileOpen)
-	Return $sData
-EndFunc   ;==>_GetFile
-
-Func _INIUnicode($sINI)
-	If FileExists($sINI) = 0 Then
-		Return FileClose(FileOpen($sINI, $FO_OVERWRITE + $FO_UNICODE))
-	Else
-		Local Const $iEncoding = FileGetEncoding($sINI)
-		Local $fReturn = True
-		If Not ($iEncoding = $FO_UNICODE) Then
-			Local $sData = _GetFile($sINI, $iEncoding)
-			If @error Then
-				$fReturn = False
-			EndIf
-			_SetFile($sData, $sINI, $FO_APPEND + $FO_UNICODE)
-		EndIf
-		Return $fReturn
-	EndIf
-EndFunc   ;==>_INIUnicode
-
-Func _SetFile($sString, $sFile, $iOverwrite = $FO_READ)
-	Local Const $hFileOpen = FileOpen($sFile, $iOverwrite + $FO_APPEND)
-	FileWrite($hFileOpen, $sString)
-	FileClose($hFileOpen)
-	If @error Then
-		Return SetError(1, 0, False)
-	EndIf
-	Return True
-EndFunc   ;==>_SetFile
-
-Func _Translate($iMUI, $sString)
-	Local $sReturn
-	_INIUnicode(@LocalAppDataDir & "\MSEdgeRedirect\Langs\" & $iMUI & ".lang")
-	$sReturn = IniRead(@LocalAppDataDir & "\MSEdgeRedirect\Langs\" & $iMUI & ".lang", "Strings", $sString, $sString)
-	$sReturn = StringReplace($sReturn, "\n", @CRLF)
-	Return $sReturn
-EndFunc   ;==>_Translate
-#EndRegion
