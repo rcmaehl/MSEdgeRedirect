@@ -616,6 +616,11 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 			Local $hStartup = GUICtrlCreateCheckbox("Start MSEdge Redirect Service With Windows", 70, 160, 320, 20)
 			Local $hNoIcon = GUICtrlCreateCheckbox("Hide MSEdge Redirect Service Icon from Tray", 70, 180, 320, 20)
 
+			If $bIsAdmin Then
+				GUICtrlSetState($hStartup, $GUI_DISABLE)
+				GUICtrlSetState($hNoIcon, $GUI_DISABLE)
+			EndIf
+
 			GUICtrlCreateIcon("imageres.dll", 78, 30, 210, 16, 16)
 			Local $hActive = GUICtrlCreateRadio("Active Mode - All Users" & @CRLF & _
 				@CRLF & _
@@ -629,10 +634,12 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 			$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 250, 270, 90, 20)
 			$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 340, 270, 90, 20)
 
-			GUICtrlSetState($hChannels[0], $GUI_DISABLE)
-			GUICtrlSetState($hChannels[1], $GUI_DISABLE)
-			GUICtrlSetState($hChannels[2], $GUI_DISABLE)
-			GUICtrlSetState($hChannels[3], $GUI_DISABLE)
+			If Not $bIsAdmin Then
+				GUICtrlSetState($hChannels[0], $GUI_DISABLE)
+				GUICtrlSetState($hChannels[1], $GUI_DISABLE)
+				GUICtrlSetState($hChannels[2], $GUI_DISABLE)
+				GUICtrlSetState($hChannels[3], $GUI_DISABLE)
+			EndIf
 
 		GUICtrlCreateGroup("Options", 20, 300, 420, 100)
 			Local $hNoApps = GUICtrlCreateCheckbox("De-embed Windows Store 'Apps'", 50, 320, 380, 20)
