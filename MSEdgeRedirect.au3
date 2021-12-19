@@ -931,42 +931,42 @@ Func _ChangeSearchEngine($sURL)
 		Switch _GetSettingValue("Search")
 
 			Case "Ask"
-				Return "https://www.ask.com/web?q=" & $sURL
+				$sURL = "https://www.ask.com/web?q=" & $sURL
 
 			Case "Baidu"
-				Return "https://www.baidu.com/s?wd=" & $sURL
+				$sURL = "https://www.baidu.com/s?wd=" & $sURL
 
 			Case "Custom"
-				Return _GetSettingValue("SearchPath") & $sURL
+				$sURL = _GetSettingValue("SearchPath") & $sURL
 
 			Case "DuckDuckGo"
-				Return "https://duckduckgo.com/?q=" & $sURL
+				$sURL = "https://duckduckgo.com/?q=" & $sURL
 
 			Case "Ecosia"
-				Return "https://www.ecosia.org/search?q=" & $sURL
+				$sURL = "https://www.ecosia.org/search?q=" & $sURL
 
 			Case "Google"
-				Return "https://www.google.com/search?q=" & $sURL
+				$sURL = "https://www.google.com/search?q=" & $sURL
 
 			Case "Sogou"
-				Return "https://www.sogou.com/web?query=" & $sURL
+				$sURL = "https://www.sogou.com/web?query=" & $sURL
 
 			Case "Yahoo"
-				Return "https://search.yahoo.com/search?p=" & $sURL
+				$sURL = "https://search.yahoo.com/search?p=" & $sURL
 
 			Case "Yandex"
-				Return "https://yandex.com/search/?text=" & $sURL
+				$sURL = "https://yandex.com/search/?text=" & $sURL
 
 			Case Null
-				Return "https://bing.com/search?q=" & $sURL
+				$sURL = "https://bing.com/search?q=" & $sURL
 
 			Case Else
-				Return _GetSettingValue("SearchPath") & $sURL
+				$sURL = _GetSettingValue("SearchPath") & $sURL
 
 		EndSwitch
-	Else
-		Return $sURL
 	EndIf
+
+	Return $sURL
 
 EndFunc
 
