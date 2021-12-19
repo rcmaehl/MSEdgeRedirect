@@ -41,6 +41,7 @@ Opt("TrayMenuMode", 3)
 Opt("TrayAutoPause", 0)
 Opt("GUICloseOnESC", 0)
 
+Global $aMUI[2] = [Null, @MUILang]
 Global $bIsAdmin = IsAdmin()
 
 Global $aEdges[5] = [4, _
@@ -88,7 +89,6 @@ EndFunc
 
 Func ProcessCMDLine()
 
-	Local $aMUI[2] = [Null, @MUILang]
 	Local $aPIDs
 	Local $bHide = False
 	Local $iParams = $CmdLine[0]
@@ -106,9 +106,15 @@ Func ProcessCMDLine()
 			If _GetSettingValue("NoUpdates") And Random(1, 10, 1) = 1 Then
 				Switch _GetLatestRelease($sVersion)
 					Case -1
-						MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _Translate($aMUI[1], "Test Build?"), _Translate($aMUI[1], "You're running a newer build than publicly Available!"), 10)
+						MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _
+							_Translate($aMUI[1], "Test Build?"), _
+							_Translate($aMUI[1], "You're running a newer build than publicly Available!"), _
+							10)
 					Case 1
-						If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _Translate($aMUI[1], "Update Available"), _Translate($aMUI[1], "An Update is Available, would you like to download it?"), 10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases")
+						If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
+							_Translate($aMUI[1], "Update Available"), _
+							_Translate($aMUI[1], "An Update is Available, would you like to download it?"), _
+							10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases")
 				EndSwitch
 			EndIf
 			Exit
@@ -118,8 +124,6 @@ Func ProcessCMDLine()
 			Switch $CmdLine[1]
 				Case "/?", "/help"
 					MsgBox(0, "Help and Flags", _
-							"Checks PC for Windows 11 Release Compatibility" & @CRLF & _
-							@CRLF & _
 							"MSEdgeRedirect [/hide]" & @CRLF & _
 							@CRLF & _
 							@TAB & "/hide  " & @TAB & "Hides the tray icon" & @CRLF & _
@@ -157,7 +161,9 @@ Func ProcessCMDLine()
 							InetGet("https://fcofix.org/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe", @ScriptDir & "\MSEdgeRedirect_Latest.exe")
 							_ArrayDelete($CmdLine, 1)
 						Case Else
-							MsgBox(0, "Invalid", 'Invalid release type - "' & $CmdLine[2] & "." & @CRLF)
+							MsgBox(0, _
+								"Invalid", _
+								'Invalid release type - "' & $CmdLine[2] & "." & @CRLF)
 							Exit 87 ; ERROR_INVALID_PARAMETER
 					EndSelect
 				Case "/uninstall"
@@ -165,7 +171,9 @@ Func ProcessCMDLine()
 					Exit
 				Case Else
 					If @Compiled Then ; support for running non-compiled script - mLipok
-						MsgBox(0, "Invalid", 'Invalid parameter - "' & $CmdLine[1] & "." & @CRLF)
+						MsgBox(0, _
+							"Invalid", _
+							'Invalid parameter - "' & $CmdLine[1] & "." & @CRLF)
 						Exit 87 ; ERROR_INVALID_PARAMETER
 					EndIf
 			EndSwitch
@@ -204,7 +212,6 @@ EndFunc
 
 Func ReactiveMode($bHide = False)
 
-	Local $aMUI[2] = [Null, @MUILang]
 	Local $hTimer = TimerInit()
 	Local $aAdjust
 
@@ -265,25 +272,46 @@ Func ReactiveMode($bHide = False)
 			Case $hMsg = $hUpdate
 				Switch _GetLatestRelease($sVersion)
 					Case -1
-						MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _Translate($aMUI[1], "Test Build?"), _Translate($aMUI[1], "You're running a newer build than publicly Available!"), 10)
+						MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _
+							_Translate($aMUI[1], "Test Build?"), _
+							_Translate($aMUI[1], "You're running a newer build than publicly Available!"), _
+							10)
 					Case 0
 						Switch @error
 							Case 0
-								MsgBox($MB_OK + $MB_ICONINFORMATION + $MB_TOPMOST, _Translate($aMUI[1], "Up to Date"), _Translate($aMUI[1], "You're running the latest build!"), 10)
+								MsgBox($MB_OK + $MB_ICONINFORMATION + $MB_TOPMOST, _
+									_Translate($aMUI[1], "Up to Date"), _
+									_Translate($aMUI[1], "You're running the latest build!"), _
+									10)
 							Case 1
-								MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _Translate($aMUI[1], "Unable to Check for Updates"), _Translate($aMUI[1], "Unable to load release data."), 10)
+								MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _
+									_Translate($aMUI[1], "Unable to Check for Updates"), _
+									_Translate($aMUI[1], "Unable to load release data."), _
+									10)
 							Case 2
-								MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _Translate($aMUI[1], "Unable to Check for Updates"), _Translate($aMUI[1], "Invalid Data Received!"), 10)
+								MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _
+									_Translate($aMUI[1], "Unable to Check for Updates"), _
+									_Translate($aMUI[1], "Invalid Data Received!"), _
+									10)
 							Case 3
 								Switch @extended
 									Case 0
-										MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _Translate($aMUI[1], "Unable to Check for Updates"), _Translate($aMUI[1], "Invalid Release Tags Received!"), 10)
+										MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _
+											_Translate($aMUI[1], "Unable to Check for Updates"), _
+											_Translate($aMUI[1], "Invalid Release Tags Received!"), _
+											10)
 									Case 1
-										MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _Translate($aMUI[1], "Unable to Check for Updates"), _Translate($aMUI[1], "Invalid Release Types Received!"), 10)
+										MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _
+											_Translate($aMUI[1], "Unable to Check for Updates"), _
+											_Translate($aMUI[1], "Invalid Release Types Received!"), _
+											10)
 								EndSwitch
 						EndSwitch
 					Case 1
-						If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _Translate($aMUI[1], "Update Available"), _Translate($aMUI[1], "An Update is Available, would you like to download it?"), 10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases")
+						If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
+							_Translate($aMUI[1], "Update Available"), _
+							_Translate($aMUI[1], "An Update is Available, would you like to download it?"), _
+							10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases")
 				EndSwitch
 
 			Case $hMsg = $hStartup
@@ -311,7 +339,9 @@ EndFunc
 
 Func RunArchCheck()
 	If @Compiled And @OSArch = "X64" And _WinAPI_IsWow64Process() Then
-		MsgBox($MB_ICONERROR+$MB_OK, "Wrong Version", "The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
+		MsgBox($MB_ICONERROR+$MB_OK, _
+			"Wrong Version", _
+			"The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
 		FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "32 Bit Version on 64 Bit System. EXITING!" & @CRLF)
 		For $iLoop = 0 To UBound($hLogs) - 1
 			FileClose($hLogs[$iLoop])
@@ -332,7 +362,9 @@ Func RunHTTPCheck()
 
 	If StringInStr(RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice", "ProgId"), "MSEdge") Or _
 		StringInStr(RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgId"), "MSEdge") Then
-		MsgBox($MB_ICONERROR+$MB_OK, "Edge Set As Default", "You must set a different Default Browser to use MSEdgeRedirect!")
+		MsgBox($MB_ICONERROR+$MB_OK, _
+			"Edge Set As Default", _
+			"You must set a different Default Browser to use MSEdgeRedirect!")
 		FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Found MS Edge set as default browser, EXITING!" & @CRLF)
 		For $iLoop = 0 To UBound($hLogs) - 1
 			FileClose($hLogs[$iLoop])
@@ -465,7 +497,6 @@ EndFunc
 Func RunSetup($bUpdate = False, $bSilent = False)
 	#forceref $bSilent
 
-	Local $aMUI[2] = [Null, @MUILang]
 	Local $hMsg
 	Local $sArgs = ""
 	Local $sEdges
@@ -538,14 +569,22 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 		If _GetSettingValue("NoUpdates") Then
 			Switch _GetLatestRelease($sVersion)
 				Case -1
-					MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _Translate($aMUI[1], "Test Build?"), _Translate($aMUI[1], "You're running a newer build than publicly Available!"), 10)
+					MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _
+						_Translate($aMUI[1], "Test Build?"), _
+						_Translate($aMUI[1], "You're running a newer build than publicly Available!"), _
+						10)
 				Case 1
-					If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _Translate($aMUI[1], "Update Available"), _Translate($aMUI[1], "An Update is Available, would you like to download it?"), 10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases")
+					If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
+						_Translate($aMUI[1], "Update Available"), _
+						_Translate($aMUI[1], "An Update is Available, would you like to download it?"), _
+						10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases")
 			EndSwitch
 		EndIf
 
 		If StringInStr($bUpdate, "HKLM") And Not $bIsAdmin And Not @Compiled Then
-			MsgBox($MB_ICONERROR+$MB_OK, "Admin Required", "Unable to update an Admin Install without Admin Rights!")
+			MsgBox($MB_ICONERROR+$MB_OK, _
+				"Admin Required", _
+				"Unable to update an Admin Install without Admin Rights!")
 			FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Non Admin Update Attempt on Admin Install. EXITING!" & @CRLF)
 			For $iLoop = 0 To UBound($hLogs) - 1
 				FileClose($hLogs[$iLoop])
@@ -703,7 +742,9 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 						If ShellExecute(@ScriptFullPath, "", @ScriptDir, "RunAs") Then Exit
 						GUICtrlSetState($hActive, $GUI_UNCHECKED)
 						GUICtrlSetState($hService, $GUI_CHECKED)
-						MsgBox($MB_ICONERROR+$MB_OK, "Admin Required", "Unable to install Active Mode without Admin Rights!")
+						MsgBox($MB_ICONERROR+$MB_OK, _
+							"Admin Required", _
+							"Unable to install Active Mode without Admin Rights!")
 						FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Active Mode UAC Elevation Attempt Failed!" & @CRLF)
 					EndIf
 					If _IsChecked($hService) Then
