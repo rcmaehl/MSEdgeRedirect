@@ -76,6 +76,12 @@ Func ActiveMode(ByRef $aCMDLine)
 			$aCMDLine[2] = ""
 			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--inprivate" ; In Private Browsing, No Parameters
+			If FileGetVersion($aCMDLine[1]) <> FileGetVersion(StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")) Then
+				If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
+					_Translate($aMUI[1], "File Update Required"), _
+					_Translate($aMUI[1], "The Microsoft Edge IFEO exclusion file is out of date and needs to be updated to use Edge. Update Now?"), _
+					10) = $IDYES Then ShellExecuteWait(@ScriptFullPath, "/repair", @ScriptDir, "RunAs")
+			EndIf
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
 		Case Else
