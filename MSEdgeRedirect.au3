@@ -51,10 +51,13 @@ Global $sVersion = "0.5.0.1"
 
 SetupAppdata()
 
-Global $hLogs[3] = _
+Global $hLogs[4] = _
 	[FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\AppFailures.log", $FO_APPEND), _
 	FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\AppGeneral.log", $FO_APPEND), _
+	FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\AppSecurity.log", $FO_APPEND), _
 	FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\URIFailures.log", $FO_APPEND)]
+
+Global Enum $AppFailures, $AppGeneral, $AppSecurity, $URIFailures
 
 RunArchCheck()
 RunHTTPCheck()
@@ -307,7 +310,7 @@ EndFunc
 Func RunArchCheck()
 	If @Compiled And @OSArch = "X64" And _WinAPI_IsWow64Process() Then
 		MsgBox($MB_ICONERROR+$MB_OK, "Wrong Version", "The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
-		FileWrite($hLogs[0], _NowCalc() & " - " & "32 Bit Version on 64 Bit System. EXITING!" & @CRLF)
+		FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "32 Bit Version on 64 Bit System. EXITING!" & @CRLF)
 		For $iLoop = 0 To UBound($hLogs) - 1
 			FileClose($hLogs[$iLoop])
 		Next
@@ -328,7 +331,7 @@ Func RunHTTPCheck()
 	If StringInStr(RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice", "ProgId"), "MSEdge") Or _
 		StringInStr(RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgId"), "MSEdge") Then
 		MsgBox($MB_ICONERROR+$MB_OK, "Edge Set As Default", "You must set a different Default Browser to use MSEdgeRedirect!")
-		FileWrite($hLogs[0], _NowCalc() & " - " & "Found MS Edge set as default browser, EXITING!" & @CRLF)
+		FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Found MS Edge set as default browser, EXITING!" & @CRLF)
 		For $iLoop = 0 To UBound($hLogs) - 1
 			FileClose($hLogs[$iLoop])
 		Next
@@ -542,7 +545,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 
 		If StringInStr($bUpdate, "HKLM") And Not $bIsAdmin And Not @Compiled Then
 			MsgBox($MB_ICONERROR+$MB_OK, "Admin Required", "Unable to update an Admin Install without Admin Rights!")
-			FileWrite($hLogs[0], _NowCalc() & " - " & "Non Admin Update Attempt on Admin Install. EXITING!" & @CRLF)
+			FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Non Admin Update Attempt on Admin Install. EXITING!" & @CRLF)
 			For $iLoop = 0 To UBound($hLogs) - 1
 				FileClose($hLogs[$iLoop])
 			Next
@@ -692,7 +695,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 						GUICtrlSetState($hActive, $GUI_UNCHECKED)
 						GUICtrlSetState($hService, $GUI_CHECKED)
 						MsgBox($MB_ICONERROR+$MB_OK, "Admin Required", "Unable to install Active Mode without Admin Rights!")
-						FileWrite($hLogs[0], _NowCalc() & " - " & "Active Mode UAC Elevation Attempt Failed!" & @CRLF)
+						FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Active Mode UAC Elevation Attempt Failed!" & @CRLF)
 					EndIf
 					If _IsChecked($hService) Then
 						GUICtrlSetState($hInstall, $GUI_ENABLE)
@@ -730,7 +733,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 
 				Case $hMsg = $hEngine And GUICtrlRead($hEngine) = "Custom"
 					$sEngine = InputBox("Enter Search Engine URL", "Enter the URL format of the custom search Engine to use", "https://duckduckgo.com/?q=")
-					If @error Or Not _WinAPI_UrlIs($sEngine) Then GUICtrlSetData($hEngine, "Google")
+					If @error Or Not _IsSafeURL($hEngine) Then GUICtrlSetData($hEngine, "Google")
 
 				Case $hMsg = $hNoPDFs
 					If _IsChecked($hNoPDFs) Then
@@ -975,16 +978,16 @@ Func _DecodeAndRun($sCMDLine)
 
 	Select
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
-			FileWrite($hLogs[2], _NowCalc() & " - Skipped Settings URL: " & $sCMDLine & @CRLF)
+			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Settings URL: " & $sCMDLine & @CRLF)
 		Case StringInStr($sCMDLine, ".pdf") And _GetSettingValue("NoPDFs")
 			ShellExecute(_GetSettingValue("PDFApp"), $sCMDLine)
 		Case StringInStr($sCMDLine, "--app-id") And _GetSettingValue("NoApps") ; TikTok and other Apps
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*)(--app-fallback-url=)", "")
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(?= --)(.*)", "")
-			If _WinAPI_UrlIs($sCMDLine) And Not _WinAPI_UrlIs($sCMDLine, $URLIS_FILEURL) Then
+			If _IsSafeURL($sCMDLine) Then
 				ShellExecute($sCMDLine)
 			Else
-				FileWrite($hLogs[2], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
+				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
 			EndIf
 		Case StringInStr($sCMDLine, "Windows.Widgets")
 			$sCaller = "Windows.Widgets"
@@ -993,24 +996,24 @@ Func _DecodeAndRun($sCMDLine)
 			$aLaunchContext = StringSplit($sCMDLine, "=")
 			If $aLaunchContext[0] >= 3 Then
 				If $sCaller = "" Then $sCaller = $aLaunchContext[2]
-				FileWrite($hLogs[1], _NowCalc() & " - Redirected Edge Call from: " & $sCaller & @CRLF)
+				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call from: " & $sCaller & @CRLF)
 				$sCMDLine = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
-				If _WinAPI_UrlIs($sCMDLine) And Not _WinAPI_UrlIs($sCMDLine, $URLIS_FILEURL) Then
+				If _IsSafeURL($sCMDLine) Then
 					If _GetSettingValue("NoBing") Then $sCMDLine = _ChangeSearchEngine($sCMDLine)
 					ShellExecute($sCMDLine)
 				Else
-					FileWrite($hLogs[2], _NowCalc() & " - Invalid Regexed URL: " & $sCMDLine & @CRLF)
+					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid Regexed URL: " & $sCMDLine & @CRLF)
 				EndIf
 			Else
-				FileWrite($hLogs[2], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
+				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
 			EndIf
 		Case Else
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "")
-			If _WinAPI_UrlIs($sCMDLine) And Not _WinAPI_UrlIs($sCMDLine, $URLIS_FILEURL) Then
+			If _IsSafeURL($sCMDLine) Then
 				If _GetSettingValue("NoBing") Then $sCMDLine = _ChangeSearchEngine($sCMDLine)
 				ShellExecute($sCMDLine)
 			Else
-				FileWrite($hLogs[2], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
+				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
 			EndIf
 	EndSelect
 EndFunc
@@ -1104,7 +1107,7 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 				Case $REG_DWORD
 					$vReturn =  Number(RegRead($sHive1 & "\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting))
 				Case Else
-					FileWrite($hLogs[0], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
+					FileWrite($hLogs[$AppFailures], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
 			EndSwitch
 
 		Case RegRead($sHive1 & "\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting) And Not $bPortable
@@ -1114,7 +1117,7 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 				Case $REG_DWORD
 					$vReturn = Number(RegRead($sHive1 & "\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting))
 				Case Else
-					FileWrite($hLogs[0], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
+					FileWrite($hLogs[$AppFailures], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
 			EndSwitch
 
 		Case RegRead($sHive2 & "\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting) And Not $bPortable
@@ -1124,7 +1127,7 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 				Case $REG_DWORD
 					$vReturn = Number(RegRead($sHive2 & "\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting))
 				Case Else
-					FileWrite($hLogs[0], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
+					FileWrite($hLogs[$AppFailures], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
 			EndSwitch
 
 		Case Not IniRead(@LocalAppDataDir & "\MSEdgeRedirect\Settings.ini", "Settings", $sSetting, Null) = Null And Not $bPortable
@@ -1183,6 +1186,8 @@ Func _IsSafeURL($sURL)
 	Local $bSafe = False
 
 	Select
+		Case Not StringLeft($sURL, 6) = "http:/" And Not StringLeft($sURL, 7) = "https:/"
+			ContinueCase
 		Case _WinAPI_UrlIs($sURL, $URLIS_FILEURL)
 			ContinueCase
 		Case _WinAPI_UrlIs($sURL, $URLIS_OPAQUE)
@@ -1192,6 +1197,8 @@ Func _IsSafeURL($sURL)
 		Case Else
 			;;;
 	EndSelect
+
+	If Not $bSafe Then FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe URL: " & $sURL & @CRLF)
 
 	Return $bSafe
 
