@@ -970,6 +970,34 @@ Func _ChangeSearchEngine($sURL)
 
 EndFunc
 
+Func _ChangeWeatherProvider($sURL)
+
+	;https://a.msn.com/54/en-us/ct<LATITUDE>,<LONGITUDE>?weadegreetype=F&weaext0={%22l%22:%22<CITY>%22,%22r%22:%22<STATE>%22,%22c%22:%22<COUNTRY>...
+
+	Local $fLat
+	Local $fLong
+	Local $sSign
+	Local $sLocale
+	Local $vCoords
+
+	#forceref $fLat
+	#forceref $fLong
+	#forceref $sSign
+	#forceref $sLocale
+
+	If StringInStr($sURL, "weadegreetype") Then
+		$vCoords = StringRegExpReplace($sURL, "(.*)(\/ct)", "")
+		$vCoords = StringRegExpReplace($vCoords, "(?=\?weadegreetype=)(.*)", "")
+		$vCoords = StringSplit($vCoords, ",")
+		If $vCoords[0] = 2 Then
+			$fLat = $vCoords[1]
+			$fLong = $vCoords[2]
+		EndIf
+	EndIf
+
+	Return $sURL
+
+EndFunc
 
 Func _DecodeAndRun($sCMDLine)
 
