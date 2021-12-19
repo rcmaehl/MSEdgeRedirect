@@ -1232,7 +1232,7 @@ Func _UnicodeURLDecode($toDecode)
             $strChar = $strChar & $aryHex[$i]
         EndIf
     Next
-    Local $Process = StringToBinary (StringReplace($strChar, "+", " "))
-    Local $DecodedString = BinaryToString ($Process, 4)
+    Local $Process = StringToBinary(StringReplace($strChar, "+", " "))
+    Local $DecodedString = BinaryToString($Process, 4)
     Return $DecodedString
 EndFunc   ;==>_UnicodeURLDecode
