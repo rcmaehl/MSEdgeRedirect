@@ -41,6 +41,8 @@ Opt("TrayMenuMode", 3)
 Opt("TrayAutoPause", 0)
 Opt("GUICloseOnESC", 0)
 
+Global $bIsAdmin = IsAdmin()
+
 Global $aEdges[5] = [4, _
 	"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", _
 	"C:\Program Files (x86)\Microsoft\Edge Beta\Application\msedge.exe", _
@@ -390,7 +392,7 @@ Func RunRemoval($bUpdate = False)
 		If $aPIDs[$iLoop][1] <> @AutoItPID Then ProcessClose($aPIDs[$iLoop][1])
 	Next
 
-	If IsAdmin() Then
+	If $bIsAdmin Then
 		$sLocation = "C:\Program Files\MSEdgeRedirect\"
 		If _WinAPI_IsWow64Process() Then
 			$sHive = "HKLM64"
@@ -428,7 +430,7 @@ Func RunRemoval($bUpdate = False)
 	FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
 	DirRemove(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect", $DIR_REMOVE)
 
-	If IsAdmin() Then
+	If $bIsAdmin Then
 		For $iLoop = 1 To $aEdges[0] Step 1
 			If FileExists(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe")) Then
 				FileDelete(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"))
@@ -447,7 +449,7 @@ EndFunc
 
 Func RunRepair()
 
-	If IsAdmin() Then
+	If $bIsAdmin Then
 		For $iLoop = 1 To $aEdges[0] Step 1
 			If FileExists(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe")) Then
 				FileCopy($aEdges[$iLoop], StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"), $FC_OVERWRITE)
@@ -470,7 +472,6 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 	Local $sEngine
 	Local $aHandler
 	Local $sHandler
-	Local $bIsAdmin = IsAdmin()
 	Local $hChannels[4]
 	Local $aChannels[4] = [True, True, False, False]
 
@@ -493,7 +494,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 			$aConfig[$vMode] = False
 		EndIf
 
-		If ($aConfig[$bManaged] Or $aConfig[$vMode]) And Not IsAdmin() Then Exit 5 ; ERROR_ACCESS_DENIED
+		If ($aConfig[$bManaged] Or $aConfig[$vMode]) And Not $bIsAdmin Then Exit 5 ; ERROR_ACCESS_DENIED
 
 		$sEdges = IniRead(@ScriptDir & "\Setup.ini", "Settings", "Edges", "")
 		If StringInStr($sEdges, "Stable") Then $aChannels[0] = True
@@ -610,7 +611,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 				@CRLF & _
 				"MSEdge Redirect stays running in the background. Detected Edge data is redirected to your default browser.", _
 				50, 100, 380, 60, $BS_TOP+$BS_MULTILINE)
-			GUICtrlSetState(-1, $GUI_CHECKED)
+			If Not $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
 
 			Local $hStartup = GUICtrlCreateCheckbox("Start MSEdge Redirect Service With Windows", 70, 160, 320, 20)
 			Local $hNoIcon = GUICtrlCreateCheckbox("Hide MSEdge Redirect Service Icon from Tray", 70, 180, 320, 20)
@@ -620,6 +621,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 				@CRLF & _
 				"MSEdge Redirect only runs when a selected Edge is launched, similary to the old EdgeDeflector app.", _
 				50, 210, 380, 60, $BS_TOP+$BS_MULTILINE)
+			If $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
 
 			$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 70, 270, 90, 20)
 			GUICtrlSetState(-1, $GUI_CHECKED)
@@ -690,7 +692,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 					GUISetState(@SW_SHOW, $hSettings)
 
 				Case $hMsg = $hActive or $hMsg = $hService
-					If _IsChecked($hActive) And Not IsAdmin() Then
+					If _IsChecked($hActive) And Not $bIsAdmin Then
 						If ShellExecute(@ScriptFullPath, "", @ScriptDir, "RunAs") Then Exit
 						GUICtrlSetState($hActive, $GUI_UNCHECKED)
 						GUICtrlSetState($hService, $GUI_CHECKED)
