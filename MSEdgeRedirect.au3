@@ -1186,8 +1186,7 @@ Func _IsSafeURL($sURL)
 	Local $bSafe = False
 
 	Select
-		Case StringLeft($sURL, 6) <> "http:/" And StringLeft($sURL, 7) <> "https:/"
-			MsgBox(0, "", "Triggered")
+		Case StringInStr($sURL, ":") And StringLeft($sURL, 6) <> "http:/" And StringLeft($sURL, 7) <> "https:/"
 			ContinueCase
 		Case _WinAPI_UrlIs($sURL, $URLIS_FILEURL)
 			ContinueCase
