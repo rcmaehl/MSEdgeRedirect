@@ -43,14 +43,22 @@ Opt("GUICloseOnESC", 0)
 
 Global $aMUI[2] = [Null, @MUILang]
 Global $bIsAdmin = IsAdmin()
-
-Global $aEdges[5] = [4, _
-	"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", _
-	"C:\Program Files (x86)\Microsoft\Edge Beta\Application\msedge.exe", _
-	"C:\Program Files (x86)\Microsoft\Edge Dev\Application\msedge.exe", _
-	@LocalAppDataDir & "\Microsoft\Edge SXS\Application\msedge.exe"]
-
+Global $bIs64Bit = _WinAPI_IsWow64Process()
 Global $sVersion = "0.5.0.1"
+
+If $bIs64Bit Then
+	Global $aEdges[5] = [4, _
+		"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", _
+		"C:\Program Files (x86)\Microsoft\Edge Beta\Application\msedge.exe", _
+		"C:\Program Files (x86)\Microsoft\Edge Dev\Application\msedge.exe", _
+		@LocalAppDataDir & "\Microsoft\Edge SXS\Application\msedge.exe"]
+Else
+	Global $aEdges[5] = [4, _
+		"C:\Program Files\Microsoft\Edge\Application\msedge.exe", _
+		"C:\Program Files\Microsoft\Edge Beta\Application\msedge.exe", _
+		"C:\Program Files\Microsoft\Edge Dev\Application\msedge.exe", _
+		@LocalAppDataDir & "\Microsoft\Edge SXS\Application\msedge.exe"]
+EndIf
 
 SetupAppdata()
 
