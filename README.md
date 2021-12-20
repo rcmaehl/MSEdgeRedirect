@@ -41,6 +41,7 @@ Redirects Search|☑|☑|☑|☑|☑
 Installs without Admin|☑| | | |☑<sup>*</sup>
 Windows 11 Support| |☑|☑| |☑
 Windows 10 21H2+ Support| |☑|☑| |☑
+Windows on ARM Support| |☑|☑| |
 Installs System Wide| |☑|☑|☑, Optionally|☑<sup>†</sup>
 Update Checker Module| | |☑|☑|☑
 Search Engine Customizations| | |☑, 8|☑, 14|☑, 9
