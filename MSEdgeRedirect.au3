@@ -352,7 +352,7 @@ Func ReactiveMode($bHide = False)
 EndFunc
 
 Func RunArchCheck()
-	If @Compiled And @OSArch = "X64" And _WinAPI_IsWow64Process() Then
+	If @Compiled And @OSArch = "X64" And $bIs64Bit Then
 		MsgBox($MB_ICONERROR+$MB_OK, _
 			"Wrong Version", _
 			"The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
@@ -368,7 +368,7 @@ Func RunHTTPCheck()
 
 	Local $sHive = ""
 
-	If _WinAPI_IsWow64Process() Then
+	If $bIs64Bit Then
 		$sHive = "HKCU64"
 	Else
 		$sHive = "HKCU"
@@ -440,14 +440,14 @@ Func RunRemoval($bUpdate = False)
 
 	If $bIsAdmin Then
 		$sLocation = "C:\Program Files\MSEdgeRedirect\"
-		If _WinAPI_IsWow64Process() Then
+		If $bIs64Bit Then
 			$sHive = "HKLM64"
 		Else
 			$sHive = "HKLM"
 		EndIf
 	Else
 		$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
-		If _WinAPI_IsWow64Process() Then
+		If $bIs64Bit Then
 			$sHive = "HKCU64"
 		Else
 			$sHive = "HKCU"
@@ -855,14 +855,14 @@ Func SetAppRegistry($bAllUsers)
 
 	If $bAllUsers Then
 		$sLocation = "C:\Program Files\MSEdgeRedirect\"
-		If _WinAPI_IsWow64Process() Then
+		If $bIs64Bit Then
 			$sHive = "HKLM64"
 		Else
 			$sHive = "HKLM"
 		EndIf
 	Else
 		$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
-		If _WinAPI_IsWow64Process() Then
+		If $bIs64Bit Then
 			$sHive = "HKCU64"
 		Else
 			$sHive = "HKCU"
@@ -910,7 +910,7 @@ Func SetIFEORegistry(ByRef $aChannels)
 
 	Local $sHive = ""
 
-	If _WinAPI_IsWow64Process() Then
+	If $bIs64Bit Then
 		$sHive = "HKLM64"
 	Else
 		$sHive = "HKLM"
@@ -936,13 +936,13 @@ Func SetOptionsRegistry($sName, $vValue, $bAllUsers, $bManaged = False)
 
 	If $sHive = "" Then
 		If $bAllUsers Then
-			If _WinAPI_IsWow64Process() Then
+			If $bIs64Bit Then
 				$sHive = "HKLM64"
 			Else
 				$sHive = "HKLM"
 			EndIf
 		Else
-			If _WinAPI_IsWow64Process() Then
+			If $bIs64Bit Then
 				$sHive = "HKCU64"
 			Else
 				$sHive = "HKCU"
@@ -1121,7 +1121,7 @@ Func _GetDefaultBrowser()
 	If $sBrowser <> "" Then
 		;;;
 	Else
-		If _WinAPI_IsWow64Process() Then
+		If $bIs64Bit Then
 			$sHive1 = "HKCU64"
 			$sHive2 = "HKCR64"
 		Else
@@ -1182,7 +1182,7 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 	Local $sHive1 = ""
 	Local $sHive2 = ""
 
-	If _WinAPI_IsWow64Process() Then
+	If $bIs64Bit Then
 		$sHive1 = "HKLM64"
 		$sHive2 = "HKCU64"
 	Else
@@ -1247,7 +1247,7 @@ Func _IsInstalled()
 	Local $sHive2 = ""
 	Local $aReturn[3] = [False, "", ""]
 
-	If _WinAPI_IsWow64Process() Then
+	If $bIs64Bit Then
 		$sHive1 = "HKLM64"
 		$sHive2 = "HKCU64"
 	Else
