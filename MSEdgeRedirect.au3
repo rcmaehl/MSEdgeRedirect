@@ -408,7 +408,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 	Else
 		If $aSettings[$bNoTray] Then $sArgs = "/hide"
 		FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE)
-		If $aSettings[$bStartup] Then FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @StartupDir & "\MSEdgeRedirect.lnk", $sArgs)
+		If $aSettings[$bStartup] Then FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @StartupDir & "\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs)
 		Switch $aSettings[$sStartMenu]
 
 			Case "Full"
