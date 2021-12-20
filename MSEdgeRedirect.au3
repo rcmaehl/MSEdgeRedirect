@@ -89,6 +89,10 @@ Func ActiveMode(ByRef $aCMDLine)
 					_Translate($aMUI[1], "File Update Required"), _
 					_Translate($aMUI[1], "The Microsoft Edge IFEO exclusion file is out of date and needs to be updated to use Edge. Update Now?"), _
 					10) = $IDYES Then ShellExecuteWait(@ScriptFullPath, "/repair", @ScriptDir, "RunAs")
+				If @error Then MsgBox($MB_ICONERROR+$MB_OK, _
+					"Repair Failed", _
+					"Unable to update Microsoft Edge IFEO exclusion file without Admin Rights!")
+
 			EndIf
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
