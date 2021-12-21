@@ -207,6 +207,9 @@ Func ProcessCMDLine()
 						EndIf
 					Next
 				EndIf
+			Case _VersionCompare($sVersion, $aInstall[2]) ; Installed, Up to Date or Newer
+				 RunUpdateCheck()
+				 Exit
 			Case Else
 				Exit
 		EndSelect
