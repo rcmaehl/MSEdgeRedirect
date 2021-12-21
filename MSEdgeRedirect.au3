@@ -121,20 +121,7 @@ Func ProcessCMDLine()
 		;_ArrayDisplay($CmdLine)
 		If _ArraySearch($aEdges, $CmdLine[1]) > 0 Then ; Image File Execution Options Mode
 			ActiveMode($CmdLine)
-			If _GetSettingValue("NoUpdates") And Random(1, 10, 1) = 1 Then
-				Switch _GetLatestRelease($sVersion)
-					Case -1
-						MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _
-							_Translate($aMUI[1], "Test Build?"), _
-							_Translate($aMUI[1], "You're running a newer build than publicly Available!"), _
-							10)
-					Case 1
-						If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
-							_Translate($aMUI[1], "Update Available"), _
-							_Translate($aMUI[1], "An Update is Available, would you like to download it?"), _
-							10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases")
-				EndSwitch
-			EndIf
+			If Not _GetSettingValue("NoUpdates") And Random(1, 10, 1) = 1 Then RunUpdateCheck()
 			Exit
 		EndIf
 
@@ -584,20 +571,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 
 	Else
 
-		If _GetSettingValue("NoUpdates") Then
-			Switch _GetLatestRelease($sVersion)
-				Case -1
-					MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _
-						_Translate($aMUI[1], "Test Build?"), _
-						_Translate($aMUI[1], "You're running a newer build than publicly Available!"), _
-						10)
-				Case 1
-					If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
-						_Translate($aMUI[1], "Update Available"), _
-						_Translate($aMUI[1], "An Update is Available, would you like to download it?"), _
-						10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases")
-			EndSwitch
-		EndIf
+		If Not _GetSettingValue("NoUpdates") Then RunUpdateCheck()
 
 		If StringInStr($bUpdate, "HKLM") And Not $bIsAdmin And Not @Compiled Then
 			MsgBox($MB_ICONERROR+$MB_OK, _
@@ -850,6 +824,21 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 
 	EndIf
 
+EndFunc
+
+Func RunUpdateCheck()
+	Switch _GetLatestRelease($sVersion)
+		Case -1
+			MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _
+				_Translate($aMUI[1], "Test Build?"), _
+				_Translate($aMUI[1], "You're running a newer build than publicly Available!"), _
+				10)
+		Case 1
+			If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
+				_Translate($aMUI[1], "Update Available"), _
+				_Translate($aMUI[1], "An Update is Available, would you like to download it?"), _
+				10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases")
+	EndSwitch
 EndFunc
 
 Func SetAppRegistry($bAllUsers)
@@ -1279,10 +1268,20 @@ EndFunc
 
 Func _IsSafeURL($sURL)
 
+	Local $aURL
 	Local $bSafe = False
 
+	$aURL = StringSplit($sURL, ":")
+	If $aURL[0] < 2 Then
+		ReDim $aURL[3]
+		$aURL[2] = $aURL[1]
+		$aURL[1] = "http"
+	EndIf
+
+;	_ArrayDisplay($aURL)
+
 	Select
-		Case StringInStr($sURL, ":") And StringLeft($sURL, 6) <> "http:/" And StringLeft($sURL, 7) <> "https:/"
+		Case $aURL[1] <> "http" And $aURL[1] <> "https"
 			ContinueCase
 		Case _WinAPI_UrlIs($sURL, $URLIS_FILEURL)
 			ContinueCase
