@@ -207,11 +207,8 @@ Func ProcessCMDLine()
 						EndIf
 					Next
 				EndIf
-			Case _VersionCompare($sVersion, $aInstall[2]) ; Installed, Up to Date or Newer
-				 RunUpdateCheck()
-				 Exit
 			Case Else
-				Exit
+				RunSetup(True, $bSilent)
 		EndSelect
 	EndIf
 	ReactiveMode($bHide)
@@ -562,6 +559,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 		Next
 		If Not IsBool($aSettings[$bStartup]) Then Exit 160 ; ERROR_BAD_ARGUMENTS
 
+		If $bUpdate Then RunRemoval(True)
 		RunInstall($aConfig, $aSettings)
 		SetAppRegistry($aConfig[$vMode])
 		If $aConfig[$vMode] Then
