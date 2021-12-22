@@ -256,7 +256,7 @@ Func ReactiveMode($bHide = False)
 			$aProcessList = ProcessList("msedge.exe")
 			For $iLoop = 1 To $aProcessList[0][0] - 1
 				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
-				If StringInStr($sCommandline, "microsoft-edge:") Or StringInStr($sCommandline, "--app-id") Then
+				If StringRegExp($sString, "(.*)(microsoft\-edge|app\-id)(.*)") Then
 					ProcessClose($aProcessList[$iLoop][1])
 					If _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]), 1, $aEdges[0]) > 0 Then
 						_DecodeAndRun($sCommandline)
