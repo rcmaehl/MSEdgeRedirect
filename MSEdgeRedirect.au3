@@ -365,8 +365,14 @@ Func RunHTTPCheck()
 		$sHive = "HKCU"
 	EndIf
 
-	If StringInStr(RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice", "ProgId"), "MSEdge") Or _
-		StringInStr(RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgId"), "MSEdge") Then
+	Local $aDefaults[3]
+	Local Enum $hHTTP, $hHTTPS, $hMSEdge
+
+	$aDefaults[$hHTTP] = RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice", "ProgId")
+	$aDefaults[$hHTTPS] = RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgId")
+	$aDefaults[$hMSEdge] = RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\microsoft-edge\UserChoice", "ProgId")
+
+	If $aDefaults[$hHTTP] = $aDefaults[$hMSEdge] Or $aDefaults[$hHTTPS] = $aDefaults[$hMSEdge] Then
 		MsgBox($MB_ICONERROR+$MB_OK, _
 			"Edge Set As Default", _
 			"You must set a different Default Browser to use MSEdgeRedirect!")
