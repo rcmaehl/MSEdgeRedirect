@@ -43,7 +43,7 @@ Opt("GUICloseOnESC", 0)
 
 Global $aMUI[2] = [Null, @MUILang]
 Global $bIsAdmin = IsAdmin()
-Global $bIs64Bit = _WinAPI_IsWow64Process()
+Global $bIs64Bit = Not _WinAPI_IsWow64Process()
 Global $sVersion = "0.5.0.1"
 
 If $bIs64Bit Then
@@ -346,7 +346,7 @@ Func ReactiveMode($bHide = False)
 EndFunc
 
 Func RunArchCheck()
-	If @Compiled And @OSArch = "X64" And $bIs64Bit Then
+	If @Compiled And Not $bIs64Bit Then
 		MsgBox($MB_ICONERROR+$MB_OK, _
 			"Wrong Version", _
 			"The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
