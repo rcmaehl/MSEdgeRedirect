@@ -108,7 +108,7 @@ EndFunc
 Func ProcessCMDLine()
 
 	Local $aPIDs
-	Local $bHide = False
+	Local $bHide = _GetSettingValue("NoTray")
 	Local $iParams = $CmdLine[0]
 	Local $bSilent = False
 	Local $aInstall[3]
