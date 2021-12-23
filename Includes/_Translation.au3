@@ -1,3 +1,9 @@
+#include-once
+
+#include <FileConstants.au3>
+
+Global $aMUI[2] = [Null, @MUILang]
+
 Func _GetFile($sFile, $sFormat = $FO_READ)
 	Local Const $hFileOpen = FileOpen($sFile, $sFormat)
 	If $hFileOpen = -1 Then

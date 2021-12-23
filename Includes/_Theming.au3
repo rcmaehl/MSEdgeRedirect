@@ -5,7 +5,7 @@
 #include <WinAPIShellEx.au3>
 #include <WindowsConstants.au3>
 
-#include "ResourcesEX.au3"
+#include ".\ResourcesEX.au3"
 
 Global Const $GDIP_COLORCURVEEFFECT = "{DD6A0022-58E4-4a67-9D9B-D48EB881A53D}"
 Global Const $tagCOLORCURVEEFFECTPARAMS = "int type;int channel;int value"
