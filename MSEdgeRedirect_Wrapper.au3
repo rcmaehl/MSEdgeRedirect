@@ -15,7 +15,11 @@
 #include "Includes\_Settings.au3"
 #include "Includes\_Translation.au3"
 
-Global $sVersion = "0.5.0.1"
+If @Compiled Then
+	Global $sVersion = FileGetVersion(@ScriptFullPath)
+Else
+	Global $sVersion = "0.5.0.1"
+EndIf
 
 Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 
