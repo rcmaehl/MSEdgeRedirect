@@ -277,21 +277,21 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 		#EndRegion
 
 		#Region Mode Page
-		$aPages[$hMode] = GUICreate("", 460, 400, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
+		$aPages[$hMode] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 		GUISetBkColor(0xFFFFFF)
 		If $bUpdate Then
 			GUICtrlCreateLabel("MSEdge Redirect " & $sVersion & " Update", 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Install to update MS Edge Redirect after customizing your preferred options", 20, 40, 420, 40)
+			GUICtrlCreateLabel("Click Next to continue the Update of MS Edge Redirect after customizing your preferred mode", 20, 40, 420, 40)
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		Else
 			GUICtrlCreateLabel("Install MSEdge Redirect " & $sVersion, 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Install to install MS Edge Redirect after customizing your preferred options", 20, 40, 420, 40)
+			GUICtrlCreateLabel("Click Next to continue the Install of MS Edge Redirect after customizing your preferred mode", 20, 40, 420, 40)
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
 
-		GUICtrlCreateGroup("Mode", 20, 80, 420, 220)
+		GUICtrlCreateGroup("Mode", 20, 80, 420, 320)
 			Local $hService = GUICtrlCreateRadio("Service Mode - Per User" & @CRLF & _
 				@CRLF & _
 				"MSEdge Redirect stays running in the background. Detected Edge data is redirected to your default browser.", _
@@ -325,8 +325,25 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 				GUICtrlSetState($hChannels[2], $GUI_DISABLE)
 				GUICtrlSetState($hChannels[3], $GUI_DISABLE)
 			EndIf
+		#EndRegion
 
-		GUICtrlCreateGroup("Options", 20, 300, 420, 100)
+		#Region Settings Page
+		$aPages[$hSettings] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
+		GUISetBkColor(0xFFFFFF)
+
+		If $bUpdate Then
+			GUICtrlCreateLabel("MSEdge Redirect " & $sVersion & " Update", 20, 10, 420, 30)
+			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+			GUICtrlCreateLabel("Click Install to continue the Update of MS Edge Redirect after customizing your preferred settings", 20, 40, 420, 40)
+			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+		Else
+			GUICtrlCreateLabel("Install MSEdge Redirect " & $sVersion, 20, 10, 420, 30)
+			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+			GUICtrlCreateLabel("Click Install to continue the Install of MS Edge Redirect after customizing your preferred settings", 20, 40, 420, 40)
+			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+		EndIf
+
+		GUICtrlCreateGroup("Options", 20, 80, 420, 320)
 			Local $hNoApps = GUICtrlCreateCheckbox("De-embed Windows Store 'Apps'", 50, 320, 380, 20)
 			Local $hNoPDFs = GUICtrlCreateCheckbox("Redirect PDFs to:", 50, 340, 240, 20)
 			Local $hPDFPath = GUICtrlCreateLabel("",290, 340, 140, 20)
@@ -334,16 +351,12 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 			Local $hEngine = GUICtrlCreateCombo("", 290, 355, 140, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Ask|Baidu|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-		#EndRegion
-
-		#Region Settings Page
-		GUISetBkColor(0xFFFFFF)
-		$aPages[$hSettings] = GUICreate("", 460, 400, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 
 		GUISwitch($hInstallGUI)
 
 		#Region Finish Page
 		$aPages[$hFinish] = GUICreate("", 460, 400, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
+		GUISetBkColor(0xFFFFFF)
 
 		If $bUpdate Then
 			GUICtrlCreateLabel("Updated Successfully", 20, 10, 420, 30)
