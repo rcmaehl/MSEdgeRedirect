@@ -217,7 +217,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 	Else
 
 		Local $aPages[4]
-		Local Enum $hLicense, $hMode, $hSettings, $hFinish
+		Local Enum $hLicense, $hMode, $hSettings, $hFinish, $hExit
 
 		If Not _GetSettingValue("NoUpdates") Then RunUpdateCheck()
 
@@ -251,7 +251,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 		Local $hNext = GUICtrlCreateButton("Next >", 420, 435, 90, 30)
 		If $iPage = 0 Then GUICtrlSetState(-1, $GUI_DISABLE)
-		Local $hExit = GUICtrlCreateButton("Cancel", 530, 435, 90, 30)
+		Local $hCancel = GUICtrlCreateButton("Cancel", 530, 435, 90, 30)
 
 		#Region License Page
 		$aPages[$hLicense] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
@@ -365,7 +365,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
 
-		Local $hShortcuts = GUICtrlCreateCheckbox("Create Start Menu Shortcuts", 20, 200, 320, 20)
+		;Local $hShortcuts = GUICtrlCreateCheckbox("Create Start Menu Shortcuts", 20, 200, 320, 20)
 
 		GUISwitch($hInstallGUI)
 		#EndRegion
@@ -378,13 +378,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 
 			Select
 
-				Case $hMsg = $GUI_EVENT_CLOSE or $hMsg = $hExit
-					If $iPage = $hFinish Then
-						If Not $aConfig[$vMode] Then
-							If $aSettings[$bNoTray] Then $sArgs = "/hide"
-							ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
-						EndIf
-					EndIf
+				Case $hMsg = $GUI_EVENT_CLOSE or $hMsg = $hCancel
 					Exit
 
 				Case $hMsg = $hAgree or $hMsg = $hDisagree
@@ -437,9 +431,15 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 								Next
 								SetIFEORegistry($aChannels)
 							EndIf
-							GUICtrlSetData($hExit, "Finish")
-							GUICtrlSetState($hNext, $GUI_DISABLE)
+							GUICtrlSetData($hNext, "Finish")
 							GUICtrlSetState($hBack, $GUI_DISABLE)
+							GUICtrlSetState($hCancel, $GUI_DISABLE)
+						Case $hExit
+							If Not $aConfig[$vMode] Then
+								If $aSettings[$bNoTray] Then $sArgs = "/hide"
+								ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
+							EndIf
+							Exit
 					EndSwitch
 					GUISetState(@SW_HIDE, $aPages[$iPage])
 					GUISetState(@SW_SHOW, $aPages[$iPage + 1])
