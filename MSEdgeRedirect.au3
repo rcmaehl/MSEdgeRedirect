@@ -174,7 +174,7 @@ Func ProcessCMDLine()
 			Case _VersionCompare($sVersion, $aInstall[2]) ; Installed, Out of Date
 				RunSetup($aInstall[1], $bSilent)
 			Case StringInStr($aInstall[1], "HKCU") ; Installed, Up to Date, Service Mode
-				If Not @ScriptDir = @LocalAppDataDir & "\MSEdgeRedirect" Then
+				If @ScriptDir <> @LocalAppDataDir & "\MSEdgeRedirect" Then
 					RunSetup($aInstall[1], $bSilent)
 					;ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", "", @LocalAppDataDir & "\MSEdgeRedirect\")
 				Else
