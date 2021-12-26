@@ -175,7 +175,8 @@ Func ProcessCMDLine()
 				RunSetup($aInstall[1], $bSilent)
 			Case StringInStr($aInstall[1], "HKCU") ; Installed, Up to Date, Service Mode
 				If Not @ScriptDir = @LocalAppDataDir & "\MSEdgeRedirect" Then
-					ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", "", @LocalAppDataDir & "\MSEdgeRedirect\")
+					RunSetup($aInstall[1], $bSilent)
+					;ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", "", @LocalAppDataDir & "\MSEdgeRedirect\")
 				Else
 					$aPIDs = ProcessList(@ScriptName)
 					For $iLoop = 1 To $aPIDs[0][0] Step 1
