@@ -143,7 +143,7 @@ Func RunRepair()
 
 EndFunc
 
-Func RunSetup($bUpdate = False, $bSilent = False)
+Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 	#forceref $bSilent
 
 	Local $hMsg
@@ -216,7 +216,6 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 
 	Else
 
-		Local $iPage = 0
 		Local $aPages[4]
 		Local Enum $hLicense, $hMode, $hSettings, $hFinish
 
@@ -251,7 +250,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 		Local $hBack = GUICtrlCreateButton("< Back", 330, 435, 90, 30)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 		Local $hNext = GUICtrlCreateButton("Next >", 420, 435, 90, 30)
-		GUICtrlSetState(-1, $GUI_DISABLE)
+		If $iPage = 0 Then GUICtrlSetState(-1, $GUI_DISABLE)
 		Local $hExit = GUICtrlCreateButton("Cancel", 530, 435, 90, 30)
 
 		#Region License Page
@@ -355,7 +354,7 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 		GUISwitch($hInstallGUI)
 
 		#Region Finish Page
-		$aPages[$hFinish] = GUICreate("", 460, 400, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
+		$aPages[$hFinish] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 		GUISetBkColor(0xFFFFFF)
 
 		If $bUpdate Then
@@ -366,11 +365,13 @@ Func RunSetup($bUpdate = False, $bSilent = False)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
 
+		Local $hShortcuts = GUICtrlCreateCheckbox("Create Start Menu Shortcuts", 20, 200, 320, 20)
+
 		GUISwitch($hInstallGUI)
 		#EndRegion
 
 		GUISetState(@SW_SHOW, $hInstallGUI)
-		GUISetState(@SW_SHOW, $aPages[$hLicense])
+		GUISetState(@SW_SHOW, $aPages[$iPage])
 
 		While True
 			$hMsg = GUIGetMsg()

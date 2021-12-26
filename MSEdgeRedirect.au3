@@ -112,7 +112,7 @@ Func ProcessCMDLine()
 							@CRLF)
 					Exit 0
 				Case "/change"
-					RunSetup(True, $bSilent)
+					RunSetup(True, $bSilent, 1)
 					Exit
 				Case "/h", "/hide"
 					$bHide = True
@@ -122,6 +122,9 @@ Func ProcessCMDLine()
 					_ArrayDelete($CmdLine, 1)
 				Case "/repair"
 					RunRepair()
+					Exit
+				Case "/settings"
+					RunSetup(True, False, 2)
 					Exit
 				Case "/si", "/silentinstall"
 					$bSilent = True
