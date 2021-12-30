@@ -379,9 +379,6 @@ Func _ChangeWeatherProvider($sURL)
 	Local $sLocale
 	Local $vCoords
 
-	#forceref $fLat
-	#forceref $fLong
-	#forceref $sSign
 	#forceref $sLocale
 
 	If StringInStr($sURL, "weadegreetype") Then
