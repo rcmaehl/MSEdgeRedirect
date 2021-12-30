@@ -391,10 +391,30 @@ Func _ChangeWeatherProvider($sURL)
 		If $vCoords[0] = 2 Then
 			$fLat = $vCoords[1]
 			$fLong = $vCoords[2]
+			$sSign = StringRegExpReplace($sURL, "(.*)(weadegreetype=)", "")
+			$sSign = StringRegExpReplace($sSign, "(?=&weaext0=)(.*)", "")
+			Switch _GetSettingValue("Weather")
+
+				Case "Weather.com"
+					$sURL = "https://www.weather.com/wx/today/?lat=" & $fLat & "&lon=" & $fLong & "&temp=" & $sSign ;"&locale=" & <LOCALE>
+
+				Case "Weather.gov"
+					$sURL = "https://forecast.weather.gov/MapClick.php?lat=" & $fLat & "&lon=" & $fLong
+
+				Case Null
+					;;;
+
+				Case Else
+					$sURL = _GetSettingValue("WeatherPath") & $sURL
+
+			EndSwitch
+		Else
+
 		EndIf
 	EndIf
 
 	Return $sURL
+
 
 EndFunc
 
@@ -426,7 +446,7 @@ Func _DecodeAndRun($sCMDLine)
 				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call from: " & $sCaller & @CRLF)
 				$sCMDLine = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
 				If _IsSafeURL($sCMDLine) Then
-					If _GetSettingValue("NoBing") Then $sCMDLine = _ChangeSearchEngine($sCMDLine)
+					$sCMDLine = _ModifyURL($sCMDLine)
 					ShellExecute($sCMDLine)
 				Else
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid Regexed URL: " & $sCMDLine & @CRLF)
@@ -437,7 +457,7 @@ Func _DecodeAndRun($sCMDLine)
 		Case Else
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "")
 			If _IsSafeURL($sCMDLine) Then
-				If _GetSettingValue("NoBing") Then $sCMDLine = _ChangeSearchEngine($sCMDLine)
+				$sCMDLine = _ModifyURL($sCMDLine)
 				ShellExecute($sCMDLine)
 			Else
 				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
@@ -504,6 +524,16 @@ Func _IsSafeURL($sURL)
 	Return $bSafe
 
 EndFunc
+
+Func _ModifyURL($sURL)
+
+	If _GetSettingValue("NoBing") Then $sURL = _ChangeSearchEngine($sURL)
+	If _GetSettingValue("NoMSN") Then $sURL = _ChangeWeatherProvider($sURL)
+
+	Return $sURL
+
+EndFunc
+
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _UnicodeURLDecode
