@@ -27,16 +27,19 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 
 	Local $sArgs = ""
 	Local Enum $bManaged, $vMode
-	Local Enum $bNoApps, $bNoBing, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup
+	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather
 
 	SetOptionsRegistry("NoApps", $aSettings[$bNoApps], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoBing", $aSettings[$bNoBing], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoMSN", $aSettings[$bNoMSN], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoPDFs", $aSettings[$bNoPDFs], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoTray", $aSettings[$bNoTray], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoUpdates", $aSettings[$bNoUpdates], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("PDFApp", $aSettings[$sPDFApp], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("Search", $aSettings[$sSearch], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("SearchPath", $aSettings[$sSearchPath], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("Weather", $aSettings[$sWeather], $aConfig[$vMode], $aConfig[$bManaged])
+
 
 	If $aConfig[$vMode] Then
 		FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE)
@@ -155,7 +158,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 	Local $sArgs = ""
 	Local $sEdges
 	Local $sEngine
-	Local $aHandler
 	Local $sHandler
 	Local $hChannels[4]
 	Local $aChannels[4] = [True, True, False, False]
@@ -163,8 +165,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 	Local $aConfig[2] = [False, "Service"] ; Default Setup.ini Values
 	Local Enum $bManaged, $vMode
 
-	Local $aSettings[10] = [False, False, False, False, False, "", "", "", "Full", True]
-	Local Enum $bNoApps, $bNoBing, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup
+	Local $aSettings[12] = [False, False, False, False, False, False, "", "", "", "Full", True, ""]
+	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather
 
 	If $bSilent Then
 
@@ -194,6 +196,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 
 		$aSettings[$bNoApps] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoApps", $aSettings[$bNoApps]))
 		$aSettings[$bNoBing] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoBing", $aSettings[$bNoBing]))
+		$aSettings[$bNoMSN] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoMSN", $aSettings[$bNoBing]))
 		$aSettings[$bNoPDFs] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoPDFs", $aSettings[$bNoPDFs]))
 		$aSettings[$bNoTray] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoTray", $aSettings[$bNoTray]))
 		$aSettings[$bNoUpdates] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoUpdates", $aSettings[$bNoUpdates]))
@@ -202,6 +205,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 		$aSettings[$sSearchPath] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "SearchPath", $aSettings[$sSearchPath])
 		$aSettings[$sStartMenu] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "StartMenu", $aSettings[$sStartMenu])
 		$aSettings[$bStartup] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "Startup", $aSettings[$bStartup]))
+		$aSettings[$sWeather] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "Weather", $aSettings[$sSearch])
 
 		For $iLoop = $bNoApps To $bNoUpdates Step 1
 			If Not IsBool($aSettings[$iLoop]) Then Exit 160 ; ERROR_BAD_ARGUMENTS
@@ -348,12 +352,16 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 		EndIf
 
 		GUICtrlCreateGroup("Options", 20, 80, 420, 320)
-			Local $hNoApps = GUICtrlCreateCheckbox("De-embed Windows Store 'Apps'", 50, 320, 380, 20)
-			Local $hNoPDFs = GUICtrlCreateCheckbox("Redirect PDFs to:", 50, 340, 240, 20)
-			Local $hPDFPath = GUICtrlCreateLabel("",290, 340, 140, 20)
-			Local $hSearch = GUICtrlCreateCheckbox("Replace Bing Search Results with:", 50, 360, 240, 20)
-			Local $hEngine = GUICtrlCreateCombo("", 290, 355, 140, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			Local $hNoApps = GUICtrlCreateCheckbox("De-embed Windows Store 'Apps'", 50, 100, 380, 20)
+			Local $hNoPDFs = GUICtrlCreateCheckbox("Redirect PDFs to:", 50, 120, 380, 20)
+			Local $hPDFPath = GUICtrlCreateEdit("", 50, 140, 380, 20, $ES_READONLY)
+			Local $hSearch = GUICtrlCreateCheckbox("Replace Bing Search Results with:", 50, 165, 380, 20)
+			Local $hEngine = GUICtrlCreateCombo("", 50, 185, 380, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Ask|Baidu|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
+			GUICtrlSetState(-1, $GUI_DISABLE)
+			Local $hNoMSN = GUICtrlCreateCheckbox("Replace Weather Results with:", 50, 210, 380, 20)
+			Local $hWeather = GUICtrlCreateCombo("", 50, 230, 380, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			GUICtrlSetData(-1, "Weather.com|Weather.gov", "Weather.com")
 			GUICtrlSetState(-1, $GUI_DISABLE)
 
 		GUISwitch($hInstallGUI)
@@ -420,12 +428,14 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 
 							$aSettings[$bNoApps] = _IsChecked($hNoApps)
 							$aSettings[$bNoBing] = _IsChecked($hSearch)
+							$aSettings[$bNoMSN] = _IsChecked($hNoMSN)
 							$aSettings[$bNoPDFs] = _IsChecked($hNoPDFs)
 							$aSettings[$bNoTray] = _IsChecked($hNoIcon)
 							$aSettings[$sPDFApp] = $sHandler
 							$aSettings[$sSearch] = GUICtrlRead($hEngine)
 							$aSettings[$sSearchPath] = $sEngine
 							$aSettings[$bStartup] = _IsChecked($hStartup)
+							$aSettings[$sWeather] = GUICtrlRead($hWeather)
 
 							GUISetState(@SW_HIDE, $hSettings)
 							RunInstall($aConfig, $aSettings)
@@ -498,14 +508,20 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 					$sEngine = InputBox("Enter Search Engine URL", "Enter the URL format of the custom search Engine to use", "https://duckduckgo.com/?q=")
 					If @error Then GUICtrlSetData($hEngine, "Google")
 
+				Case $hMsg = $hNoMSN
+					If _IsChecked($hNoMSN) Then
+						GUICtrlSetState($hWeather, $GUI_ENABLE)
+					Else
+						GUICtrlSetState($hWeather, $GUI_DISABLE)
+					EndIf
+
 				Case $hMsg = $hNoPDFs
 					If _IsChecked($hNoPDFs) Then
 						$sHandler = FileOpenDialog("Select a PDF Handler", @ProgramFilesDir, "Executables (*.exe)", $FD_FILEMUSTEXIST)
 						If @error Then
 							GUICtrlSetState($hNoPDFs, $GUI_UNCHECKED)
 						Else
-							$aHandler = StringSplit($sHandler, "\")
-							GUICtrlSetData($hPDFPath, $aHandler[$aHandler[0]])
+							GUICtrlSetData($hPDFPath, " " & $sHandler)
 						EndIf
 					Else
 						GUICtrlSetData($hPDFPath, "")
