@@ -118,7 +118,7 @@ Func RunRemoval($bUpdate = False)
 
 	; Start Menu Shortcuts
 	FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
-	DirRemove(@ProgramsCommonDir & "\MSEdgeRedirect"), $DIR_REMOVE)
+	DirRemove(@ProgramsCommonDir & "\MSEdgeRedirect", $DIR_REMOVE)
 	DirRemove(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect", $DIR_REMOVE)
 
 	If $bIsAdmin Then
