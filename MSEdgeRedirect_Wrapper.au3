@@ -264,7 +264,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 		Local $hNext = GUICtrlCreateButton("Next >", 420, 435, 90, 30)
 		If $iPage = $hLicense Then
 			GUICtrlSetState(-1, $GUI_DISABLE)
-		ElseIf $iPage = $hSettings
+		ElseIf $iPage = $hSettings Then
 			GUICtrlSetData(-1, "Save")
 		EndIf
 		Local $hCancel = GUICtrlCreateButton("Cancel", 530, 435, 90, 30)
