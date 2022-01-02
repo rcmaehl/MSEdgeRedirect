@@ -158,6 +158,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 
 	Local $hMsg
 	Local $sArgs = ""
+	Local $iMode = $iPage
 	Local $sEdges
 	Local $sEngine
 	Local $sHandler
@@ -261,7 +262,11 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 		Local $hBack = GUICtrlCreateButton("< Back", 330, 435, 90, 30)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 		Local $hNext = GUICtrlCreateButton("Next >", 420, 435, 90, 30)
-		If $iPage = 0 Then GUICtrlSetState(-1, $GUI_DISABLE)
+		If $iPage = $hLicense Then
+			GUICtrlSetState(-1, $GUI_DISABLE)
+		ElseIf $iPage = $hSettings
+			GUICtrlSetData(-1, "Save")
+		EndIf
 		Local $hCancel = GUICtrlCreateButton("Cancel", 530, 435, 90, 30)
 
 		#Region License Page
@@ -411,13 +416,18 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 						Case $hMode
 							GUICtrlSetData($hNext, "Next >")
 						Case $hSettings
-							GUICtrlSetData($hNext, "Install")
+							If $bUpdate Then
+								GUICtrlSetData($hNext, "Update")
+							Else
+								GUICtrlSetData($hNext, "Install")
+							EndIf
 					EndSwitch
 					GUISetState(@SW_HIDE, $aPages[$iPage])
 					GUISetState(@SW_SHOW, $aPages[$iPage - 1])
 					$iPage -= 1
 
 				Case $hMsg = $hNext
+					If $iMode = $hSettings Then Exit
 					Switch $iPage + 1
 						Case $hMode
 							GUICtrlSetState($hBack, $GUI_ENABLE)
