@@ -371,6 +371,19 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 			GUICtrlSetData(-1, "Weather.com|Weather.gov", "Weather.com")
 			GUICtrlSetState(-1, $GUI_DISABLE)
 
+		If $bUpdate Then
+			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
+			GUICtrlSetState($hNoPDFs, _GetSettingValue("NoPDFs"))
+			GUICtrlSetData($hPDFPath, _GetSettingValue("PDFApp"))
+			GUICtrlSetState($hSearch, _GetSettingValue("NoBing"))
+			If _IsChecked($hSearch) Then GUICtrlSetState($hEngine, $GUI_ENABLE)
+			GUICtrlSetData($hEngine, _GetSettingValue("Search"))
+			$sEngine = _GetSettingValue("SearchPath")
+			GUICtrlSetState($hNoMSN, _GetSettingValue("NoMSN"))
+			If _IsChecked($hNoMSN) Then GUICtrlSetState($hWeather, $GUI_ENABLE)
+			GUICtrlSetData($hWeather, _GetSettingValue("Weather"))
+		EndIf
+
 		GUISwitch($hInstallGUI)
 
 		#Region Finish Page
