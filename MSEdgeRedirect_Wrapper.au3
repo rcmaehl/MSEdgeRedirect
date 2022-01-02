@@ -116,7 +116,9 @@ Func RunRemoval($bUpdate = False)
 	; Uninstall Info
 	RegDelete($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect")
 
+	; Start Menu Shortcuts
 	FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
+	DirRemove(@ProgramsCommonDir & "\MSEdgeRedirect"), $DIR_REMOVE)
 	DirRemove(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect", $DIR_REMOVE)
 
 	If $bIsAdmin Then
