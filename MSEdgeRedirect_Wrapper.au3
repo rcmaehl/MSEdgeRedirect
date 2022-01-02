@@ -432,7 +432,11 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 						Case $hMode
 							GUICtrlSetState($hBack, $GUI_ENABLE)
 						Case $hSettings
-							GUICtrlSetData($hNext, "Install")
+							If $bUpdate Then
+								GUICtrlSetData($hNext, "Update")
+							Else
+								GUICtrlSetData($hNext, "Install")
+							EndIf
 						Case $hFinish
 							If $bUpdate Then RunRemoval(True)
 
