@@ -498,10 +498,9 @@ Func _IsSafeURL($sURL)
 	If $aURL[0] < 2 Then
 		ReDim $aURL[3]
 		$aURL[2] = $aURL[1]
-		$aURL[1] = "http"
+		$aURL[1] = "https"
+		$sURL = "https://" & $sURL
 	EndIf
-
-;	_ArrayDisplay($aURL)
 
 	Select
 		Case $aURL[1] <> "http" And $aURL[1] <> "https"
