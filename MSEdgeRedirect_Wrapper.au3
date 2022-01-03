@@ -374,15 +374,21 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 		If $bUpdate Then
 			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
 			GUICtrlSetState($hNoPDFs, _GetSettingValue("NoPDFs"))
-			GUICtrlSetData($hPDFPath, _GetSettingValue("PDFApp"))
-			$sHandler = _GetSettingValue("PDFApp")
+			If _IsChecked($hNoPDFs) Then
+				GUICtrlSetData($hPDFPath, _GetSettingValue("PDFApp"))
+				$sHandler = _GetSettingValue("PDFApp")
+			EndIf
 			GUICtrlSetState($hSearch, _GetSettingValue("NoBing"))
-			If _IsChecked($hSearch) Then GUICtrlSetState($hEngine, $GUI_ENABLE)
-			GUICtrlSetData($hEngine, _GetSettingValue("Search"))
-			$sEngine = _GetSettingValue("SearchPath")
+			If _IsChecked($hSearch) Then
+				GUICtrlSetState($hEngine, $GUI_ENABLE)
+				GUICtrlSetData($hEngine, _GetSettingValue("Search"))
+				$sEngine = _GetSettingValue("SearchPath")
+			EndIf
 			GUICtrlSetState($hNoMSN, _GetSettingValue("NoMSN"))
-			If _IsChecked($hNoMSN) Then GUICtrlSetState($hWeather, $GUI_ENABLE)
-			GUICtrlSetData($hWeather, _GetSettingValue("Weather"))
+			If _IsChecked($hNoMSN) Then
+				GUICtrlSetState($hWeather, $GUI_ENABLE)
+				GUICtrlSetData($hWeather, _GetSettingValue("Weather"))
+			EndIf
 		EndIf
 
 		GUISwitch($hInstallGUI)
