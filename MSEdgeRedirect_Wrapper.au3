@@ -375,8 +375,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
 			GUICtrlSetState($hNoPDFs, _GetSettingValue("NoPDFs"))
 			If _IsChecked($hNoPDFs) Then
-				GUICtrlSetData($hPDFPath, _GetSettingValue("PDFApp"))
 				$sHandler = _GetSettingValue("PDFApp")
+				GUICtrlSetData($hPDFPath, " " & sHandler)
 			EndIf
 			GUICtrlSetState($hSearch, _GetSettingValue("NoBing"))
 			If _IsChecked($hSearch) Then
