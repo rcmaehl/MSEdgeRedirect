@@ -312,17 +312,19 @@ Func RunHTTPCheck($bSilent = False)
 	$aDefaults[$hHTTPS] = RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgId")
 	$aDefaults[$hMSEdge] = RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\microsoft-edge\UserChoice", "ProgId")
 
-	If $aDefaults[$hHTTP] = $aDefaults[$hMSEdge] Or $aDefaults[$hHTTPS] = $aDefaults[$hMSEdge] Then
-		If Not $bSilent Then
-			MsgBox($MB_ICONERROR+$MB_OK, _
-				"Edge Set As Default", _
-				"You must set a different Default Browser to use MSEdgeRedirect!")
+	If StringInStr($aDefaults[$hMSEdge], "MSEdge") Then
+		If $aDefaults[$hHTTP] = $aDefaults[$hMSEdge] Or $aDefaults[$hHTTPS] = $aDefaults[$hMSEdge] Then
+			If Not $bSilent Then
+				MsgBox($MB_ICONERROR+$MB_OK, _
+					"Edge Set As Default", _
+					"You must set a different Default Browser to use MSEdgeRedirect!")
+			EndIf
+			FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Found same MS Edge for both default browser and microsoft-edge handling, EXITING!" & @CRLF)
+			For $iLoop = 0 To UBound($hLogs) - 1
+				FileClose($hLogs[$iLoop])
+			Next
+			Exit 4315 ; ERROR_MEDIA_INCOMPATIBLE
 		EndIf
-		FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Found same MS Edge for both default browser and microsoft-edge handling, EXITING!" & @CRLF)
-		For $iLoop = 0 To UBound($hLogs) - 1
-			FileClose($hLogs[$iLoop])
-		Next
-		Exit 4315 ; ERROR_MEDIA_INCOMPATIBLE
 	EndIf
 
 EndFunc
