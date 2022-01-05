@@ -153,7 +153,7 @@ Func RunRepair()
 
 EndFunc
 
-Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
+Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir & "\Setup.ini")
 	#forceref $bSilent
 
 	Local $hMsg
@@ -165,18 +165,18 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 	Local $hChannels[4]
 	Local $aChannels[4] = [True, True, False, False]
 
-	Local $aConfig[2] = [False, "Service"] ; Default Setup.ini Values
-	Local Enum $bManaged, $vMode
+	Local $aConfig[3] = [$hSetupFile, False, "Service"] ; Default Setup.ini Values
+	Local Enum $hFile, $bManaged, $vMode
 
 	Local $aSettings[12] = [False, False, False, False, False, False, "", "", "", "Full", True, ""]
 	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather
 
 	If $bSilent Then
 
-		If Not FileExists(@ScriptDir & "\Setup.ini") Then Exit 2 ; ERROR_FILE_NOT_FOUND
+		If Not FileExists($aConfig[$hFile]) Then Exit 2 ; ERROR_FILE_NOT_FOUND
 
-		$aConfig[$bManaged] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Config", "Managed", False))
-		$aConfig[$vMode] = IniRead(@ScriptDir & "\Setup.ini", "Config", "Mode", "Service")
+		$aConfig[$bManaged] = _Bool(IniRead($aConfig[$hFile], "Config", "Managed", False))
+		$aConfig[$vMode] = IniRead($aConfig[$hFile], "Config", "Mode", "Service")
 
 		If $aConfig[$vMode] = "active" Then
 			$aConfig[$vMode] = True
@@ -186,7 +186,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 
 		If ($aConfig[$bManaged] Or $aConfig[$vMode]) And Not $bIsAdmin Then Exit 5 ; ERROR_ACCESS_DENIED
 
-		$sEdges = IniRead(@ScriptDir & "\Setup.ini", "Settings", "Edges", "")
+		$sEdges = IniRead($aConfig[$hFile], "Settings", "Edges", "")
 		If StringInStr($sEdges, "Stable") Then $aChannels[0] = True
 		If StringInStr($sEdges, "Beta") Then $aChannels[1] = True
 		If StringInStr($sEdges, "Dev") Then $aChannels[2] = True
@@ -197,18 +197,18 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0)
 			If $iLoop = 3 Then Exit 160 ; ERROR_BAD_ARGUMENTS
 		Next
 
-		$aSettings[$bNoApps] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoApps", $aSettings[$bNoApps]))
-		$aSettings[$bNoBing] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoBing", $aSettings[$bNoBing]))
-		$aSettings[$bNoMSN] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoMSN", $aSettings[$bNoBing]))
-		$aSettings[$bNoPDFs] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoPDFs", $aSettings[$bNoPDFs]))
-		$aSettings[$bNoTray] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoTray", $aSettings[$bNoTray]))
-		$aSettings[$bNoUpdates] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "NoUpdates", $aSettings[$bNoUpdates]))
-		$aSettings[$sPDFApp] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "PDFApp", $aSettings[$sPDFApp])
-		$aSettings[$sSearch] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "Search", $aSettings[$sSearch])
-		$aSettings[$sSearchPath] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "SearchPath", $aSettings[$sSearchPath])
-		$aSettings[$sStartMenu] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "StartMenu", $aSettings[$sStartMenu])
-		$aSettings[$bStartup] = _Bool(IniRead(@ScriptDir & "\Setup.ini", "Settings", "Startup", $aSettings[$bStartup]))
-		$aSettings[$sWeather] = IniRead(@ScriptDir & "\Setup.ini", "Settings", "Weather", $aSettings[$sSearch])
+		$aSettings[$bNoApps] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoApps", $aSettings[$bNoApps]))
+		$aSettings[$bNoBing] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoBing", $aSettings[$bNoBing]))
+		$aSettings[$bNoMSN] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoMSN", $aSettings[$bNoBing]))
+		$aSettings[$bNoPDFs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoPDFs", $aSettings[$bNoPDFs]))
+		$aSettings[$bNoTray] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoTray", $aSettings[$bNoTray]))
+		$aSettings[$bNoUpdates] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoUpdates", $aSettings[$bNoUpdates]))
+		$aSettings[$sPDFApp] = IniRead($aConfig[$hFile], "Settings", "PDFApp", $aSettings[$sPDFApp])
+		$aSettings[$sSearch] = IniRead($aConfig[$hFile], "Settings", "Search", $aSettings[$sSearch])
+		$aSettings[$sSearchPath] = IniRead($aConfig[$hFile], "Settings", "SearchPath", $aSettings[$sSearchPath])
+		$aSettings[$sStartMenu] = IniRead($aConfig[$hFile], "Settings", "StartMenu", $aSettings[$sStartMenu])
+		$aSettings[$bStartup] = _Bool(IniRead($aConfig[$hFile], "Settings", "Startup", $aSettings[$bStartup]))
+		$aSettings[$sWeather] = IniRead($aConfig[$hFile], "Settings", "Weather", $aSettings[$sSearch])
 
 		For $iLoop = $bNoApps To $bNoUpdates Step 1
 			If Not IsBool($aSettings[$iLoop]) Then Exit 160 ; ERROR_BAD_ARGUMENTS

@@ -82,6 +82,7 @@ Func ProcessCMDLine()
 
 	Local $aPIDs
 	Local $bHide = _GetSettingValue("NoTray")
+	Local $hFile = @ScriptDir & ".\Setup.ini"
 	Local $iParams = $CmdLine[0]
 	Local $bSilent = False
 	Local $aInstall[3]
@@ -126,7 +127,20 @@ Func ProcessCMDLine()
 					Exit
 				Case "/si", "/silentinstall"
 					$bSilent = True
-					_ArrayDelete($CmdLine, 1)
+					Select
+						Case UBound($CmdLine) = 2
+							_ArrayDelete($CmdLine, 1)
+						Case UBound($CmdLine) > 2 And FileExists($CmdLine[2])
+							$hFile = $CmdLine[2]
+							_ArrayDelete($CmdLine, "1-2")
+						Case StringLeft($CmdLine[2], 1) = "/"
+							_ArrayDelete($CmdLine, 1)
+						Case Else
+							MsgBox(0, _
+								"Invalid", _
+								'Invalid file - "' & $CmdLine[2] & @CRLF)
+							Exit 87 ; ERROR_INVALID_PARAMETER
+					EndSelect
 				Case "/u", "/update"
 					Select
 						Case UBound($CmdLine) = 2
@@ -171,12 +185,12 @@ Func ProcessCMDLine()
 
 		Select
 			Case Not $aInstall[0] ; Not Installed
-				RunSetup(False, $bSilent)
+				RunSetup(False, $bSilent, 0, $hFile)
 			Case _VersionCompare($sVersion, $aInstall[2]) ; Installed, Out of Date
-				RunSetup($aInstall[1], $bSilent)
+				RunSetup($aInstall[1], $bSilent, 0, $hFile)
 			Case StringInStr($aInstall[1], "HKCU") ; Installed, Up to Date, Service Mode
 				If @ScriptDir <> @LocalAppDataDir & "\MSEdgeRedirect" Then
-					RunSetup($aInstall[1], $bSilent)
+					RunSetup($aInstall[1], $bSilent, 0, $hFile)
 					;ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", "", @LocalAppDataDir & "\MSEdgeRedirect\")
 				Else
 					$aPIDs = ProcessList(@ScriptName)
@@ -188,7 +202,7 @@ Func ProcessCMDLine()
 					Next
 				EndIf
 			Case Else
-				RunSetup(True, $bSilent)
+				RunSetup(True, $bSilent, 0, $hFile)
 		EndSelect
 	EndIf
 	ReactiveMode($bHide)
