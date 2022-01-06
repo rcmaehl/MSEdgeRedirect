@@ -65,7 +65,6 @@ Func ActiveMode(ByRef $aCMDLine)
 				If @error Then MsgBox($MB_ICONERROR+$MB_OK, _
 					"Repair Failed", _
 					"Unable to update Microsoft Edge IFEO exclusion file without Admin Rights!")
-
 			EndIf
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
