@@ -26,7 +26,7 @@ EndIf
 Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 
 	Local $sArgs = ""
-	Local Enum $hFile, $bManaged, $vMode
+	Local Enum $bManaged = 1, $vMode
 	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather
 
 	SetOptionsRegistry("NoApps", $aSettings[$bNoApps], $aConfig[$vMode], $aConfig[$bManaged])
