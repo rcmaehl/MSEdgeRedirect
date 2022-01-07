@@ -401,49 +401,61 @@ Func _ChangeWeatherProvider($sURL)
 
 	#forceref $sLocale
 
-	If StringInStr($sURL, "weadegreetype") Then
-		$vCoords = StringRegExpReplace($sURL, "(.*)(\/ct)", "")
-		$vCoords = StringRegExpReplace($vCoords, "(?=\?weadegreetype=)(.*)", "")
-		$vCoords = StringSplit($vCoords, ",")
-		If $vCoords[0] = 2 Then
-			$fLat = $vCoords[1]
-			$fLong = $vCoords[2]
-			$sSign = StringRegExpReplace($sURL, "(.*)(weadegreetype=)", "")
-			$sSign = StringRegExpReplace($sSign, "(?=&weaext0=)(.*)", "")
-			Switch _GetSettingValue("Weather")
+	If StringInStr($sURL, "msn.com/") Then ; TODO: Swap to Regex to reduce potential false positives
 
-				Case "AccuWeather"
-					$sURL = "https://www.accuweather.com/en/search-locations?query=" & $fLat & "," & $fLong
+		Select ; TODO: Rewrite function. Get Provider, then Get URL Type (Forecast vs Map), Return appropriate data
 
-				Case "Weather.com"
-					$sURL = "https://www.weather.com/wx/today/?lat=" & $fLat & "&lon=" & $fLong & "&temp=" & $sSign ;"&locale=" & <LOCALE>
+			Case StringInStr($sURL, "weadegreetype")
+				$vCoords = StringRegExpReplace($sURL, "(.*)(\/ct)", "")
+				$vCoords = StringRegExpReplace($vCoords, "(?=\?weadegreetype=)(.*)", "")
+				$vCoords = StringSplit($vCoords, ",")
+				If $vCoords[0] = 2 Then
+					$fLat = $vCoords[1]
+					$fLong = $vCoords[2]
+					$sSign = StringRegExpReplace($sURL, "(.*)(weadegreetype=)", "")
+					$sSign = StringRegExpReplace($sSign, "(?=&weaext0=)(.*)", "")
+					Switch _GetSettingValue("Weather")
 
-				Case "Weather.gov"
-					$sURL = "https://forecast.weather.gov/MapClick.php?lat=" & $fLat & "&lon=" & $fLong
+						Case "AccuWeather"
+							$sURL = "https://www.accuweather.com/en/search-locations?query=" & $fLat & "," & $fLong
 
-				Case "Windy"
-					$sURL = "https://www.windy.com/?" & $fLat & "," & $fLong
+						Case "Weather.com"
+							$sURL = "https://www.weather.com/wx/today/?lat=" & $fLat & "&lon=" & $fLong & "&temp=" & $sSign ;"&locale=" & <LOCALE>
 
-				Case "Wunderground"
-					$sURL = "https://www.wunderground.com/weather/" & $fLat & "," & $fLong
+						Case "Weather.gov"
+							$sURL = "https://forecast.weather.gov/MapClick.php?lat=" & $fLat & "&lon=" & $fLong
 
-				Case "Ventusky"
-					$sURL = "https://www.ventusky.com/" & $fLat & ";" & $fLong
+						Case "Windy"
+							$sURL = "https://www.windy.com/?" & $fLat & "," & $fLong
 
-				Case Null
+						Case "Wunderground"
+							$sURL = "https://www.wunderground.com/weather/" & $fLat & "," & $fLong
+
+						Case "Ventusky"
+							$sURL = "https://www.ventusky.com/" & $fLat & ";" & $fLong
+
+						Case Null
+							;;;
+
+						Case Else
+							$sURL = _GetSettingValue("WeatherPath") & $sURL
+
+					EndSwitch
+				Else
 					;;;
+				EndIf
 
-				Case Else
-					$sURL = _GetSettingValue("WeatherPath") & $sURL
+			Case StringInStr($sURL, "/weather/maps")
+				;;;
 
-			EndSwitch
-		Else
+			Case Else
+				;;;
 
-		EndIf
+		EndSelect
+
 	EndIf
 
 	Return $sURL
-
 
 EndFunc
 
