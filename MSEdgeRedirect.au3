@@ -412,11 +412,23 @@ Func _ChangeWeatherProvider($sURL)
 			$sSign = StringRegExpReplace($sSign, "(?=&weaext0=)(.*)", "")
 			Switch _GetSettingValue("Weather")
 
+				Case "AccuWeather"
+					$sURL = "https://www.accuweather.com/en/search-locations?query=" & $fLat & "," & $fLong
+
 				Case "Weather.com"
 					$sURL = "https://www.weather.com/wx/today/?lat=" & $fLat & "&lon=" & $fLong & "&temp=" & $sSign ;"&locale=" & <LOCALE>
 
 				Case "Weather.gov"
 					$sURL = "https://forecast.weather.gov/MapClick.php?lat=" & $fLat & "&lon=" & $fLong
+
+				Case "Windy"
+					$sURL = "https://www.windy.com/?" & $fLat & "," & $fLong
+
+				Case "Wunderground"
+					$sURL = "https://www.wunderground.com/weather/" & $fLat & "," & $fLong
+
+				Case "Ventusky"
+					$sURL = "https://www.ventusky.com/" & $fLat & ";" & $fLong
 
 				Case Null
 					;;;
