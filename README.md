@@ -47,6 +47,7 @@ Can be silently Deployed| |☑|☑| |☑
 Update Checker Module| | |☑|☑|☑
 Search Engine Customizations| | |☑, 8|☑, 14|☑, 9
 Search Engine Shortcut Support| | |☑, DDG !Bang| | 
+Weather Forecast Customizations| | | | |☑, 6
 Customizable Edge Support| | | | |☑<sup>†</sup>
 Can be used Portably (USB)| | | | |☑<sup>‡</sup>
 Supports GPO Registry Keys| | | | |☑
