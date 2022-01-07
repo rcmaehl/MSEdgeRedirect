@@ -398,6 +398,7 @@ Func _ChangeWeatherProvider($sURL)
 	Local $sSign
 	Local $sLocale
 	Local $vCoords
+	Local $sOriginal = $sURL
 
 	#forceref $sLocale
 
@@ -435,10 +436,10 @@ Func _ChangeWeatherProvider($sURL)
 							$sURL = "https://www.ventusky.com/" & $fLat & ";" & $fLong
 
 						Case Null
-							;;;
+							ContinueCase
 
 						Case Else
-							$sURL = _GetSettingValue("WeatherPath") & $sURL
+							$sURL = $sOriginal
 
 					EndSwitch
 				Else
