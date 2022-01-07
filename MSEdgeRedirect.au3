@@ -534,7 +534,7 @@ Func _GetDefaultBrowser()
 
 EndFunc
 
-Func _IsSafeURL($sURL)
+Func _IsSafeURL(ByRef $sURL)
 
 	Local $aURL
 	Local $bSafe = False
