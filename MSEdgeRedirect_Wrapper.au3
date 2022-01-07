@@ -368,7 +368,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoMSN = GUICtrlCreateCheckbox("Replace Weather Results with:", 50, 210, 380, 20)
 			Local $hWeather = GUICtrlCreateCombo("", 50, 230, 380, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
-			GUICtrlSetData(-1, "Weather.com|Weather.gov", "Weather.com")
+			GUICtrlSetData(-1, "AccuWeather|Weather.com|Weather.gov|Windy|WUnderground|Ventusky", "Weather.com")
 			GUICtrlSetState(-1, $GUI_DISABLE)
 
 		If $bUpdate Then
