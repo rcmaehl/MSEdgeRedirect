@@ -422,7 +422,7 @@ Func _ChangeWeatherProvider($sURL)
 						Case "Weather.com"
 							$sURL = "https://www.weather.com/wx/today/?lat=" & $fLat & "&lon=" & $fLong & "&temp=" & $sSign ;"&locale=" & <LOCALE>
 
-						Case "Weather.gov"
+						Case "Weather.gov" ; TODO: Swap to "Government" and pass to the appropriate organization (https://en.wikipedia.org/wiki/List_of_meteorology_institutions)
 							$sURL = "https://forecast.weather.gov/MapClick.php?lat=" & $fLat & "&lon=" & $fLong
 
 						Case "Windy"
