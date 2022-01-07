@@ -342,6 +342,36 @@ Func RunHTTPCheck($bSilent = False)
 
 EndFunc
 
+Func _ChangeNewsProvider($sURL)
+
+	Local $sOriginal = $sURL
+
+	If StringInStr($sURL, "msn.com/") And StringRegExp($sURL, ".*\/(companies|news|research|topstories)\/") Then
+		$sURL = StringRegExpReplace($sURL, ".*\/(companies|news|research|topstories)\/", "")
+		$sURL = StringRegExpReplace($sURL, "?=\/.*", "")
+		MsgBox(0, $sOriginal, $sURL)
+
+		Switch _GetSettingValue("News")
+
+			Case "DuckDuckGo"
+				$sURL = "https://duckduckgo.com/?q=%5C" & $sURL
+
+			Case "Google"
+				$sURL = "https://www.google.com/search?q=" & $sURL & "&btnI=I%27m+Feeling+Lucky"
+
+			Case Null
+				ContinueCase
+
+			Case Else
+				$sURL = $sOriginal
+
+		EndSwitch
+	EndIf
+
+	Return $sURL
+
+EndFunc
+
 Func _ChangeSearchEngine($sURL)
 
 	If StringInStr($sURL, "bing.com/search?q=") Then
@@ -571,6 +601,7 @@ Func _ModifyURL($sURL)
 
 	If _GetSettingValue("NoBing") Then $sURL = _ChangeSearchEngine($sURL)
 	If _GetSettingValue("NoMSN") Then $sURL = _ChangeWeatherProvider($sURL)
+	If _GetSettingValue("NoNews") Then $sURL = _ChangeNewsProvider($sURL)
 
 	Return $sURL
 
