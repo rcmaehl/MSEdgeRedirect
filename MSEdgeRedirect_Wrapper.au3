@@ -20,7 +20,7 @@ Global $sVersion
 If @Compiled Then
 	$sVersion = FileGetVersion(@ScriptFullPath)
 Else
-	$sVersion = "0.5.0.1"
+	$sVersion = "0.6.1.0"
 EndIf
 
 Func RunInstall(ByRef $aConfig, ByRef $aSettings)
