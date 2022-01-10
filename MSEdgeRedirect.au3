@@ -512,7 +512,7 @@ Func _DecodeAndRun($sCMDLine, $sEdge = $aEdges[1])
 						FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
 					EndIf
 				Case StringInStr($sCMDLine, "--ip-aumid=") ; Edge "Apps"
-					ShellExecute($sEdge, $sCMDLine)
+					ShellExecute(StringReplace($sEdge, "msedge.exe", "msedge_no_ifeo.exe"), $sCMDLine)
 				Case Else
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
 			EndSelect
