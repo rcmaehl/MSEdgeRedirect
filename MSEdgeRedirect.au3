@@ -72,7 +72,7 @@ Func ActiveMode(ByRef $aCMDLine)
 			For $iLoop = 2 To $aCMDLine[0]
 				$sCMDLine &= $aCMDLine[$iLoop] & " "
 			Next
-			_DecodeAndRun($sCMDLine)
+			_DecodeAndRun($sCMDLine, $aCMDLine[1])
 	EndSelect
 
 EndFunc
@@ -490,7 +490,7 @@ Func _ChangeWeatherProvider($sURL)
 
 EndFunc
 
-Func _DecodeAndRun($sCMDLine)
+Func _DecodeAndRun($sCMDLine, $sEdge = $aEdges[1])
 
 	Local $sCaller
 	Local $aLaunchContext
@@ -502,13 +502,20 @@ Func _DecodeAndRun($sCMDLine)
 			$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
 			ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
 		Case StringInStr($sCMDLine, "--app-id") And _GetSettingValue("NoApps") ; TikTok and other Apps
-			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*)(--app-fallback-url=)", "")
-			$sCMDLine = StringRegExpReplace($sCMDLine, "(?= --)(.*)", "")
-			If _IsSafeURL($sCMDLine) Then
-				ShellExecute($sCMDLine)
-			Else
-				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
-			EndIf
+			Select
+				Case StringInStr($sCMDLine, "--app-fallback-url=") ; Windows Store "Apps"
+					$sCMDLine = StringRegExpReplace($sCMDLine, "(.*)(--app-fallback-url=)", "")
+					$sCMDLine = StringRegExpReplace($sCMDLine, "(?= --)(.*)", "")
+					If _IsSafeURL($sCMDLine) Then
+						ShellExecute($sCMDLine)
+					Else
+						FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
+					EndIf
+				Case StringInStr($sCMDLine, "--ip-aumid=") ; Edge "Apps"
+					ShellExecute($sEdge, $sCMDLine)
+				Case Else
+					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
+			EndSelect
 		Case StringInStr($sCMDLine, "Windows.Widgets")
 			$sCaller = "Windows.Widgets"
 			ContinueCase
