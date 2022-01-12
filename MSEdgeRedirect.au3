@@ -36,6 +36,7 @@
 #include "Includes\_Settings.au3"
 #include "Includes\_Translation.au3"
 
+#include "Includes\Base64.au3"
 #include "Includes\ResourcesEx.au3"
 
 Opt("TrayMenuMode", 3)
@@ -424,6 +425,7 @@ Func _ChangeWeatherProvider($sURL)
 	;https://a.msn.com/54/en-us/ct<LATITUDE>,<LONGITUDE>?weadegreetype=F&weaext0={%22l%22:%22<CITY>%22,%22r%22:%22<STATE>%22,%22c%22:%22<COUNTRY>...
 
 	Local $fLat
+	Local $aData
 	Local $fLong
 	Local $sSign
 	Local $sLocale
@@ -437,44 +439,84 @@ Func _ChangeWeatherProvider($sURL)
 		Select ; TODO: Rewrite function. Get Provider, then Get URL Type (Forecast vs Map), Return appropriate data
 
 			Case StringInStr($sURL, "weadegreetype")
-				$vCoords = StringRegExpReplace($sURL, "(.*)(\/ct)", "")
-				$vCoords = StringRegExpReplace($vCoords, "(?=\?weadegreetype=)(.*)", "")
-				$vCoords = StringSplit($vCoords, ",")
-				If $vCoords[0] = 2 Then
-					$fLat = $vCoords[1]
-					$fLong = $vCoords[2]
-					$sSign = StringRegExpReplace($sURL, "(.*)(weadegreetype=)", "")
-					$sSign = StringRegExpReplace($sSign, "(?=&weaext0=)(.*)", "")
-					Switch _GetSettingValue("Weather")
 
-						Case "AccuWeather"
-							$sURL = "https://www.accuweather.com/en/search-locations?query=" & $fLat & "," & $fLong
+				Select
 
-						Case "Weather.com"
-							$sURL = "https://www.weather.com/wx/today/?lat=" & $fLat & "&lon=" & $fLong & "&temp=" & $sSign ;"&locale=" & <LOCALE>
-
-						Case "Weather.gov" ; TODO: Swap to "Government" and pass to the appropriate organization (https://en.wikipedia.org/wiki/List_of_meteorology_institutions)
-							$sURL = "https://forecast.weather.gov/MapClick.php?lat=" & $fLat & "&lon=" & $fLong
-
-						Case "Windy"
-							$sURL = "https://www.windy.com/?" & $fLat & "," & $fLong
-
-						Case "WUnderground"
-							$sURL = "https://www.wunderground.com/weather/" & $fLat & "," & $fLong
-
-						Case "Ventusky"
-							$sURL = "https://www.ventusky.com/" & $fLat & ";" & $fLong
-
-						Case Null
-							ContinueCase
-
-						Case Else
+					Case StringInStr($sURL, "ct") ; Old Style Weather URL
+						$vCoords = StringRegExpReplace($sURL, "(.*)(\/ct)", "")
+						$vCoords = StringRegExpReplace($vCoords, "(?=\?weadegreetype=)(.*)", "")
+						$vCoords = StringSplit($vCoords, ",")
+						If $vCoords[0] = 2 Then
+							$fLat = $vCoords[1]
+							$fLong = $vCoords[2]
+							$sSign = StringRegExpReplace($sURL, "(.*)(weadegreetype=)", "")
+							$sSign = StringRegExpReplace($sSign, "(?=&weaext0=)(.*)", "")
+						Else
 							$sURL = $sOriginal
+						EndIf
 
-					EndSwitch
-				Else
-					;;;
-				EndIf
+					Case StringInStr($sURL, "loc=") ; New Style Weather URL
+						$vCoords = StringRegExpReplace($sURL, "(.*)(\?loc=)", "")
+						$vCoords = StringRegExpReplace($vCoords, "(?=\&weadegreetype=)(.*)", "")
+						$vCoords = _UnicodeURLDecode($vCoords)
+						$vCoords = _Base64Decode($vCoords)
+						$vCoords = BinaryToString($vCoords)
+						$vCoords = StringRegExpReplace($vCoords, "{|}", "")
+						$aData = StringSplit($vCoords, ",")
+						For $iLoop = 1 To $aData[0] Step 1
+							Switch StringLeft($aData[$iLoop], 3)
+								Case '"l"'
+									;;;
+								Case '"r"'
+									;;;
+								Case '"c"'
+									;;;
+								Case '"i"'
+									;;;
+								Case '"g"'
+									$sLocale = StringTrimLeft($aData[$iLoop], 4)
+									$sLocale = StringTrimRight($aData[$iLoop], 1)
+								Case '"x"'
+									$fLong = StringTrimLeft($aData[$iLoop], 4)
+								Case '"y"'
+									$fLat = StringTrimLeft($aData[$iLoop], 4)
+								Case Else
+									;;;
+							EndSwitch
+						Next
+
+					Case Else
+						$sURL = $sOriginal
+
+				EndSelect
+
+				Switch _GetSettingValue("Weather")
+
+					Case "AccuWeather"
+						$sURL = "https://www.accuweather.com/en/search-locations?query=" & $fLat & "," & $fLong
+
+					Case "Weather.com"
+						$sURL = "https://www.weather.com/wx/today/?lat=" & $fLat & "&lon=" & $fLong & "&temp=" & $sSign ;"&locale=" & <LOCALE>
+
+					Case "Weather.gov" ; TODO: Swap to "Government" and pass to the appropriate organization (https://en.wikipedia.org/wiki/List_of_meteorology_institutions)
+						$sURL = "https://forecast.weather.gov/MapClick.php?lat=" & $fLat & "&lon=" & $fLong
+
+					Case "Windy"
+						$sURL = "https://www.windy.com/?" & $fLat & "," & $fLong
+
+					Case "WUnderground"
+						$sURL = "https://www.wunderground.com/weather/" & $fLat & "," & $fLong
+
+					Case "Ventusky"
+						$sURL = "https://www.ventusky.com/" & $fLat & ";" & $fLong
+
+					Case Null
+						ContinueCase
+
+					Case Else
+						$sURL = $sOriginal
+
+				EndSwitch
 
 			Case StringInStr($sURL, "/weather/maps")
 				;;;

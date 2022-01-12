@@ -39,22 +39,7 @@ $packageArgs = @{
 
   # MSI
   # silentArgs    = "/qn /norestart /l*v `"$($env:TEMP)\$($packageName).$($env:chocolateyPackageVersion).MsiInstall.log`"" # ALLUSERS=1 DISABLEDESKTOPSHORTCUT=1 ADDDESKTOPICON=0 ADDSTARTMENU=0
-  validExitCodes= @(0, 3010, 1641)
-  # OTHERS
-  # Uncomment matching EXE type (sorted by most to least common)
-  #silentArgs   = '/S'           # NSIS
-  #silentArgs   = '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' # Inno Setup
-  #silentArgs   = '/s'           # InstallShield
-  #silentArgs   = '/s /v"/qn"'   # InstallShield with MSI
-  #silentArgs   = '/s'           # Wise InstallMaster
-  #silentArgs   = '-s'           # Squirrel
-  #silentArgs   = '-q'           # Install4j
-  #silentArgs   = '-s'           # Ghost
-  #siletnArgs   = '/silentInstall'
-  # Note that some installers, in addition to the silentArgs above, may also need assistance of AHK to achieve silence.
-  #silentArgs   = ''             # none; make silent with input macro script like AutoHotKey (AHK)
-                                 #       https://community.chocolatey.org/packages/autohotkey.portable
-  #validExitCodes= @(0) #please insert other valid exit codes here
+  validExitCodes= @(0)
 }
 
 #Install-ChocolateyPackage @packageArgs # https://docs.chocolatey.org/en-us/create/functions/install-chocolateypackage
@@ -72,28 +57,10 @@ Install-ChocolateyInstallPackage @packageArgs # https://docs.chocolatey.org/en-u
 ## add additional optional arguments as necessary
 ##Install-ChocolateyPackage $packageName $fileType $silentArgs $url [$url64 -validExitCodes $validExitCodes -checksum $checksum -checksumType $checksumType -checksum64 $checksum64 -checksumType64 $checksumType64]
 
-## Download and unpack a zip file - https://docs.chocolatey.org/en-us/create/functions/install-chocolateyzippackage
-##Install-ChocolateyZipPackage $packageName $url $toolsDir [$url64 -checksum $checksum -checksumType $checksumType -checksum64 $checksum64 -checksumType64 $checksumType64]
-
-## Install Visual Studio Package - https://docs.chocolatey.org/en-us/create/functions/install-chocolateyvsixpackage
-#Install-ChocolateyVsixPackage $packageName $url [$vsVersion] [-checksum $checksum -checksumType $checksumType]
-#Install-ChocolateyVsixPackage @packageArgs
-
-## see the full list at https://docs.chocolatey.org/en-us/create/functions
-
-## downloader that the main helpers use to download items
-## if removing $url64, please remove from here
-## - https://docs.chocolatey.org/en-us/create/functions/get-chocolateywebfile
-#Get-ChocolateyWebFile $packageName 'DOWNLOAD_TO_FILE_FULL_PATH' $url $url64
-
 ## Installer, will assert administrative rights - used by Install-ChocolateyPackage
 ## use this for embedding installers in the package when not going to community feed or when you have distribution rights
 ## - https://docs.chocolatey.org/en-us/create/functions/install-chocolateyinstallpackage
 #Install-ChocolateyInstallPackage $packageName $fileType $silentArgs '_FULLFILEPATH_' -validExitCodes $validExitCodes
-
-## Unzips a file to the specified location - auto overwrites existing content
-## - https://docs.chocolatey.org/en-us/create/functions/get-chocolateyunzipp
-#Get-ChocolateyUnzip "FULL_LOCATION_TO_ZIP.zip" $toolsDir
 
 ## Runs processes asserting UAC, will assert administrative rights - used by Install-ChocolateyInstallPackage
 ## - https://docs.chocolatey.org/en-us/create/functions/start-chocolateyprocessasadmin
@@ -137,16 +104,4 @@ Install-ChocolateyInstallPackage @packageArgs # https://docs.chocolatey.org/en-u
 #$toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
 # despite the name "Install-ChocolateyZipPackage" this also works with 7z archives
 #Install-ChocolateyZipPackage $packageName $url $toolsDir $url64
-## END PORTABLE EXAMPLE
-
-## [DEPRECATING] PORTABLE EXAMPLE
-#$binRoot = Get-BinRoot
-#$installDir = Join-Path $binRoot "$packageName"
-#Write-Host "Adding `'$installDir`' to the path and the current shell path"
-#Install-ChocolateyPath "$installDir"
-#$env:Path = "$($env:Path);$installDir"
-
-# if removing $url64, please remove from here
-# despite the name "Install-ChocolateyZipPackage" this also works with 7z archives
-#Install-ChocolateyZipPackage "$packageName" "$url" "$installDir" "$url64"
 ## END PORTABLE EXAMPLE
