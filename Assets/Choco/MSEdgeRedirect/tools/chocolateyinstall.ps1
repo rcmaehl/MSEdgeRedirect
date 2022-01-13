@@ -87,10 +87,6 @@ Install-ChocolateyInstallPackage @packageArgs # https://docs.chocolatey.org/en-u
 ## - https://docs.chocolatey.org/en-us/create/functions/get-osarchitecturewidth
 #$osBitness = Get-ProcessorBits
 
-## Set persistent Environment variables
-## - https://docs.chocolatey.org/en-us/create/functions/install-chocolateyenvironmentvariable
-#Install-ChocolateyEnvironmentVariable -variableName "SOMEVAR" -variableValue "value" [-variableType = 'Machine' #Defaults to 'User']
-
 ## Set up a file association
 ## - https://docs.chocolatey.org/en-us/create/functions/install-chocolateyfileassociation
 #Install-ChocolateyFileAssociation
@@ -99,9 +95,3 @@ Install-ChocolateyInstallPackage @packageArgs # https://docs.chocolatey.org/en-u
 ## - https://docs.chocolatey.org/en-us/create/functions/install-binfile
 ## - https://docs.chocolatey.org/en-us/create/create-packages#how-do-i-exclude-executables-from-getting-shims
 #Install-BinFile
-
-##PORTABLE EXAMPLE
-#$toolsDir = "$(Split-Path -parent $MyInvocation.MyCommand.Definition)"
-# despite the name "Install-ChocolateyZipPackage" this also works with 7z archives
-#Install-ChocolateyZipPackage $packageName $url $toolsDir $url64
-## END PORTABLE EXAMPLE
