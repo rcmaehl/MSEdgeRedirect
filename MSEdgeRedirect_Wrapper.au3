@@ -20,7 +20,7 @@ Global $sVersion
 If @Compiled Then
 	$sVersion = FileGetVersion(@ScriptFullPath)
 Else
-	$sVersion = "0.6.1.0"
+	$sVersion = "x.x.x.x"
 EndIf
 
 Func RunInstall(ByRef $aConfig, ByRef $aSettings)
@@ -259,6 +259,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			_SetBkIcon(-1, "", 0x00A4EF, @ScriptDir & "\assets\MSEdgeRedirect.ico", -1, 128, 128)
 		EndIf
 
+		Local $hHelp = GUICtrlCreateButton("Help", 20, 435, 90, 30)
+
 		Local $hBack = GUICtrlCreateButton("< Back", 330, 435, 90, 30)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 		Local $hNext = GUICtrlCreateButton("Next >", 420, 435, 90, 30)
@@ -428,6 +430,20 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						GUICtrlSetState($hNext, $GUI_DISABLE)
 					EndIf
 
+				Case $hMsg = $hHelp
+					Switch $iPage
+						Case $hLicense
+							ShellExecute("https://msedgeredirect.com/wiki/Installer-Overview#license-page")
+						Case $hMode
+							ShellExecute("https://msedgeredirect.com/wiki/Installer-Overview#mode-page")
+						Case $hSettings
+							ShellExecute("https://msedgeredirect.com/wiki/Installer-Overview#settings-page")
+						Case $hFinish
+							ShellExecute("https://msedgeredirect.com/wiki/Installer-Overview#finish-page")
+						Case Else
+
+					EndSwitch
+
 				Case $hMsg = $hBack
 					Switch $iPage - 1
 						Case $hLicense
@@ -483,6 +499,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								SetIFEORegistry($aChannels)
 							EndIf
 							GUICtrlSetData($hNext, "Finish")
+							GUICtrlSetState($hHelp, $GUI_DISABLE)
 							GUICtrlSetState($hBack, $GUI_DISABLE)
 							GUICtrlSetState($hCancel, $GUI_DISABLE)
 						Case $hExit
