@@ -283,7 +283,7 @@ Func ReactiveMode($bHide = False)
 
 			Case Else
 
-		EndSelect
+		EndSwitch
 	WEnd
 
 	_WinAPI_AdjustTokenPrivileges($hToken, $aAdjust, 0, $aAdjust)
