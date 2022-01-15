@@ -484,6 +484,8 @@ Func _ChangeWeatherProvider($sURL)
 								Case Else
 									;;;
 							EndSwitch
+							$sSign = StringRegExpReplace($sURL, "(.*)(weadegreetype=)", "")
+							$sSign = StringRegExpReplace($sSign, "(?=&weaext0=)(.*)", "")
 						Next
 
 					Case Else
