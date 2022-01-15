@@ -238,7 +238,6 @@ Func ReactiveMode($bHide = False)
 
 	If FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then TrayItemSetState($hStartup, $TRAY_CHECKED)
 
-
 	Local $aProcessList
 	Local $sCommandline
 
@@ -259,21 +258,21 @@ Func ReactiveMode($bHide = False)
 			$hTimer = TimerInit()
 		EndIf
 
-		Select
+		Switch $hMsg
 
-			Case $hMsg = $hHide
+			Case $hHide
 				TraySetState($TRAY_ICONSTATE_HIDE)
 
-			Case $hMsg = $hExit
+			Case $hExit
 				ExitLoop
 
-			Case $hMsg = $hDonate
+			Case $hDonate
 				ShellExecute("https://paypal.me/rhsky")
 
-			Case $hMsg = $hUpdate
+			Case $hUpdate
 				RunUpdateCheck(True)
 
-			Case $hMsg = $hStartup
+			Case $hStartup
 				If Not FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then
 					FileCreateShortcut(@AutoItExe, @StartupDir & "\MSEdgeRedirect.lnk", @ScriptDir)
 					TrayItemSetState($hStartup, $TRAY_CHECKED)
