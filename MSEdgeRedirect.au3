@@ -443,7 +443,7 @@ Func _ChangeWeatherProvider($sURL)
 
 				Select
 
-					Case StringInStr($sURL, "ct") ; Old Style Weather URL
+					Case StringInStr($sURL, "/ct") ; Old Style Weather URL
 						$vCoords = StringRegExpReplace($sURL, "(.*)(\/ct)", "")
 						$vCoords = StringRegExpReplace($vCoords, "(?=\?weadegreetype=)(.*)", "")
 						$vCoords = StringSplit($vCoords, ",")
