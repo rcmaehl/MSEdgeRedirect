@@ -167,6 +167,7 @@ Func ProcessCMDLine()
 					RunRemoval()
 					Exit
 				Case Else
+					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Unexpected Commandline: " & _ArrayToString($CmdLine) & @CRLF)
 					If @Compiled Then ; support for running non-compiled script - mLipok
 						MsgBox(0, _
 							"Invalid", _
@@ -482,7 +483,7 @@ Func _ChangeWeatherProvider($sURL)
 								Case '"y"'
 									$fLat = StringTrimLeft($aData[$iLoop], 4)
 								Case Else
-									;;;
+									FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Unexpected Weather Entry: " & $aData[$iLoop] & " of " & _ArrayToString($aData) & @CRLF)
 							EndSwitch
 							$sSign = StringRegExpReplace($sURL, "(.*)(weadegreetype=)", "")
 							$sSign = StringRegExpReplace($sSign, "(?=&weaext0=)(.*)", "")
