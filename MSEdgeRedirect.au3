@@ -297,7 +297,7 @@ Func ReactiveMode($bHide = False)
 EndFunc
 
 Func RunArchCheck($bSilent = False)
-	If @Compiled And Not $bIs64Bit Then
+	If @Compiled And $bIsWOW64 Then
 		If Not $bSilent Then
 			MsgBox($MB_ICONERROR+$MB_OK, _
 				"Wrong Version", _

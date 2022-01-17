@@ -6,7 +6,8 @@
 #include ".\_Logging.au3"
 
 Global $bIsAdmin = IsAdmin()
-Global $bIs64Bit = Not _WinAPI_IsWow64Process()
+Global $bIsWOW64 = _WinAPI_IsWow64Process()
+Global $bIs64Bit = @AutoItX64
 
 If $bIs64Bit Then
 	Global $aEdges[5] = [4, _
