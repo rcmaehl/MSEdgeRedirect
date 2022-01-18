@@ -357,10 +357,10 @@ Func _ChangeNewsProvider($sURL)
 		Switch _GetSettingValue("News")
 
 			Case "DuckDuckGo"
-				$sURL = "https://duckduckgo.com/?q=%5C" & $sURL
+				$sURL = "https://duckduckgo.com/?q=%5C" & $sURL & "+-site%3Abing.com"
 
 			Case "Google"
-				$sURL = "https://www.google.com/search?q=" & $sURL & "&btnI=I%27m+Feeling+Lucky"
+				$sURL = "https://www.google.com/search?q=" & $sURL & "+-site%3Amsn.com&btnI=I%27m+Feeling+Lucky"
 
 			Case Null
 				ContinueCase
@@ -470,6 +470,8 @@ Func _ChangeWeatherProvider($sURL)
 								Case '"l"'
 									;;;
 								Case '"r"'
+									;;;
+								Case '"r2'
 									;;;
 								Case '"c"'
 									;;;
