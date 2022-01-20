@@ -58,6 +58,9 @@ Func ActiveMode(ByRef $aCMDLine)
 			$aCMDLine[2] = ""
 			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--inprivate" ; In Private Browsing, No Parameters
+			ContinueCase
+		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
+			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			If FileGetVersion($aCMDLine[1]) <> FileGetVersion(StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")) Then
 				If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
 					_Translate($aMUI[1], "File Update Required"), _
@@ -67,9 +70,6 @@ Func ActiveMode(ByRef $aCMDLine)
 					"Repair Failed", _
 					"Unable to update Microsoft Edge IFEO exclusion file without Admin Rights!")
 			EndIf
-			ContinueCase
-		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
-			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
 		Case Else
 			For $iLoop = 2 To $aCMDLine[0]
