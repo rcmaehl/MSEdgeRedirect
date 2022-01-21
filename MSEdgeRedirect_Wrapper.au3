@@ -134,7 +134,6 @@ Func RunRepair()
 EndFunc
 
 Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir & "\Setup.ini")
-	#forceref $bSilent
 
 	Local $hMsg
 	Local $sArgs = ""
@@ -211,7 +210,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		Local $aPages[4]
 		Local Enum $hLicense, $hMode, $hSettings, $hFinish, $hExit
 
-		If Not _GetSettingValue("NoUpdates") Then RunUpdateCheck()
+		If @Compiled And Not _GetSettingValue("NoUpdates") Then RunUpdateCheck()
 
 		If StringInStr($bUpdate, "HKLM") And Not $bIsAdmin And Not @Compiled Then
 			MsgBox($MB_ICONERROR+$MB_OK, _
@@ -504,7 +503,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					$iPage += 1
 
 				Case $hMsg = $hActive or $hMsg = $hService
-					If _IsChecked($hActive) And Not $bIsAdmin Then
+					If @Compiled And _IsChecked($hActive) And Not $bIsAdmin Then
 						If ShellExecute(@ScriptFullPath, "", @ScriptDir, "RunAs") Then Exit
 						GUICtrlSetState($hActive, $GUI_UNCHECKED)
 						GUICtrlSetState($hService, $GUI_CHECKED)
