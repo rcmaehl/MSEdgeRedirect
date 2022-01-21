@@ -27,7 +27,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 
 	Local $sArgs = ""
 	Local Enum $bManaged = 1, $vMode
-	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather
+	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $bStartup = 10, $sWeather
 
 	SetOptionsRegistry("NoApps", $aSettings[$bNoApps], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoBing", $aSettings[$bNoBing], $aConfig[$vMode], $aConfig[$bManaged])
@@ -40,7 +40,6 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 	SetOptionsRegistry("SearchPath", $aSettings[$sSearchPath], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("Weather", $aSettings[$sWeather], $aConfig[$vMode], $aConfig[$bManaged])
 
-
 	If $aConfig[$vMode] Then
 		FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE)
 	Else
@@ -48,26 +47,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 		FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE)
 		If $aSettings[$bStartup] Then FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @StartupDir & "\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs)
 	EndIf
-	Switch $aSettings[$sStartMenu]
 
-		Case "Full"
-			If $aConfig[$vMode] Then
-				DirCreate(@ProgramsCommonDir & "\MSEdgeRedirect")
-				FileCreateShortcut("C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", @ProgramsCommonDir & "\MSEdgeRedirect\Settings.lnk", "C:\Program Files\MSEdgeRedirect\", "/settings")
-			Else
-				DirCreate(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect")
-				FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\Settings.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", "/settings")
-				ContinueCase
-			EndIf
-
-		Case "App Only"
-			DirCreate(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect")
-			FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs)
-
-		Case Else
-			;;;
-
-	EndSwitch
 EndFunc
 
 Func RunRemoval($bUpdate = False)
@@ -407,13 +387,21 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
 
-		;Local $hShortcuts = GUICtrlCreateCheckbox("Create Start Menu Shortcuts", 20, 200, 320, 20)
+		Local $hLaunch = GUICtrlCreateCheckbox("Launch Service Mode Now", 20, 200, 190, 20)
+		If $aConfig[$vMode] Then
+			GUICtrlSetState(-1, $GUI_DISABLE)
+		Else
+			GUICtrlSetState(-1, $GUI_CHECKED)
+		EndIf
+		Local $hAppLnk = GUICtrlCreateCheckbox("Create Start Menu Shortcuts", 20, 220, 190, 20)
+		GUICtrlSetState(-1, $GUI_CHECKED)
+		Local $hDonate = GUICtrlCreateCheckbox("Donate to the Project via PayPal", 20, 240, 190, 20)
 
 		GUISwitch($hInstallGUI)
 		#EndRegion
 
 		GUISetState(@SW_SHOW, $hInstallGUI)
-		GUISetState(@SW_SHOW, $aPages[$iPage])
+		GUISetState(@SW_SHOW, $aPages[$hLicense])
 
 		While True
 			$hMsg = GUIGetMsg()
@@ -503,7 +491,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							GUICtrlSetState($hBack, $GUI_DISABLE)
 							GUICtrlSetState($hCancel, $GUI_DISABLE)
 						Case $hExit
-							If Not $aConfig[$vMode] Then
+							If _IsChecked($hAppLnk) Then SetAppShortcuts($aConfig, $aSettings)
+							If _IsChecked($hDonate) Then ShellExecute("https://paypal.me/rhsky")
+							If Not $aConfig[$vMode] And _IsChecked($hLaunch) Then
 								If $aSettings[$bNoTray] Then $sArgs = "/hide"
 								ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
 							EndIf
@@ -694,6 +684,37 @@ Func SetAppRegistry($bAllUsers)
 	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "URLInfoAbout", "REG_SZ", "https://msedgeredirect.com")
 	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "URLUpdateInfo", "REG_SZ", "https://msedgeredirect.com/releases")
 	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "Version", "REG_SZ", $sVersion)
+
+EndFunc
+
+Func SetAppShortcuts(ByRef $aConfig, ByRef $aSettings)
+
+	Local $sArgs = ""
+	Local Enum $vMode = 2
+	Local Enum $bNoTray = 4, $sStartMenu = 9
+
+	If $aSettings[$bNoTray] Then $sArgs = "/hide"
+
+	Switch $aSettings[$sStartMenu]
+
+		Case "Full"
+			If $aConfig[$vMode] Then
+				DirCreate(@ProgramsCommonDir & "\MSEdgeRedirect")
+				FileCreateShortcut("C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", @ProgramsCommonDir & "\MSEdgeRedirect\Settings.lnk", "C:\Program Files\MSEdgeRedirect\", "/settings")
+			Else
+				DirCreate(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect")
+				FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\Settings.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", "/settings")
+				ContinueCase
+			EndIf
+
+		Case "App Only"
+			DirCreate(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect")
+			FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs)
+
+		Case Else
+			;;;
+
+	EndSwitch
 
 EndFunc
 
