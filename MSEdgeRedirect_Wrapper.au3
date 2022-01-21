@@ -387,11 +387,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		EndIf
 
 		Local $hLaunch = GUICtrlCreateCheckbox("Launch Service Mode Now", 20, 200, 190, 20)
-		If $aConfig[$vMode] Then
-			GUICtrlSetState(-1, $GUI_DISABLE)
-		Else
-			GUICtrlSetState(-1, $GUI_CHECKED)
-		EndIf
 		Local $hAppLnk = GUICtrlCreateCheckbox("Create Start Menu Shortcuts", 20, 220, 190, 20)
 		GUICtrlSetState(-1, $GUI_CHECKED)
 		Local $hDonate = GUICtrlCreateCheckbox("Donate to the Project via PayPal", 20, 240, 190, 20)
@@ -489,6 +484,11 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							GUICtrlSetState($hHelp, $GUI_DISABLE)
 							GUICtrlSetState($hBack, $GUI_DISABLE)
 							GUICtrlSetState($hCancel, $GUI_DISABLE)
+							If $aConfig[$vMode] Then
+								GUICtrlSetState($hLaunch, $GUI_DISABLE)
+							Else
+								GUICtrlSetState($hLaunch, $GUI_CHECKED)
+							EndIf
 						Case $hExit
 							If _IsChecked($hAppLnk) Then SetAppShortcuts($aConfig, $aSettings)
 							If _IsChecked($hDonate) Then ShellExecute("https://paypal.me/rhsky")
