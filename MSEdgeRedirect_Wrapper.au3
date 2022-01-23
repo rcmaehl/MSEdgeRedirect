@@ -484,7 +484,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							GUICtrlSetState($hHelp, $GUI_DISABLE)
 							GUICtrlSetState($hBack, $GUI_DISABLE)
 							GUICtrlSetState($hCancel, $GUI_DISABLE)
-							If $aConfig[$vMode] Then
+							If _IsChecked($hActive) Then
 								GUICtrlSetState($hLaunch, $GUI_DISABLE)
 							Else
 								GUICtrlSetState($hLaunch, $GUI_CHECKED)
