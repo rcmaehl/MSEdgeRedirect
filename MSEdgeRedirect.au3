@@ -379,7 +379,7 @@ EndFunc
 Func _ChangeSearchEngine($sURL)
 
 	If StringInStr($sURL, "bing.com/search?q=") Then
-		$sURL = StringRegExpReplace($sURL, "(.*)(q=)", "")
+		$sURL = StringRegExpReplace($sURL, "(.*)((\?|&)q=)", "")
 
 		Switch _GetSettingValue("Search")
 
