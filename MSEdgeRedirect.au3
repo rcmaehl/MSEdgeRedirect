@@ -60,6 +60,8 @@ Func ActiveMode(ByRef $aCMDLine)
 			ReDim $aCMDLine[3]
 			$aCMDLine[2] = ""
 			ContinueCase
+		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--from-installer" ; Installing Edge
+			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--inprivate" ; In Private Browsing, No Parameters
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68
