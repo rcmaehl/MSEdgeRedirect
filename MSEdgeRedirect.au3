@@ -53,7 +53,7 @@ Func ActiveMode(ByRef $aCMDLine)
 
 	Local $sCMDLine = ""
 
-	If _ArraySearch($aCMDLine, "--continue-active-setup") > 0 Then _ArrayDisplay($aCMDLine)
+	If _ArraySearch($aCMDLine, "--continue-active-setup", 2, 0, 0, 1) > 0 Then _ArrayDisplay($aCMDLine)
 
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
@@ -62,10 +62,11 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--inprivate" ; In Private Browsing, No Parameters
 			ContinueCase
-		Case _ArraySearch($aCMDLine, "--profile-directory=") > 0 ; #68
+		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68
 			For $iLoop = 3 To $aCMDLine[0]
 				$sCMDLine[2] &= $aCMDLine[$iLoop] & " "
 			Next
+			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			If FileGetVersion($aCMDLine[1]) <> FileGetVersion(StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")) Then
