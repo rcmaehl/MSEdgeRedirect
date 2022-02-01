@@ -78,6 +78,10 @@ See [LICENSE](LICENSE) for the full license text.
 
 Select the **Featured** Microsoft Edge. MSEdgeRedirect will still properly function.
 
+### Will MSEdgeRedirect work with Edge uninstalled?
+
+Not currently, see [#26](https://github.com/rcmaehl/MSEdgeRedirect/issues/26)
+
 ### It isn’t working for me?
 
 Make sure the application is running in the system tray, then run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that is not properly redirected, [file a bug report!](https://github.com/rcmaehl/MSEdgeRedirect/issues/new?assignees=&labels=&template=bug_report.md&title=)
