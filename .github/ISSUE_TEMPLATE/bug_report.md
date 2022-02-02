@@ -8,7 +8,9 @@ assignees: ''
 ---
 
 **Check List**
+- [ ] Microsoft Edge is still installed (see #26)
 - [ ] Running `microsoft-edge:https://google.com` redirects successfully
+- [ ] Microsoft Edge is selected in any "How do you want to open this?" box (if applicable)
 
 **Installed Mode**
 - [ ] Active Mode
