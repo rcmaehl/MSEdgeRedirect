@@ -8,10 +8,14 @@ assignees: ''
 ---
 
 **Check List**
-- [ ] The App appears in the system tray
 - [ ] Running `microsoft-edge:https://google.com` redirects successfully
 
-**Describe the bug**\
+**Installed Mode**
+- [ ] Active Mode
+- [ ] Service Mode
+
+**Describe the bug**
+
 A clear and concise description of what the bug is.
 
 **To Reproduce**
@@ -31,7 +35,8 @@ Steps to reproduce the behavior:
 
 **Desktop (please complete the following information):**
  - Windows Version: [e.g. 11]
- - Windows Build: [e.g. 22494]
+ - Windows Build: [e.g. 22494.867]
 
-**Additional context**\
+**Additional context**
+
 Add any other context about the problem here.
