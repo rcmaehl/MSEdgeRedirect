@@ -3,6 +3,7 @@ name: Submit MSEdgeRedirect to winget
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 jobs:
   winget:
