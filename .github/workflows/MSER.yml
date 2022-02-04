@@ -61,4 +61,4 @@ jobs:
           iwr https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
           $github = Get-Content '${{ github.event_path }}' | ConvertFrom-Json
           $installerUrl = $github.release.assets | Where-Object -Property name -match 'MSEdgeRedirect.exe' | Select -ExpandProperty browser_download_url -First 1
-          .\wingetcreate.exe update Nushell.Nushell -s -v $github.release.tag_name -u $installerUrl -t ${{ secrets.NUSHELL_PAT }}
+          .\wingetcreate.exe update rcmaehl.MSEdgeRedirect -s -v $github.release.tag_name -u $installerUrl -t ${{ secrets.RCMAEHL_PAT }}
