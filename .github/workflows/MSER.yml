@@ -53,7 +53,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
       - name: Winget Release
         if: startsWith(github.ref, 'refs/tags/')
-        run: | # rcmaehl.MSEdgeRedirect
+        run: | # rcmaehl.MSEdgeRedirect 
             iwr https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
             $github = Get-Content '${{ github.event_path }}' | ConvertFrom-Json
             $installerUrl = $github.release.assets | Where-Object -Property name -match 'MSEdgeRedirect.exe' | Select -ExpandProperty browser_download_url -First 1
