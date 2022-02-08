@@ -36,7 +36,7 @@ Disk (Storage)|5MB Free|100MB Free
 ## Program Comparisons
  |Edge Deflector|ChrEdgeFkOff|NoMoreEdge|Search Deflector|MSEdge Redirect
 ----|----|----|----|----|----
-Redirection Modes|URI Handler<br/><br/><br/>|IFEO<br/><br/><br/>|IFEO<br/><br/><br/>|URI Handler<br/><br/><br/>|URI Detection<sup>*</sup><br/>or IFEO<sup>†</sup>
+Redirection Modes|URI Handler<br/><br/>|IFEO<br/><br/>|IFEO<br/><br/>|URI Handler<br/><br/>|URI Detection<sup>*</sup><br/>or IFEO<sup>†</sup>
 Redirects Search|☑|☑|☑|☑|☑
 Installs without Admin|☑| | | |☑<sup>*</sup>
 Windows 11 Support| |☑|☑| |☑
