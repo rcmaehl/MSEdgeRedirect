@@ -399,7 +399,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		#EndRegion
 
 		GUISetState(@SW_SHOW, $hInstallGUI)
-		GUISetState(@SW_SHOW, $aPages[$hLicense])
+		GUISetState(@SW_SHOW, $aPages[$iPage])
 
 		While True
 			$hMsg = GUIGetMsg()
