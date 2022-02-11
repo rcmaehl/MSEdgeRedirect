@@ -202,6 +202,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		If $bUpdate Then RunRemoval(True)
 		RunInstall($aConfig, $aSettings)
 		SetAppRegistry($aConfig[$vMode])
+		SetAppShortcuts($aConfig, $aSettings)
 		If $aConfig[$vMode] Then
 			SetIFEORegistry($aChannels)
 		Else
