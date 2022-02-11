@@ -142,7 +142,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $sEngine
 	Local $sHandler
 	Local $hChannels[4]
-	Local $aChannels[4] = [True, True, False, False]
+	Local $aChannels[4] = [True, False, False, False]
 
 	Local $aConfig[3] = [$hSetupFile, False, "Service"] ; Default Setup.ini Values
 	Local Enum $hFile, $bManaged, $vMode
@@ -152,15 +152,32 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 	If $bSilent Then
 
-		If Not FileExists($aConfig[$hFile]) Then Exit 2 ; ERROR_FILE_NOT_FOUND
-
-		$aConfig[$bManaged] = _Bool(IniRead($aConfig[$hFile], "Config", "Managed", False))
-		$aConfig[$vMode] = IniRead($aConfig[$hFile], "Config", "Mode", "Service")
-
-		If $aConfig[$vMode] = "active" Then
-			$aConfig[$vMode] = True
+		If $aConfig[$hFile] = "WINGET" Then
+			; Bypass file checks, IniReads, use default values
+		ElseIf Not FileExists($aConfig[$hFile]) Then
+			Exit 2 ; ERROR_FILE_NOT_FOUND
 		Else
-			$aConfig[$vMode] = False
+			$aConfig[$bManaged] = _Bool(IniRead($aConfig[$hFile], "Config", "Managed", False))
+			$aConfig[$vMode] = IniRead($aConfig[$hFile], "Config", "Mode", "Service")
+
+			If $aConfig[$vMode] = "active" Then
+				$aConfig[$vMode] = True
+			Else
+				$aConfig[$vMode] = False
+			EndIf
+
+			$aSettings[$bNoApps] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoApps", $aSettings[$bNoApps]))
+			$aSettings[$bNoBing] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoBing", $aSettings[$bNoBing]))
+			$aSettings[$bNoMSN] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoMSN", $aSettings[$bNoBing]))
+			$aSettings[$bNoPDFs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoPDFs", $aSettings[$bNoPDFs]))
+			$aSettings[$bNoTray] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoTray", $aSettings[$bNoTray]))
+			$aSettings[$bNoUpdates] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoUpdates", $aSettings[$bNoUpdates]))
+			$aSettings[$sPDFApp] = IniRead($aConfig[$hFile], "Settings", "PDFApp", $aSettings[$sPDFApp])
+			$aSettings[$sSearch] = IniRead($aConfig[$hFile], "Settings", "Search", $aSettings[$sSearch])
+			$aSettings[$sSearchPath] = IniRead($aConfig[$hFile], "Settings", "SearchPath", $aSettings[$sSearchPath])
+			$aSettings[$sStartMenu] = IniRead($aConfig[$hFile], "Settings", "StartMenu", $aSettings[$sStartMenu])
+			$aSettings[$bStartup] = _Bool(IniRead($aConfig[$hFile], "Settings", "Startup", $aSettings[$bStartup]))
+			$aSettings[$sWeather] = IniRead($aConfig[$hFile], "Settings", "Weather", $aSettings[$sSearch])
 		EndIf
 
 		If ($aConfig[$bManaged] Or $aConfig[$vMode]) And Not $bIsAdmin Then Exit 5 ; ERROR_ACCESS_DENIED
@@ -175,19 +192,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			If $aChannels[$iLoop] = True Then ExitLoop
 			If $iLoop = 3 Then Exit 160 ; ERROR_BAD_ARGUMENTS
 		Next
-
-		$aSettings[$bNoApps] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoApps", $aSettings[$bNoApps]))
-		$aSettings[$bNoBing] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoBing", $aSettings[$bNoBing]))
-		$aSettings[$bNoMSN] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoMSN", $aSettings[$bNoBing]))
-		$aSettings[$bNoPDFs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoPDFs", $aSettings[$bNoPDFs]))
-		$aSettings[$bNoTray] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoTray", $aSettings[$bNoTray]))
-		$aSettings[$bNoUpdates] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoUpdates", $aSettings[$bNoUpdates]))
-		$aSettings[$sPDFApp] = IniRead($aConfig[$hFile], "Settings", "PDFApp", $aSettings[$sPDFApp])
-		$aSettings[$sSearch] = IniRead($aConfig[$hFile], "Settings", "Search", $aSettings[$sSearch])
-		$aSettings[$sSearchPath] = IniRead($aConfig[$hFile], "Settings", "SearchPath", $aSettings[$sSearchPath])
-		$aSettings[$sStartMenu] = IniRead($aConfig[$hFile], "Settings", "StartMenu", $aSettings[$sStartMenu])
-		$aSettings[$bStartup] = _Bool(IniRead($aConfig[$hFile], "Settings", "Startup", $aSettings[$bStartup]))
-		$aSettings[$sWeather] = IniRead($aConfig[$hFile], "Settings", "Weather", $aSettings[$sSearch])
 
 		For $iLoop = $bNoApps To $bNoUpdates Step 1
 			If Not IsBool($aSettings[$iLoop]) Then Exit 160 ; ERROR_BAD_ARGUMENTS

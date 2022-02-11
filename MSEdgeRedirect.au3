@@ -53,7 +53,7 @@ Func ActiveMode(ByRef $aCMDLine)
 
 	Local $sCMDLine = ""
 
-	If _ArraySearch($aCMDLine, "--continue-active-setup", 2, 0, 0, 1) > 0 Then _ArrayDisplay($aCMDLine)
+	;If _ArraySearch($aCMDLine, "--continue-active-setup", 2, 0, 0, 1) > 0 Then _ArrayDisplay($aCMDLine)
 
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
@@ -176,6 +176,10 @@ Func ProcessCMDLine()
 				Case "/uninstall"
 					RunRemoval()
 					Exit
+				Case "/wingetinstall"
+					$bSilent = True
+					$hFile = "WINGET"
+					_ArrayDelete($CmdLine, 1)
 				Case Else
 					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Unexpected Commandline: " & _ArrayToString($CmdLine) & @CRLF)
 					If @Compiled Then ; support for running non-compiled script - mLipok
