@@ -262,9 +262,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		FileInstall("./LICENSE", @LocalAppDataDir & "\MSEdgeRedirect\License.txt")
 
 		If $bUpdate Then
-			GUICtrlCreateLabel("Pleae read the following License. You must accept the terms of the license before continuing with the upgrade.", 20, 20, 420, 40)
+			GUICtrlCreateLabel("Please read the following License. You must accept the terms of the license before continuing with the upgrade.", 20, 20, 420, 40)
 		Else
-			GUICtrlCreateLabel("Pleae read the following License. You must accept the terms of the license before continuing with the installation.", 20, 20, 420, 40)
+			GUICtrlCreateLabel("Please read the following License. You must accept the terms of the license before continuing with the installation.", 20, 20, 420, 40)
 		EndIf
 
 		GUICtrlCreateEdit("TL;DR: It's FOSS, you can edit it, repackage it, eat it (not recommended), or throw it at your neighbor Steve (depends on the Steve), but changes to it must be LGPL v3 too." & _
