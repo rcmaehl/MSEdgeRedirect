@@ -294,17 +294,27 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		EndIf
 
 		GUICtrlCreateGroup("Mode", 20, 80, 420, 320)
-			Local $hService = GUICtrlCreateRadio("Service Mode - Per User" & @CRLF & _
+			Local $hService = GUICtrlCreateRadio("Service Mode" & @CRLF & _
+				@CRLF & _
+				"* Single User Install" & @CRLF & _
+				"* Less System Intrusive" & @CRLF & _
+				"* Less AV false positives" & @CRLF & _
+				"* Doesn't require Admin Rights" & @CRLF & _
 				@CRLF & _
 				"MSEdge Redirect stays running in the background. Detected Edge data is redirected to your default browser.", _
-				50, 100, 380, 60, $BS_TOP+$BS_MULTILINE)
+				50, 100, 380, 130, $BS_TOP+$BS_MULTILINE)
 			If Not $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
 
-			GUICtrlCreateIcon("imageres.dll", 78, 30, 210, 16, 16)
-			Local $hActive = GUICtrlCreateRadio("Active Mode - All Users" & @CRLF & _
+			GUICtrlCreateIcon("imageres.dll", 78, 30, 250, 16, 16)
+			Local $hActive = GUICtrlCreateRadio("Active Mode - RECOMMENDED" & @CRLF & _
+				@CRLF & _
+				"* Better Performance" & @CRLF & _
+				"* System Wide Install" & @CRLF & _
+				"* Finer Redirection Control" & @CRLF & _
+				"* No Startup or Tray Icon Needed" & @CRLF & _
 				@CRLF & _
 				"MSEdge Redirect only runs when a selected Edge is launched, similary to the old EdgeDeflector app.", _
-				50, 210, 380, 60, $BS_TOP+$BS_MULTILINE)
+				50, 250, 380, 130, $BS_TOP+$BS_MULTILINE)
 			If $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
 		#EndRegion
 
@@ -364,6 +374,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hNoPDFs = GUICtrlCreateCheckbox("PDF Viewer:", 50, 330, 180, 20)
 			Local $hPDFPath = GUICtrlCreateEdit("", 50, 350, 180, 20, $ES_READONLY+$ES_AUTOHSCROLL)
 			Local $hNoApps = GUICtrlCreateCheckbox("Windows Store 'Apps'", 50, 375, 180, 20)
+
+			#forceref $hNoNews
+			#forceref $hNewSrc
 
 		If $bUpdate Then
 			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
