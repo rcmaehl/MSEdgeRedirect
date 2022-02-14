@@ -284,12 +284,12 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		If $bUpdate Then
 			GUICtrlCreateLabel("MSEdge Redirect " & $sVersion & " Update", 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Next to continue the Update of MS Edge Redirect after customizing your preferred mode", 20, 40, 420, 40)
+			GUICtrlCreateLabel("Click Next to continue the Update of MSEdge Redirect after customizing your preferred mode", 20, 40, 420, 40)
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		Else
 			GUICtrlCreateLabel("Install MSEdge Redirect " & $sVersion, 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Next to continue the Install of MS Edge Redirect after customizing your preferred mode", 20, 40, 420, 40)
+			GUICtrlCreateLabel("Click Next to continue the Install of MSEdge Redirect after customizing your preferred mode", 20, 40, 420, 40)
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
 
@@ -300,33 +300,12 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				50, 100, 380, 60, $BS_TOP+$BS_MULTILINE)
 			If Not $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
 
-			Local $hStartup = GUICtrlCreateCheckbox("Start MSEdge Redirect Service With Windows", 70, 160, 320, 20)
-			Local $hNoIcon = GUICtrlCreateCheckbox("Hide MSEdge Redirect Service Icon from Tray", 70, 180, 320, 20)
-
-			If $bIsAdmin Then
-				GUICtrlSetState($hStartup, $GUI_DISABLE)
-				GUICtrlSetState($hNoIcon, $GUI_DISABLE)
-			EndIf
-
 			GUICtrlCreateIcon("imageres.dll", 78, 30, 210, 16, 16)
 			Local $hActive = GUICtrlCreateRadio("Active Mode - All Users" & @CRLF & _
 				@CRLF & _
 				"MSEdge Redirect only runs when a selected Edge is launched, similary to the old EdgeDeflector app.", _
 				50, 210, 380, 60, $BS_TOP+$BS_MULTILINE)
 			If $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
-
-			$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 70, 270, 90, 20)
-			GUICtrlSetState(-1, $GUI_CHECKED)
-			$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 160, 270, 90, 20)
-			$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 250, 270, 90, 20)
-			$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 340, 270, 90, 20)
-
-			If Not $bIsAdmin Then
-				GUICtrlSetState($hChannels[0], $GUI_DISABLE)
-				GUICtrlSetState($hChannels[1], $GUI_DISABLE)
-				GUICtrlSetState($hChannels[2], $GUI_DISABLE)
-				GUICtrlSetState($hChannels[3], $GUI_DISABLE)
-			EndIf
 		#EndRegion
 
 		#Region Settings Page
@@ -336,31 +315,55 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		If $bUpdate Then
 			GUICtrlCreateLabel("MSEdge Redirect " & $sVersion & " Update", 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Install to continue the Update of MS Edge Redirect after customizing your preferred settings", 20, 40, 420, 40)
+			GUICtrlCreateLabel("Click Install to continue the Update of MSEdge Redirect after customizing your preferred settings", 20, 40, 420, 40)
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		Else
 			GUICtrlCreateLabel("Install MSEdge Redirect " & $sVersion, 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Install to continue the Install of MS Edge Redirect after customizing your preferred settings", 20, 40, 420, 40)
+			GUICtrlCreateLabel("Click Install to continue the Install of MSEdge Redirect after customizing your preferred settings", 20, 40, 420, 40)
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
 
-		GUICtrlCreateGroup("Options", 20, 80, 420, 320)
-			Local $hNoApps = GUICtrlCreateCheckbox("De-embed Windows Store 'Apps'", 50, 100, 380, 20)
-			Local $hNoPDFs = GUICtrlCreateCheckbox("Redirect PDFs to:", 50, 120, 380, 20)
-			Local $hPDFPath = GUICtrlCreateEdit("", 50, 140, 380, 20, $ES_READONLY)
-			Local $hSearch = GUICtrlCreateCheckbox("Replace Bing Search Results with:", 50, 165, 380, 20)
-			Local $hEngine = GUICtrlCreateCombo("", 50, 185, 380, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+		GUICtrlCreateGroup("Active Mode Options", 20, 80, 420, 50)
+			$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 50, 100, 95, 20)
+			GUICtrlSetState(-1, $GUI_CHECKED)
+			$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 145, 100, 95, 20)
+			$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 240, 100, 95, 20)
+			$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 335, 100, 90, 20)
+
+			If Not $bIsAdmin Then
+				GUICtrlSetState($hChannels[0], $GUI_DISABLE)
+				GUICtrlSetState($hChannels[1], $GUI_DISABLE)
+				GUICtrlSetState($hChannels[2], $GUI_DISABLE)
+				GUICtrlSetState($hChannels[3], $GUI_DISABLE)
+			EndIf
+
+		GUICtrlCreateGroup("Service Mode Options", 20, 140, 420, 70)
+			Local $hNoIcon = GUICtrlCreateCheckbox("Hide Service Mode from Tray", 50, 160, 190, 20)
+			Local $hStartup = GUICtrlCreateCheckbox("Start Service Mode With Windows", 50, 180, 190, 20)
+
+			If $bIsAdmin Then
+				GUICtrlSetState($hStartup, $GUI_DISABLE)
+				GUICtrlSetState($hNoIcon, $GUI_DISABLE)
+			EndIf
+
+		GUICtrlCreateGroup("Additional Redirections", 20, 220, 420, 190)
+			Local $hSearch = GUICtrlCreateCheckbox("Bing Search:", 50, 240, 180, 20)
+			Local $hEngine = GUICtrlCreateCombo("", 50, 260, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Ask|Baidu|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoNews = GUICtrlCreateCheckbox("Replace MSN News Articles using", 50, 210, 380, 20)
-			Local $hNewSRC = GUICtrlCreateCombo("", 50, 230, 380, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (Coming Soon)", 50, 285, 180, 20)
+			GUICtrlSetState(-1, $GUI_DISABLE)
+			Local $hNewSRC = GUICtrlCreateCombo("", 50, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "DuckDuckGo|Google", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoMSN = GUICtrlCreateCheckbox("Replace Weather Results with:", 50, 255, 380, 20)
-			Local $hWeather = GUICtrlCreateCombo("", 50, 275, 380, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			Local $hNoMSN = GUICtrlCreateCheckbox("MSN Weather:", 240, 285, 180, 20)
+			Local $hWeather = GUICtrlCreateCombo("", 240, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "AccuWeather|Weather.com|Weather.gov|Windy|WUnderground|Ventusky", "Weather.com")
 			GUICtrlSetState(-1, $GUI_DISABLE)
+			Local $hNoPDFs = GUICtrlCreateCheckbox("PDF Viewer:", 50, 330, 180, 20)
+			Local $hPDFPath = GUICtrlCreateEdit("", 50, 350, 180, 20, $ES_READONLY+$ES_AUTOHSCROLL)
+			Local $hNoApps = GUICtrlCreateCheckbox("Windows Store 'Apps'", 50, 375, 180, 20)
 
 		If $bUpdate Then
 			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
