@@ -9,8 +9,8 @@ assignees: ''
 
 **Check List**
 - [ ] Microsoft Edge is still installed (see #26)
-- [ ] Reinstall or Repair was attempted for System Errors (see #25, #77)
 - [ ] Running `microsoft-edge:https://google.com` redirects successfully
+- [ ] Reinstall or `/repair` was attempted for System Errors (see #25, #77)
 - [ ] Microsoft Edge is selected in any "How do you want to open this?" box (if applicable)
 
 **Installed Mode**
