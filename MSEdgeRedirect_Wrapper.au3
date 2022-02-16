@@ -16,6 +16,7 @@
 #include "Includes\_Translation.au3"
 
 Global $sVersion
+Global $bIsPriv = _IsPriviledgedInstall()
 
 If @Compiled Then
 	$sVersion = FileGetVersion(@ScriptFullPath)
@@ -888,4 +889,23 @@ Func _IsInstalled()
 
 	Return $aReturn
 
+EndFunc
+
+Func _IsPriviledgedInstall()
+
+	Local $hTestFile
+
+	If @ScriptDir = "C:\Program Files\MSEdgeRedirect" Then
+		Return True
+	ElseIf @LocalAppDataDir & "\MSEdgeRedirect" Then
+		Return False
+	Else
+		$hTestFile = FileOpen(".\writetest", $FO_CREATEPATH)
+		If @error Then
+			Return True
+		Else
+			FileDelete($hTestFile)
+			Return False
+		EndIf
+	EndIf
 EndFunc

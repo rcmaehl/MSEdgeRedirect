@@ -96,6 +96,7 @@ Func ProcessCMDLine()
 	Local $bHide = _GetSettingValue("NoTray")
 	Local $hFile = @ScriptDir & ".\Setup.ini"
 	Local $iParams = $CmdLine[0]
+	Local $sCMDLine = _ArrayToString($CmdLine, " ", 1)
 	Local $bSilent = False
 	Local $aInstall[3]
 	Local $bPortable = False
@@ -136,6 +137,10 @@ Func ProcessCMDLine()
 					RunRepair()
 					Exit
 				Case "/settings"
+					If $bIsPriv And Not $bIsAdmin Then
+						ShellExecute(@ScriptFullPath, "/settings", @ScriptDir, "RunAs")
+						Exit
+					EndIf
 					RunSetup(True, False, 2)
 					Exit
 				Case "/si", "/silentinstall"
@@ -222,6 +227,13 @@ Func ProcessCMDLine()
 							ProcessClose($aPIDs[$iLoop][1])
 						EndIf
 					Next
+				EndIf
+			Case StringInStr($aInstall[1], "HKLM") And Not $bIsAdmin ; Installed, Up to Date, Active Mode, Not Admin
+				ShellExecute(@ScriptFullPath, $sCMDLine, @ScriptDir, "RunAs")
+				If @error Then
+					ContinueCase
+				Else
+					Exit
 				EndIf
 			Case Else
 				RunSetup(True, $bSilent, 0, $hFile)
