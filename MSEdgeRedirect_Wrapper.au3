@@ -233,7 +233,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		; Disable Scaling
 		If @OSVersion = 'WIN_10' Then DllCall(@SystemDir & "\User32.dll", "bool", "SetProcessDpiAwarenessContext", "HWND", "DPI_AWARENESS_CONTEXT" - 1)
 
-		Local $hInstallGUI = GUICreate("MSEdge Redirect " & $sVersion & " Setup", 640, 480)
+		Local $hInstallGUI = GUICreate("MSEdgeRedirect " & $sVersion & " Setup", 640, 480)
 
 		GUICtrlCreateLabel("", 0, 0, 180, 420)
 		GUICtrlSetBkColor(-1, 0x00A4EF)
@@ -283,14 +283,14 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		$aPages[$hMode] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 		GUISetBkColor(0xFFFFFF)
 		If $bUpdate Then
-			GUICtrlCreateLabel("MSEdge Redirect " & $sVersion & " Update", 20, 10, 420, 30)
+			GUICtrlCreateLabel("MSEdgeRedirect " & $sVersion & " Update", 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Next to continue the Update of MSEdge Redirect after customizing your preferred mode", 20, 40, 420, 40)
+			GUICtrlCreateLabel("Click Next to continue the Update of MSEdgeRedirect after customizing your preferred mode", 20, 40, 420, 40)
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		Else
-			GUICtrlCreateLabel("Install MSEdge Redirect " & $sVersion, 20, 10, 420, 30)
+			GUICtrlCreateLabel("Install MSEdgeRedirect " & $sVersion, 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Next to continue the Install of MSEdge Redirect after customizing your preferred mode", 20, 40, 420, 40)
+			GUICtrlCreateLabel("Click Next to continue the Install of MSEdgeRedirect after customizing your preferred mode", 20, 40, 420, 40)
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
 
@@ -302,7 +302,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				"* Less AV false positives" & @CRLF & _
 				"* Doesn't require Admin Rights" & @CRLF & _
 				@CRLF & _
-				"MSEdge Redirect stays running in the background. Detected Edge data is redirected to your default browser.", _
+				"MSEdgeRedirect stays running in the background. Detected Edge data is redirected to your default browser.", _
 				50, 100, 380, 130, $BS_TOP+$BS_MULTILINE)
 			If Not $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
 
@@ -314,7 +314,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				"* Finer Redirection Control" & @CRLF & _
 				"* No Startup or Tray Icon Needed" & @CRLF & _
 				@CRLF & _
-				"MSEdge Redirect only runs when a selected Edge is launched, similary to the old EdgeDeflector app.", _
+				"MSEdgeRedirect only runs when a selected Edge is launched, similary to the old EdgeDeflector app.", _
 				50, 250, 380, 130, $BS_TOP+$BS_MULTILINE)
 			If $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
 		#EndRegion
@@ -324,14 +324,14 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		GUISetBkColor(0xFFFFFF)
 
 		If $bUpdate Then
-			GUICtrlCreateLabel("MSEdge Redirect " & $sVersion & " Update", 20, 10, 420, 30)
+			GUICtrlCreateLabel("MSEdgeRedirect " & $sVersion & " Update", 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Install to continue the Update of MSEdge Redirect after customizing your preferred settings", 20, 40, 420, 40)
+			GUICtrlCreateLabel("Click Install to continue the Update of MSEdgeRedirect after customizing your preferred settings", 20, 40, 420, 40)
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		Else
-			GUICtrlCreateLabel("Install MSEdge Redirect " & $sVersion, 20, 10, 420, 30)
+			GUICtrlCreateLabel("Install MSEdgeRedirect " & $sVersion, 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Install to continue the Install of MSEdge Redirect after customizing your preferred settings", 20, 40, 420, 40)
+			GUICtrlCreateLabel("Click Install to continue the Install of MSEdgeRedirect after customizing your preferred settings", 20, 40, 420, 40)
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
 
