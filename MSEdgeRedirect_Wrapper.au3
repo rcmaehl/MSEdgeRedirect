@@ -317,6 +317,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				"MSEdgeRedirect only runs when a selected Edge is launched, similary to the old EdgeDeflector app.", _
 				50, 250, 380, 130, $BS_TOP+$BS_MULTILINE)
 			If $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
+
+		GUISwitch($hInstallGUI)
 		#EndRegion
 
 		#Region Settings Page
@@ -400,6 +402,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		EndIf
 
 		GUISwitch($hInstallGUI)
+		#EndRegion
 
 		#Region Finish Page
 		$aPages[$hFinish] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
