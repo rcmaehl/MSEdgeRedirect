@@ -213,6 +213,16 @@ Func ProcessCMDLine()
 		Select
 			Case Not $aInstall[0] ; Not Installed
 				RunSetup(False, $bSilent, 0, $hFile)
+			Case _VersionCompare($sVersion, $aInstall[2]) And Not $bIsAdmin
+				ShellExecute(@ScriptFullPath, $sCMDLine, @ScriptDir, "RunAs")
+				If @error Then
+					If Not $bSilent Then MsgBox($MB_ICONWARNING+$MB_OK, _
+						"Existing Active Mode Install", _
+						"Unable to update an existing Active Mode install without Admin Rights! The installer will continue however.")
+					ContinueCase
+				Else
+					Exit
+				EndIf
 			Case _VersionCompare($sVersion, $aInstall[2]) ; Installed, Out of Date
 				RunSetup($aInstall[1], $bSilent, 0, $hFile)
 			Case StringInStr($aInstall[1], "HKCU") ; Installed, Up to Date, Service Mode
