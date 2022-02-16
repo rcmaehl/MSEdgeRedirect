@@ -231,6 +231,9 @@ Func ProcessCMDLine()
 			Case StringInStr($aInstall[1], "HKLM") And Not $bIsAdmin ; Installed, Up to Date, Active Mode, Not Admin
 				ShellExecute(@ScriptFullPath, $sCMDLine, @ScriptDir, "RunAs")
 				If @error Then
+					If Not $bSilent Then MsgBox($MB_ICONWARNING+$MB_OK, _
+						"Existing Active Mode Install", _
+						"Unable to update an existing Active Mode install without Admin Rights! The installer will continue however.")
 					ContinueCase
 				Else
 					Exit
