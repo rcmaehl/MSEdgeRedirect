@@ -105,8 +105,9 @@ Func ProcessCMDLine()
 	If $iParams > 0 Then
 
 		;_ArrayDisplay($CmdLine)
-		If _ArraySearch($aEdges, $CmdLine[1]) > 0 Then ; Image File Execution Options Mode
-			ActiveMode($CmdLine)
+		If _ArraySearch($aEdges, $CMDLine[1]) > 0 Then ; Image File Execution Options Mode
+			RunHTTPCheck()
+			ActiveMode($CMDLine)
 			If Not _GetSettingValue("NoUpdates") And Random(1, 10, 1) = 1 Then RunUpdateCheck()
 			Exit
 		EndIf
@@ -194,8 +195,12 @@ Func ProcessCMDLine()
 		;;;
 	EndIf
 
-	RunArchCheck($bSilent)
-	RunHTTPCheck($bSilent)
+	If $hFile = "WINGET" Then
+		;;;
+	Else
+		RunArchCheck($bSilent)
+		RunHTTPCheck($bSilent)
+	EndIf
 
 	If Not $bPortable Then
 		$aInstall = _IsInstalled()
