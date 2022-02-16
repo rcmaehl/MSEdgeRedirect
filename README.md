@@ -80,7 +80,7 @@ Select the **Featured** Microsoft Edge. MSEdgeRedirect will still properly funct
 
 ### Will MSEdgeRedirect work with Edge uninstalled?
 
-Not currently, see [#26](https://github.com/rcmaehl/MSEdgeRedirect/issues/26)
+Not currently, see [#26](https://github.com/rcmaehl/MSEdgeRedirect/issues/26). The recommended work around is to install Edge Canary as it does not install system wide.
 
 ### It isn’t working for me?
 
