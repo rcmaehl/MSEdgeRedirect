@@ -124,6 +124,13 @@ Func ProcessCMDLine()
 							@CRLF & _
 							@CRLF)
 					Exit 0
+				Case "/admin"
+					If Not $bIsAdmin Then
+						ShellExecute(@ScriptFullPath, $sCMDLine, @ScriptDir, "RunAs")
+						Exit
+					Else
+						_ArrayDelete($CmdLine, 1)
+					EndIf
 				Case "/change"
 					RunSetup(True, $bSilent, 1)
 					Exit
