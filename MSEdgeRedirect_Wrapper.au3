@@ -153,6 +153,18 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 	If $bSilent Then
 
+		If $bUpdate Then
+			$aSettings[$bNoApps] = _GetSettingValue("NoApps")
+			$aSettings[$bNoPDFs] = _GetSettingValue("NoPDFs")
+			If $hNoPDFs Then $aSettings[$sPDFApp] = _GetSettingValue("PDFApp")
+			$aSettings[$bNoBing] = GUICtrlSetState($hSearch, _GetSettingValue("NoBing"))
+			If $aSettings[$bNoBing] Then
+				$aSettings[$sSearch] = _GetSettingValue("Search")
+				$aSettings[$sSearchPath] = _GetSettingValue("SearchPath")
+			$aSettings[$bNoMSN] = _GetSettingValue("NoMSN")
+			If $aSettings[$bNoMSN] Then $aSettings[$sWeather] = _GetSettingValue("Weather")
+		EndIf
+
 		If $aConfig[$hFile] = "WINGET" Then
 			$aConfig[$vMode] = $bIsAdmin
 			; Bypass file checks, IniReads, use default values
