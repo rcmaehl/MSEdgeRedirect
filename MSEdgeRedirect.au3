@@ -53,8 +53,6 @@ Func ActiveMode(ByRef $aCMDLine)
 
 	Local $sCMDLine = ""
 
-	;If _ArraySearch($aCMDLine, "--continue-active-setup", 2, 0, 0, 1) > 0 Then _ArrayDisplay($aCMDLine)
-
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
 			ReDim $aCMDLine[3]
@@ -69,8 +67,12 @@ Func ActiveMode(ByRef $aCMDLine)
 				$sCMDLine[2] &= $aCMDLine[$iLoop] & " "
 			Next
 			ContinueCase
-		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
+		Case $aCMDLine[0] = 2 And StringInStr($aCMDLine[2], "--continue-active-setup")
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
+			If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
+				_Translate($aMUI[1], "File Update Required"), _
+				_Translate($aMUI[1], "Microsoft Edge has updated, as such the IFEO exclusion file is out of date and needs to be updated. Update Now?"), _
+				10) = $IDYES Then ShellExecuteWait(@ScriptFullPath, "/repair", @ScriptDir, "RunAs")
 			If FileGetVersion($aCMDLine[1]) <> FileGetVersion(StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")) Then
 				If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
 					_Translate($aMUI[1], "File Update Required"), _
