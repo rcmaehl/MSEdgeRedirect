@@ -568,6 +568,9 @@ Func _ChangeWeatherProvider($sURL)
 
 					Case "Ventusky"
 						$sURL = "https://www.ventusky.com/" & $fLat & ";" & $fLong
+						
+					Case "Yandex.Weather"
+						$sURL = "https://yandex.ru/pogoda/?lat=" & $fLat & "&lon=" & $fLong
 
 					Case Null
 						ContinueCase
