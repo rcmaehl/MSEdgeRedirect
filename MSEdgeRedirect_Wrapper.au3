@@ -210,9 +210,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		Next
 
 		For $iLoop = $bNoApps To $bNoUpdates Step 1
-			If Not IsBool($aSettings[$iLoop]) Then Exit 161 ; ERROR_BAD_ARGUMENTS
+			If Not IsBool($aSettings[$iLoop]) Then Exit 160 ; ERROR_BAD_ARGUMENTS
 		Next
-		If Not IsBool($aSettings[$bStartup]) Then Exit 162 ; ERROR_BAD_ARGUMENTS
+		If Not IsBool($aSettings[$bStartup]) Then Exit 160 ; ERROR_BAD_ARGUMENTS
 
 		If $bUpdate Then RunRemoval(True)
 		RunInstall($aConfig, $aSettings)
