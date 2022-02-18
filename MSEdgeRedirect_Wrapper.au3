@@ -42,11 +42,21 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 	SetOptionsRegistry("Weather", $aSettings[$sWeather], $aConfig[$vMode], $aConfig[$bManaged])
 
 	If $aConfig[$vMode] Then
-		FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE)
+		If Not FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
+			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to 'C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+			Exit 29 ; ERROR_WRITE_FAULT
+		EndIf
 	Else
 		If $aSettings[$bNoTray] Then $sArgs = "/hide"
-		FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE)
-		If $aSettings[$bStartup] Then FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @StartupDir & "\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs)
+		If Not FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
+			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+			Exit 29 ; ERROR_WRITE_FAULT
+		EndIf
+		If $aSettings[$bStartup] Then
+			If Not FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @StartupDir & "\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs) Then
+				FileWrite($hLogs[$AppFailures], _NowCalc() & " - [WARNING] Unable to create application link in '" & @StartupDir & "\MSEdgeRedirect.lnk'" & @CRLF)
+			EndIf
+		EndIf
 	EndIf
 
 EndFunc
@@ -812,12 +822,16 @@ Func SetOptionsRegistry($sName, $vValue, $bAllUsers, $bManaged = False)
 	Select
 		Case IsBool($vValue)
 			RegWrite($sHive & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sName, "REG_DWORD", $vValue)
+			If @error Then FileWrite($hLogs[$AppFailures], _NowCalc() & " - [WARNING!] Unable to write REG_DWORD Registry Key '" & $sName & "' - with value '" & $vValue & "'" & @CRLF)
 
 		Case IsString($vValue)
 			RegWrite($sHive & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sName, "REG_SZ", $vValue)
+			If @error Then FileWrite($hLogs[$AppFailures], _NowCalc() & " - [WARNING!] Unable to write REG_SZ Registry Key '" & $sName & "' - with value '" & $vValue & "'" & @CRLF)
 
 		Case Else
 			RegWrite($sHive & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sName, "REG_SZ", $vValue)
+			If @error Then FileWrite($hLogs[$AppFailures], _NowCalc() & " - [WARNING!] Unable to write REG_SZ Registry Key '" & $sName & "' - with value '" & $vValue & "'" & @CRLF)
+
 	EndSelect
 
 EndFunc
