@@ -193,15 +193,16 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$aSettings[$sStartMenu] = IniRead($aConfig[$hFile], "Settings", "StartMenu", $aSettings[$sStartMenu])
 			$aSettings[$bStartup] = _Bool(IniRead($aConfig[$hFile], "Settings", "Startup", $aSettings[$bStartup]))
 			$aSettings[$sWeather] = IniRead($aConfig[$hFile], "Settings", "Weather", $aSettings[$sSearch])
+
+			$sEdges = IniRead($aConfig[$hFile], "Settings", "Edges", "")
+			If StringInStr($sEdges, "Stable") Then $aChannels[0] = True
+			If StringInStr($sEdges, "Beta") Then $aChannels[1] = True
+			If StringInStr($sEdges, "Dev") Then $aChannels[2] = True
+			If StringInStr($sEdges, "Canary") Then $aChannels[3] = True
+
 		EndIf
 
 		If ($aConfig[$bManaged] Or $aConfig[$vMode]) And Not $bIsAdmin Then Exit 5 ; ERROR_ACCESS_DENIED
-
-		$sEdges = IniRead($aConfig[$hFile], "Settings", "Edges", "")
-		If StringInStr($sEdges, "Stable") Then $aChannels[0] = True
-		If StringInStr($sEdges, "Beta") Then $aChannels[1] = True
-		If StringInStr($sEdges, "Dev") Then $aChannels[2] = True
-		If StringInStr($sEdges, "Canary") Then $aChannels[3] = True
 
 		For $iLoop = 0 To 3 Step 1
 			If $aChannels[$iLoop] = True Then ExitLoop
@@ -209,9 +210,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		Next
 
 		For $iLoop = $bNoApps To $bNoUpdates Step 1
-			If Not IsBool($aSettings[$iLoop]) Then Exit 160 ; ERROR_BAD_ARGUMENTS
+			If Not IsBool($aSettings[$iLoop]) Then Exit 161 ; ERROR_BAD_ARGUMENTS
 		Next
-		If Not IsBool($aSettings[$bStartup]) Then Exit 160 ; ERROR_BAD_ARGUMENTS
+		If Not IsBool($aSettings[$bStartup]) Then Exit 162 ; ERROR_BAD_ARGUMENTS
 
 		If $bUpdate Then RunRemoval(True)
 		RunInstall($aConfig, $aSettings)
