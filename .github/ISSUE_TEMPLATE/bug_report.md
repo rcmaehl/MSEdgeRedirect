@@ -13,9 +13,16 @@ assignees: ''
 - [ ] Reinstall or `/repair` was attempted for System Errors (see issues 25 & 77)
 - [ ] Microsoft Edge is selected in any "How do you want to open this?" box (if applicable)
 
+**Install Type**
+- [ ] New Install
+- [ ] New Deployment (winget/chocolatey/sccm)
+- [ ] Update
+- [ ] Managed Update (winget/chocolatey/sccm)
+
 **Installed Mode**
 - [ ] Active Mode
 - [ ] Service Mode
+- [ ] Unsure
 
 **Describe the bug**
 
