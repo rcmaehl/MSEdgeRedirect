@@ -24,13 +24,14 @@ Else
 EndIf
 
 Func _Bool($sString)
-	If $sString = "True" Then
-		Return True
-	ElseIf $sString = "False" Then
-		Return False
-	Else
-		Return $sString
-	EndIf
+	Switch $sString
+		Case "True", 1
+			Return True
+		Case "False", 0
+			Return False
+		Case Else
+			Return $sString
+	EndSwitch
 EndFunc
 
 Func _GetSettingValue($sSetting, $bPortable = False)
