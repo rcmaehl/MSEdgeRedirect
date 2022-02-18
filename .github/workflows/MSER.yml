@@ -51,3 +51,19 @@ jobs:
             checksums.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.MSEdgeRedirect_PAT }}
+  
+  winget-bump:
+    name: mser winget
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: powershell
+    steps:
+      - name: Create winget PR
+        run: |
+          $github = Get-Content '${{ github.event_path }}' | ConvertFrom-Json
+          $asset = $github.release.assets | Where-Object -Property name -match 'MSEdgeRedirect[\d\.]*.exe'
+          $version = $github.release.tag_name
+          iwr https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+          .\wingetcreate.exe update rcmaehl.MSEdgeRedirect -u $asset.browser_download_url -v $version -o manifests -t "${{ secrets.MSEdgeRedirect_PAT }}" --submit
+
