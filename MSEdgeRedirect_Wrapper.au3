@@ -169,7 +169,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		If $aConfig[$hFile] = "WINGET" Then
 			$aConfig[$vMode] = $bIsAdmin
 			; Bypass file checks, IniReads, use default values
-		ElseIf Not FileExists($aConfig[$hFile]) Then
+		ElseIf Not FileExists($aConfig[$hFile]) And Not $bUpdate Then
 			Exit 2 ; ERROR_FILE_NOT_FOUND
 		Else
 			$aConfig[$bManaged] = _Bool(IniRead($aConfig[$hFile], "Config", "Managed", False))
