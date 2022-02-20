@@ -3,10 +3,6 @@ name: Submit MSEdgeRedirect to winget
 on:
   release:
     types: [published]
-  workflow_run:
-    workflows: ["mser"]
-    types:
-      - completed
 
 jobs:
   winget-bump:
