@@ -4,19 +4,18 @@ on:
   release:
     types: [published]
 
-env:
-  packageFileName: MSEdgeRedirect.exe
-  packageId: rcmaehl.MSEdgeRedirect
-
-  
 jobs:
-  winget:
-    name: Publish winget package
-    runs-on: windows-latest
+  winget-bump:
+    name: mser winget
+    runs-on: windows-2019
+    defaults:
+      run:
+        shell: powershell
     steps:
-      - name: Submit package to Windows Package Manager Community Repository
+      - name: Create winget PR
         run: |
-          iwr https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
           $github = Get-Content '${{ github.event_path }}' | ConvertFrom-Json
-          $installerUrl = $github.release.assets | Where-Object -Property name -match ${env:packageFileName} | Select -ExpandProperty browser_download_url -First 1
-          .\wingetcreate.exe update ${env:packageId} -s -v $github.release.tag_name -u $installerUrl -t ${{ secrets.MSEdgeRedirect_PAT }}
+          $asset = $github.release.assets | Where-Object -Property name -match 'MSEdgeRedirect[\d\.]*.exe'
+          $version = $github.release.tag_name
+          iwr https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
+          .\wingetcreate.exe update rcmaehl.MSEdgeRedirect -u $asset.browser_download_url -v $version -o manifests -t "${{ secrets.MSEdgeRedirect_PAT }}" --submit
