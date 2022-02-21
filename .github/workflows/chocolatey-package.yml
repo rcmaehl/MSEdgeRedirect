@@ -1,0 +1,50 @@
+name: Chocolatey Deploy
+
+on:
+  release:
+    types: [published]
+  workflow_run:
+    workflows: ["mser"]
+    types:
+      - completed
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  chocolatey:
+    name: Deploy
+    runs-on: windows-latest
+    if: github.repository == 'rcmaehl/MSEdgeRedirect'
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v2
+      - name: Set Checksum
+        run: |
+          filename="MSEdgeRedirect-${{ github.event.inputs.tag }}-x86.exe"
+          url="https://github.com/${{ github.repository }}/releases/download/${{ github.event.inputs.tag }}/${filename}"
+          sed -i "s#{URL32}#${url}#g" "Assets/Choco/MSEdgeRedirect/tools/chocolateyinstall.ps1"
+          curl -sSL "${url}" -o "Assets/Choco/${filename}"
+          md5=$(cat "Assets/Choco/${filename}" | md5sum -)
+          sed -i "s/{MD5CHECKSUM32}/${md5:0:32}/g" "Assets/Choco/MSEdgeRedirect/tools/chocolateyinstall.ps1"
+          filename="MSEdgeRedirect-${{ github.event.inputs.tag }}-x64.exe"
+          url="https://github.com/${{ github.repository }}/releases/download/${{ github.event.inputs.tag }}/${filename}"
+          sed -i "s#{URL64}#${url}#g" "Assets/Choco/MSEdgeRedirect/tools/chocolateyinstall.ps1"
+          curl -sSL "${url}" -o "Assets/Choco/${filename}"
+          md5=$(cat "Assets/Choco/${filename}" | md5sum -)
+          sed -i "s/{MD5CHECKSUM64}/${md5:0:32}/g" "Assets/Choco/MSEdgeRedirect/tools/chocolateyinstall.ps1"
+      - name: Set Version
+        id: version
+        run: |
+          version="$github.release.tag_name"
+          echo "::set-output name=nuget::$version"
+          sed -i "s/{VERSION}/${version}/g" "Assets/Choco/MSEdgeRedirect/msedgeredirect.nuspec"
+      - name: Pack Release
+        uses: crazy-max/ghaction-chocolatey@v1
+        with:
+          args: pack Assets/Choco/MSEdgeRedirect/msedgeredirect.nuspec --outputdirectory Assets/Choco/MSEdgeRedirect
+      - name: Upload Release
+        uses: crazy-max/ghaction-chocolatey@v1
+        with:
+          args: push Assets/Choco/MSEdgeRedirect/msedgeredirect.${{ steps.version.outputs.nuget }}.nupkg -s https://push.chocolatey.org/ -k ${{ secrets.CHOCO_KEY }}
