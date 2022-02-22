@@ -3,10 +3,6 @@ name: Chocolatey Deploy
 on:
   release:
     types: [published]
-  workflow_run:
-    workflows: ["mser"]
-    types:
-      - completed
 
 defaults:
   run:
@@ -37,7 +33,8 @@ jobs:
       - name: Set Version
         id: version
         run: |
-          version="$github.release.tag_name"
+          tag=${{ github.event.inputs.tag }}
+          version="${tag}"
           echo "::set-output name=nuget::$version"
           sed -i "s/{VERSION}/${version}/g" "Assets/Choco/MSEdgeRedirect/msedgeredirect.nuspec"
       - name: Pack Release
