@@ -31,7 +31,6 @@ jobs:
       # Runs a single command using the runners shell
       - name: Run winget test
         run: |
-          iwr https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
-          .\wingetcreate.exe settings --enable LocalManifestFiles
-          .\wingetcreate.exe validate manifests/r/RCMaehl/MSEdgeRedirect/0.6.3.0
-          .\wingetcreate.exe install -m manifests/r/RCMaehl/MSEdgeRedirect/0.6.3.0
+          winget settings --enable LocalManifestFiles
+          winget validate manifests/r/RCMaehl/MSEdgeRedirect/0.6.3.0
+          winget install -m manifests/r/RCMaehl/MSEdgeRedirect/0.6.3.0
