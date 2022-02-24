@@ -18,13 +18,13 @@ jobs:
         uses: actions/checkout@v2
       - name: Set Checksum
         run: |
-          filename="MSEdgeRedirect-${{ github.event.inputs.tag }}-x86.exe"
+          filename="MSEdgeRedirect_x86.exe"
           url="https://github.com/${{ github.repository }}/releases/download/${{ github.event.inputs.tag }}/${filename}"
           sed -i "s#{URL32}#${url}#g" "Assets/Choco/MSEdgeRedirect/tools/chocolateyinstall.ps1"
           curl -sSL "${url}" -o "Assets/Choco/${filename}"
           md5=$(cat "Assets/Choco/${filename}" | md5sum -)
           sed -i "s/{MD5CHECKSUM32}/${md5:0:32}/g" "Assets/Choco/MSEdgeRedirect/tools/chocolateyinstall.ps1"
-          filename="MSEdgeRedirect-${{ github.event.inputs.tag }}-x64.exe"
+          filename="MSEdgeRedirect.exe"
           url="https://github.com/${{ github.repository }}/releases/download/${{ github.event.inputs.tag }}/${filename}"
           sed -i "s#{URL64}#${url}#g" "Assets/Choco/MSEdgeRedirect/tools/chocolateyinstall.ps1"
           curl -sSL "${url}" -o "Assets/Choco/${filename}"
