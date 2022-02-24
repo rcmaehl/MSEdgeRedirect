@@ -20,10 +20,6 @@
     <licenseUrl>https://github.com/rcmaehl/MSEdgeRedirect/blob/main/LICENSE</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <releaseNotes>https://github.com/rcmaehl/MSEdgeRedirect/releases</releaseNotes>
-    <dependencies>
-      <dependency id="chocolatey-core.extension" />
-      <dependency id="dotnet4.7.2" />
-    </dependencies>
   </metadata>
   <files>
     <file src="tools\**" target="tools" />
