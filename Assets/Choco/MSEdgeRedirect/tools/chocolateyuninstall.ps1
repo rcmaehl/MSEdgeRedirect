@@ -4,7 +4,7 @@ $packageArgs = @{
   packageName   = $env:ChocolateyPackageName
   softwareName  = 'MSEdgeRedirect'
   fileType      = 'exe'
-  silentArgs    = '/S'
+  silentArgs    = '/wingetinstall'
   validExitCodes= @(@(0))
 }
 

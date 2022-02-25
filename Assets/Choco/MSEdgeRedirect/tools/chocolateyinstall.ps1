@@ -10,7 +10,7 @@ $packageArgs = @{
   checksum64     = '{MD5CHECKSUM64}'
   checksumType64 = 'md5'
   softwareName   = 'MSEdgeRedirect'
-  silentArgs     = '/S'
+  silentArgs     = '/wingetinstall'
   validExitCodes = @(0)
 }
 
