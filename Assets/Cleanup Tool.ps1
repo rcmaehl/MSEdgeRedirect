@@ -12,6 +12,10 @@ Remove-Item -Path "C:\Program Files (x86)\Microsoft\Edge\Application\msedge_no_i
 Remove-Item -Path $env:LOCALAPPDATA\MSEdgeRedirect\* -Force
 Remove-Item -Path $env:LOCALAPPDATA\MSEdgeRedirect -Force
 
+## Start Menu Items
+Remove-Item -Path $env:APPDATA\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\* -Force
+Remove-Item -Path $env:APPDATA\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect -Force
+
 # Remove Registry
 
 ## Active Mode Install
