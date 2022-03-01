@@ -366,20 +366,12 @@ EndFunc
 
 Func RunHTTPCheck($bSilent = False)
 
-	Local $sHive = ""
-
-	If $bIs64Bit Then
-		$sHive = "HKCU64"
-	Else
-		$sHive = "HKCU"
-	EndIf
-
 	Local $aDefaults[3]
 	Local Enum $hHTTP, $hHTTPS, $hMSEdge
 
-	$aDefaults[$hHTTP] = RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice", "ProgId")
-	$aDefaults[$hHTTPS] = RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgId")
-	$aDefaults[$hMSEdge] = RegRead($sHive & "\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\microsoft-edge\UserChoice", "ProgId")
+	$aDefaults[$hHTTP] = RegRead("HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice", "ProgId")
+	$aDefaults[$hHTTPS] = RegRead("HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgId")
+	$aDefaults[$hMSEdge] = RegRead("HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\microsoft-edge\UserChoice", "ProgId")
 
 	If StringInStr($aDefaults[$hMSEdge], "MSEdge") Then
 		If $aDefaults[$hHTTP] = $aDefaults[$hMSEdge] Or $aDefaults[$hHTTPS] = $aDefaults[$hMSEdge] Then
@@ -649,23 +641,13 @@ EndFunc
 Func _GetDefaultBrowser()
 
 	Local $sProg
-	Local $sHive1
-	Local $sHive2
-
 	Local Static $sBrowser
 
 	If $sBrowser <> "" Then
 		;;;
 	Else
-		If $bIs64Bit Then
-			$sHive1 = "HKCU64"
-			$sHive2 = "HKCR64"
-		Else
-			$sHive1 = "HKCU"
-			$sHive2 = "HKCR"
-		EndIf
-		$sProg = RegRead($sHive1 & "\SOFTWARE\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgID")
-		$sBrowser = RegRead($sHive2 & "\" & $sProg & "\shell\open\command", "")
+		$sProg = RegRead("HKCU\SOFTWARE\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgID")
+		$sBrowser = RegRead("HKCR\" & $sProg & "\shell\open\command", "")
 		$sBrowser = StringReplace($sBrowser, "%1", "")
 	EndIf
 

@@ -74,18 +74,10 @@ Func RunRemoval($bUpdate = False)
 
 	If $bIsAdmin Then
 		$sLocation = "C:\Program Files\MSEdgeRedirect\"
-		If $bIs64Bit Then
-			$sHive = "HKLM64"
-		Else
-			$sHive = "HKLM"
-		EndIf
+		$sHive = "HKLM"
 	Else
 		$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
-		If $bIs64Bit Then
-			$sHive = "HKCU64"
-		Else
-			$sHive = "HKCU"
-		EndIf
+		$sHive = "HKCU"
 	EndIf
 
 	; App Paths
@@ -689,18 +681,10 @@ Func SetAppRegistry($bAllUsers)
 
 	If $bAllUsers Then
 		$sLocation = "C:\Program Files\MSEdgeRedirect\"
-		If $bIs64Bit Then
-			$sHive = "HKLM64"
-		Else
-			$sHive = "HKLM"
-		EndIf
+		$sHive = "HKLM"
 	Else
 		$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
-		If $bIs64Bit Then
-			$sHive = "HKCU64"
-		Else
-			$sHive = "HKCU"
-		EndIf
+		$sHive = "HKCU"
 	EndIf
 
 	; App Paths
@@ -775,24 +759,17 @@ EndFunc
 
 Func SetIFEORegistry(ByRef $aChannels)
 
-	Local $sHive = ""
-
-	If $bIs64Bit Then
-		$sHive = "HKLM64"
-	Else
-		$sHive = "HKLM"
-	EndIf
-
-	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe")
-	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe", "UseFilter", "REG_DWORD", 1)
+	RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe")
+	RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe", "UseFilter", "REG_DWORD", 1)
 	For $iLoop = 1 To $aEdges[0] Step 1
 		If $aChannels[$iLoop - 1] Then
-			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop)
-			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger", "REG_SZ", "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
-			RegWrite($sHive & "\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "FilterFullPath", "REG_SZ", $aEdges[$iLoop])
+			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop)
+			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger", "REG_SZ", "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
+			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "FilterFullPath", "REG_SZ", $aEdges[$iLoop])
 			FileCopy($aEdges[$iLoop], StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"), $FC_OVERWRITE)
 		EndIf
 	Next
+
 EndFunc
 
 Func SetOptionsRegistry($sName, $vValue, $bAllUsers, $bManaged = False)
@@ -803,17 +780,9 @@ Func SetOptionsRegistry($sName, $vValue, $bAllUsers, $bManaged = False)
 
 	If $sHive = "" Then
 		If $bAllUsers Then
-			If $bIs64Bit Then
-				$sHive = "HKLM64"
-			Else
-				$sHive = "HKLM"
-			EndIf
+			$sHive = "HKLM"
 		Else
-			If $bIs64Bit Then
-				$sHive = "HKCU64"
-			Else
-				$sHive = "HKCU"
-			EndIf
+			$sHive = "HKCU"
 		EndIf
 
 		If $bManaged Then $sPolicy = "Policies\"
@@ -892,21 +861,11 @@ EndFunc   ;==>_IsChecked
 
 Func _IsInstalled()
 
-	Local $sHive1 = ""
-	Local $sHive2 = ""
 	Local $aReturn[3] = [False, "", ""]
 
-	If $bIs64Bit Then
-		$sHive1 = "HKLM64"
-		$sHive2 = "HKCU64"
-	Else
-		$sHive1 = "HKLM"
-		$sHive2 = "HKCU"
-	EndIf
-
-	$aReturn[2] = RegRead($sHive1 & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
+	$aReturn[2] = RegRead("HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
 	If @error Then
-		$aReturn[2] = RegRead($sHive2 & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
+		$aReturn[2] = RegRead("HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "DisplayVersion")
 		If @error Then
 			;;;
 		Else
