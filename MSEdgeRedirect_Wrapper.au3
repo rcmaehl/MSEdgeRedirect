@@ -751,7 +751,7 @@ Func SetAppShortcuts(ByRef $aConfig, ByRef $aSettings)
 			FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs)
 
 		Case Else
-			;;;
+			FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Unexpected StartMenu Value: " & $aSettings[$sStartMenu] & @CRLF)
 
 	EndSwitch
 
@@ -870,11 +870,11 @@ Func _IsInstalled()
 			;;;
 		Else
 			$aReturn[0] = True
-			$aReturn[1] = $sHive2
+			$aReturn[1] = "HKCU"
 		EndIf
 	Else
 		$aReturn[0] = True
-		$aReturn[1] = $sHive1
+		$aReturn[1] = "HKLM"
 	EndIf
 
 	Return $aReturn
