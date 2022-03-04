@@ -139,6 +139,15 @@ Func ProcessCMDLine()
 				Case "/h", "/hide"
 					$bHide = True
 					_ArrayDelete($CmdLine, 1)
+				Case "/kill"
+					$aPIDs = ProcessList(@ScriptName)
+					For $iLoop = 1 To $aPIDs[0][0] Step 1
+						If $aPIDs[$iLoop][1] <> @AutoItPID Then
+							$bHide = False
+							ProcessClose($aPIDs[$iLoop][1])
+						EndIf
+					Next
+					Exit
 				Case "/p", "/portable"
 					$bPortable = True
 					_ArrayDelete($CmdLine, 1)
