@@ -13,7 +13,13 @@ $uninstalled = $false
 
 if ($key.Count -eq 1) {
   $key | ForEach-Object {
-    $packageArgs['file'] = "$($_.UninstallString.Replace(' /uninstall', ''))"
+    $packageArgs['file'] = "$($_.UninstallString)"
+    $fileStringSplit = $packageArgs['file'] -split '\s+(?=(?:[^"]|"[^"]*")*$)'
+
+    if($fileStringSplit.Count -gt 1) {
+      $packageArgs['file'] = $fileStringSplit[0]
+      $packageArgs['silentArgs'] += " $($fileStringSplit[1..($fileStringSplit.Count-1)])"
+    }
 
     Uninstall-ChocolateyPackage @packageArgs
   }
