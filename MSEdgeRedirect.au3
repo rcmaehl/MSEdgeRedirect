@@ -646,6 +646,15 @@ Func _DecodeAndRun($sCMDLine, $sEdge = $aEdges[1])
 	EndSelect
 EndFunc
 
+Func _DeEmbedImage($sURL)
+
+	$sURL = StringRegExpReplace($sURL, "(.*)(imgurl%3a)", "")
+	$sURL = StringRegExpReplace($vCoords, "(?=&s=)(.*)", "")
+
+	Return $sURL
+
+EndFunc
+
 Func _GetDefaultBrowser()
 
 	Local $sProg
