@@ -602,9 +602,9 @@ Func _DecodeAndRun($sCMDLine, $sEdge = $aEdges[1])
 		Case StringInStr($sCMDLine, ".pdf") And _GetSettingValue("NoPDFs")
 			$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
 			ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
-		Case StringInStr($sCMDLine, "--app-id") And _GetSettingValue("NoApps") ; TikTok and other Apps
+		Case StringInStr($sCMDLine, "--app-id")
 			Select
-				Case StringInStr($sCMDLine, "--app-fallback-url=") ; Windows Store "Apps"
+				Case StringInStr($sCMDLine, "--app-fallback-url=") And _GetSettingValue("NoApps"); Windows Store "Apps"
 					$sCMDLine = StringRegExpReplace($sCMDLine, "(.*)(--app-fallback-url=)", "")
 					$sCMDLine = StringRegExpReplace($sCMDLine, "(?= --)(.*)", "")
 					If _IsSafeURL($sCMDLine) Then
