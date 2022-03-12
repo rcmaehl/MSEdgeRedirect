@@ -663,6 +663,51 @@ Func _GetDefaultBrowser()
 
 EndFunc
 
+Func _IsSafeApp(ByRef $sApp)
+
+	Local $aApp
+	Local $bSafe = False
+
+	$aApp = StringSplit($sApp, " ")
+
+	For $iLoop = 0 To $aApp[0] Step 1
+		If StringInStr($aApp[$iLoop], "=") Then
+			Switch StringSplit($aApp[$iLoop], "=")[1]
+				Case "--app-id"
+					ContinueCase
+				Case "--app-fallback-url"
+					ContinueCase
+				Case "--display-mode"
+					ContinueCase
+				Case "--ip-proc-id"
+					ContinueCase
+				Case "--mojo-named-platform-channel-pipe"
+					ContinueCase
+				Case "--ip-aumid"
+					$bSafe = True
+				Case Else
+					$bSafe = False
+					ExitLoop
+			EndSwitch
+		Else
+			Switch $aApp[$iLoop]
+				Case "--windows-store-app"
+					ContinueCase
+				Case "--ip-binding"
+					$bSafe = True
+				Case Else
+					$bSafe = False
+					ExitLoop
+			EndSwitch
+		EndIf
+	Next
+
+	If Not $bSafe Then FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe App: " & $sURL & @CRLF)
+
+	Return $bSafe
+
+EndFunc
+
 Func _IsSafeURL(ByRef $sURL)
 
 	Local $aURL
