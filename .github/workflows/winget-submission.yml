@@ -19,4 +19,4 @@ jobs:
           $asset64 = $github.release.assets | Where-Object -Property name -match 'MSEdgeRedirect.exe'
           $version = $github.release.tag_name
           iwr https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
-          .\wingetcreate.exe update rcmaehl.MSEdgeRedirect --urls $asset64.browser_download_url|x64 $asset.browser_download_url|x86 -v $version -o manifests -t "${{ secrets.MSEdgeRedirect_PAT }}" --submit
+          .\wingetcreate.exe update -u "$asset64.browser_download_url|x64" "$asset.browser_download_url|x86" -v $version -t "${{ secrets.MSEdgeRedirect_PAT }}" -s rcmaehl.MSEdgeRedirect
