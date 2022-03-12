@@ -595,6 +595,8 @@ Func _DecodeAndRun($sCMDLine, $sEdge = $aEdges[1])
 	Local $aLaunchContext
 
 	Select
+		Case StringLeft($sCMDLine, 2) = "--" And _GetSettingValue("RunUnsafe")
+			ShellExecute(StringReplace($sEdge, "msedge.exe", "msedge_no_ifeo.exe"), $sCMDLine)
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Settings URL: " & $sCMDLine & @CRLF)
 		Case StringInStr($sCMDLine, ".pdf") And _GetSettingValue("NoPDFs")
