@@ -702,7 +702,7 @@ Func _IsSafeApp(ByRef $sApp)
 		EndIf
 	Next
 
-	If Not $bSafe Then FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe App: " & $sURL & @CRLF)
+	If Not $bSafe Then FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe App: " & $sApp & @CRLF)
 
 	Return $bSafe
 
