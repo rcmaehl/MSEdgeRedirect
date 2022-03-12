@@ -142,10 +142,7 @@ Func ProcessCMDLine()
 				Case "/kill"
 					$aPIDs = ProcessList(@ScriptName)
 					For $iLoop = 1 To $aPIDs[0][0] Step 1
-						If $aPIDs[$iLoop][1] <> @AutoItPID Then
-							$bHide = False
-							ProcessClose($aPIDs[$iLoop][1])
-						EndIf
+						If $aPIDs[$iLoop][1] <> @AutoItPID Then ProcessClose($aPIDs[$iLoop][1])
 					Next
 					Exit
 				Case "/p", "/portable"
