@@ -675,7 +675,7 @@ Func RunUpdateCheck($bFull = False)
 			EndIf
 		Case 1
 			If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
-				_Translate($aMUI[1], "Update Available"), _
+				_Translate($aMUI[1], "MSEdgeRedirect Update Available"), _
 				_Translate($aMUI[1], "An Update is Available, would you like to download it?"), _
 				10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases")
 	EndSwitch
