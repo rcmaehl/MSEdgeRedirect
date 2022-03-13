@@ -8,6 +8,8 @@
 # MSEdgeRedirect
 A Tool to Redirect News, Search, Widgets, Weather and More to Your Default Browser
 
+![](https://github.com/rcmaehl/MSEdgeRedirect/blob/main/Assets/Splash.png?raw=true)
+
 This tool filters and passes the command line arguments of Microsoft Edge processes into your default browser instead of hooking into the `microsoft-edge:` handler, this should provide resiliency against future changes. Additionally, an Image File Execution Options mode is available to operate similarly to the Old EdgeDeflector. Additional modes are planned for future versions.
 
 No Default App walkthrough or other steps, just set and forget.
