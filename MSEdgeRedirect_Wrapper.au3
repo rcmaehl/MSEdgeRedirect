@@ -504,7 +504,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								GUICtrlSetData($hNext, "Install")
 							EndIf
 						Case $hFinish
-							If $bUpdate Then RunRemoval(True)
+							If $bUpdate And $iMode <> $hSettings Then RunRemoval(True)
 
 							If $iMode = $hSettings Then
 								$aConfig[$vMode] = $bIsAdmin
@@ -524,7 +524,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							$aSettings[$sWeather] = GUICtrlRead($hWeather)
 
 							GUISetState(@SW_HIDE, $hSettings)
-							RunInstall($aConfig, $aSettings)
+							If $iMode <> $hSettings Then RunInstall($aConfig, $aSettings)
 							SetAppRegistry($aConfig[$vMode])
 							If $aConfig[$vMode] Then
 								For $iLoop = 0 To 3 Step 1
