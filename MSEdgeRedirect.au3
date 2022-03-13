@@ -553,6 +553,9 @@ Func _ChangeWeatherProvider($sURL)
 					Case "AccuWeather"
 						$sURL = "https://www.accuweather.com/en/search-locations?query=" & $fLat & "," & $fLong
 
+					Case "DarkSky"
+						$sURL = "https://darksky.net/forecast/" & $fLat & "," & $fLong & "/"
+
 					Case "Weather.com"
 						$sURL = "https://www.weather.com/wx/today/?lat=" & $fLat & "&lon=" & $fLong & "&temp=" & $sSign ;"&locale=" & <LOCALE>
 
@@ -567,6 +570,9 @@ Func _ChangeWeatherProvider($sURL)
 
 					Case "Ventusky"
 						$sURL = "https://www.ventusky.com/" & $fLat & ";" & $fLong
+
+					Case "Yandex"
+						$sURL = "https://yandex.ru/pogoda/?lat=" & $fLat & "&lon=" & $fLong
 
 					Case Null
 						ContinueCase
