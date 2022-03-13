@@ -398,6 +398,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 			#forceref $hNoNews
 			#forceref $hNewSrc
+			#forceref $hImages
 
 		If $bUpdate Then
 			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
