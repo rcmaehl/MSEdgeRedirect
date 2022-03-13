@@ -493,7 +493,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					$iPage -= 1
 
 				Case $hMsg = $hNext
-					If $iMode = $hSettings Then Exit
 					Switch $iPage + 1
 						Case $hMode
 							GUICtrlSetState($hBack, $GUI_ENABLE)
@@ -506,7 +505,11 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						Case $hFinish
 							If $bUpdate Then RunRemoval(True)
 
-							$aConfig[$vMode] = _IsChecked($hActive)
+							If $iMode = $hSettings Then
+								$aConfig[$vMode] = $bIsAdmin
+							Else
+								$aConfig[$vMode] = _IsChecked($hActive)
+							EndIf
 
 							$aSettings[$bNoApps] = _IsChecked($hNoApps)
 							$aSettings[$bNoBing] = _IsChecked($hSearch)
@@ -528,6 +531,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								Next
 								SetIFEORegistry($aChannels)
 							EndIf
+							If $iMode = $hSettings Then Exit
 							GUICtrlSetData($hNext, "Finish")
 							GUICtrlSetState($hHelp, $GUI_DISABLE)
 							GUICtrlSetState($hBack, $GUI_DISABLE)
