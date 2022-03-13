@@ -524,7 +524,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							$aSettings[$sWeather] = GUICtrlRead($hWeather)
 
 							GUISetState(@SW_HIDE, $hSettings)
-							If $iMode <> $hSettings Then RunInstall($aConfig, $aSettings)
+							RunInstall($aConfig, $aSettings)
 							SetAppRegistry($aConfig[$vMode])
 							If $aConfig[$vMode] Then
 								For $iLoop = 0 To 3 Step 1
