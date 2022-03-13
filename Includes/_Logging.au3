@@ -10,3 +10,9 @@ Global $hLogs[5] = _
 	FileOpen(@LocalAppDataDir & "\MSEdgeRedirect\logs\URIFailures.log", $FO_APPEND)]
 
 Global Enum $AppFailures, $AppGeneral, $AppSecurity, $PEBIAT, $URIFailures
+
+Func _Log($hLog, $sMsg)
+
+	FileWrite($hLog, _NowCalc() & " - " & $sMsg)
+
+EndFunc
