@@ -381,6 +381,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hEngine = GUICtrlCreateCombo("", 50, 260, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Ask|Baidu|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
+			Local $hImages = GUICtrlCreateCheckbox("Bing Images (Coming Soon)", 240, 240, 180, 20)
+			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (Coming Soon)", 50, 285, 180, 20)
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNewSRC = GUICtrlCreateCombo("", 50, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
