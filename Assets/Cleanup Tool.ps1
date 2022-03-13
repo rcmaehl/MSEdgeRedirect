@@ -9,12 +9,12 @@ Remove-Item -Path "C:\Program Files\Microsoft\Edge\Application\msedge_no_ifeo.ex
 Remove-Item -Path "C:\Program Files (x86)\Microsoft\Edge\Application\msedge_no_ifeo.exe" -Force -ErrorAction "Ignore"
 
 ## Service Mode Install
-Remove-Item -Path $env:LOCALAPPDATA\MSEdgeRedirect\* -Force -ErrorAction "Ignore"
-Remove-Item -Path $env:LOCALAPPDATA\MSEdgeRedirect -Force -ErrorAction "Ignore"
+Remove-Item -Path "$env:LOCALAPPDATA\MSEdgeRedirect\*" -Force -ErrorAction "Ignore"
+Remove-Item -Path "$env:LOCALAPPDATA\MSEdgeRedirect" -Force -ErrorAction "Ignore"
 
 ## Start Menu Items
-Remove-Item -Path $env:APPDATA\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\* -Force -ErrorAction "Ignore"
-Remove-Item -Path $env:APPDATA\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect -Force -ErrorAction "Ignore"
+Remove-Item -Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\*" -Force -ErrorAction "Ignore"
+Remove-Item -Path "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect" -Force -ErrorAction "Ignore"
 
 # Remove Registry
 
