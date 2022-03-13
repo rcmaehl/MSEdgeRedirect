@@ -653,10 +653,11 @@ EndFunc
 
 Func _DeEmbedImage($sURL)
 
-	$sURL = StringRegExpReplace($sURL, "(.*)(imgurl%3a)", "")
-	$sURL = StringRegExpReplace($sURL, "(?=&s=)(.*)", "")
-
-	Return $sURL
+	If StringInStr($sURL, "bing.com/images/search?q=") Then
+		$sURL = StringRegExpReplace($sURL, "(.*)(imgurl%3a)", "")
+		$sURL = StringRegExpReplace($sURL, "(?=&s=)(.*)", "")
+		$sURL = _UnicodeURLDecode($sURL)
+	EndIf
 
 EndFunc
 
@@ -757,6 +758,7 @@ EndFunc
 
 Func _ModifyURL($sURL)
 
+	If _GetSettingValue("SrcImg") Then $sURL = _DeEmbedImage($sURL)
 	If _GetSettingValue("NoBing") Then $sURL = _ChangeSearchEngine($sURL)
 	If _GetSettingValue("NoMSN") Then $sURL = _ChangeWeatherProvider($sURL)
 	If _GetSettingValue("NoNews") Then $sURL = _ChangeNewsProvider($sURL)
