@@ -181,7 +181,7 @@ Func ProcessCMDLine()
 							InetGet("https://fcofix.org/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe", @ScriptDir & "\MSEdgeRedirect_Latest.exe")
 							_ArrayDelete($CmdLine, 1)
 						Case UBound($CmdLine) > 2 And $CmdLine[2] = "dev"
-							InetGet("https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/mser/main/mser.zip", @ScriptDir & "\WhyNotWin11_dev.zip")
+							InetGet("https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/mser/main/mser.zip", @ScriptDir & "\MSEdgeRedirect_dev.zip")
 							_ArrayDelete($CmdLine, "1-2")
 						Case UBound($CmdLine) > 2 And $CmdLine[2] = "release"
 							InetGet("https://fcofix.org/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe", @ScriptDir & "\MSEdgeRedirect_Latest.exe")
