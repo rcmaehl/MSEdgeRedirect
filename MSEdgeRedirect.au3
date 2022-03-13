@@ -77,7 +77,7 @@ Func ActiveMode(ByRef $aCMDLine)
 					"Unable to update Microsoft Edge IFEO exclusion file without Admin Rights!")
 			EndIf
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
-		Case $aCMDLine[0] = 2 And StringInStr($aCMDLine[2], "--continue-active-setup")
+		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
 				_Translate($aMUI[1], "File Update Required"), _
