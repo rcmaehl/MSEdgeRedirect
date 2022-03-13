@@ -683,7 +683,7 @@ Func _IsSafeApp(ByRef $sApp)
 
 	$aApp = StringSplit($sApp, " ")
 
-	For $iLoop = 0 To $aApp[0] Step 1
+	For $iLoop = 1 To $aApp[0] Step 1
 		If StringInStr($aApp[$iLoop], "=") Then
 			Switch StringSplit($aApp[$iLoop], "=")[1]
 				Case "--app-id"
