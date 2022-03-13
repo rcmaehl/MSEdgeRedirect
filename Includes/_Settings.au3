@@ -44,7 +44,7 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 			Switch @extended
 				Case $REG_SZ Or $REG_EXPAND_SZ
 					$vReturn = RegRead("HKLM\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting)
-				Case $REG_DWORD
+				Case $REG_DWORD Or $REG_QWORD
 					$vReturn =  Number(RegRead("HKLM\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting))
 				Case Else
 					FileWrite($hLogs[$AppFailures], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
@@ -54,7 +54,7 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 			Switch @extended
 				Case $REG_SZ Or $REG_EXPAND_SZ
 					$vReturn = RegRead("HKLM\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting)
-				Case $REG_DWORD
+				Case $REG_DWORD Or $REG_QWORD
 					$vReturn = Number(RegRead("HKLM\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting))
 				Case Else
 					FileWrite($hLogs[$AppFailures], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
@@ -64,7 +64,7 @@ Func _GetSettingValue($sSetting, $bPortable = False)
 			Switch @extended
 				Case $REG_SZ Or $REG_EXPAND_SZ
 					$vReturn = RegRead("HKCU\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting)
-				Case $REG_DWORD
+				Case $REG_DWORD Or $REG_QWORD
 					$vReturn = Number(RegRead("HKCU\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting))
 				Case Else
 					FileWrite($hLogs[$AppFailures], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
