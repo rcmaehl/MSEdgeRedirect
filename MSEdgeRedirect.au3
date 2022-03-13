@@ -659,6 +659,8 @@ Func _DeEmbedImage($sURL)
 		$sURL = _UnicodeURLDecode($sURL)
 	EndIf
 
+	Return $sURL
+
 EndFunc
 
 Func _GetDefaultBrowser()
