@@ -653,7 +653,7 @@ EndFunc
 Func _DeEmbedImage($sURL)
 
 	$sURL = StringRegExpReplace($sURL, "(.*)(imgurl%3a)", "")
-	$sURL = StringRegExpReplace($vCoords, "(?=&s=)(.*)", "")
+	$sURL = StringRegExpReplace($sURL, "(?=&s=)(.*)", "")
 
 	Return $sURL
 
