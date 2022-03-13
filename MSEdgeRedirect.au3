@@ -681,6 +681,7 @@ Func _IsSafeApp(ByRef $sApp)
 	Local $aApp
 	Local $bSafe = False
 
+	$sApp = StringStripWS($sApp, $STR_STRIPLEADING+$STR_STRIPTRAILING)
 	$aApp = StringSplit($sApp, " ")
 
 	For $iLoop = 1 To $aApp[0] Step 1
