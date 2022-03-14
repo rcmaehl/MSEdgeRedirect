@@ -3,6 +3,7 @@ name: Chocolatey Deploy
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 defaults:
   run:
@@ -30,11 +31,15 @@ jobs:
           curl -sSL "${url}" -o "Assets/Choco/${filename}"
           sha256=$(cat "Assets/Choco/${filename}" | sha256sum -)
           sed -i "s/{SHA256CHECKSUM64}/${sha256:0:64}/g" "Assets/Choco/MSEdgeRedirect/tools/chocolateyinstall.ps1"
+      - uses: oprypin/find-latest-tag@v1
+        with:
+          repository: rcmaehl/MSEdgeRedirect  # The repository to scan.
+          releases-only: true  # We know that all relevant tags have a GitHub release for them.
+        id: latesttag
       - name: Set Version
         id: version
         run: |
-          tag=${{ github.event.inputs.tag }}
-          version="${tag}"
+          version=${{ steps.latesttag.outputs.tag }}
           echo "::set-output name=nuget::$version"
           sed -i "s/{VERSION}/${version}/g" "Assets/Choco/MSEdgeRedirect/msedgeredirect.nuspec"
       - name: Pack Release
