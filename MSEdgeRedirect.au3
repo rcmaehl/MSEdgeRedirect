@@ -83,9 +83,7 @@ Func ActiveMode(ByRef $aCMDLine)
 				10) = $IDYES Then ShellExecuteWait(@ScriptFullPath, "/repair", @ScriptDir, "RunAs")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
 		Case Else
-			For $iLoop = 2 To $aCMDLine[0]
-				$sCMDLine &= $aCMDLine[$iLoop] & " "
-			Next
+			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			_DecodeAndRun($sCMDLine, $aCMDLine[1])
 	EndSelect
 
