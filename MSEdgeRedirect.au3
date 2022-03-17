@@ -599,7 +599,7 @@ Func _DecodeAndRun($sCMDLine, $sEdge = $aEdges[1])
 
 	Select
 		Case StringLeft($sCMDLine, 2) = "--" And _GetSettingValue("RunUnsafe")
-			ShellExecute(StringReplace($sEdge, "msedge.exe", "msedge_no_ifeo.exe"), $sCMDLine)
+			ShellExecute($sEdge, $sCMDLine)
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Settings URL: " & $sCMDLine & @CRLF)
 		Case StringInStr($sCMDLine, ".pdf") And _GetSettingValue("NoPDFs")
@@ -617,7 +617,7 @@ Func _DecodeAndRun($sCMDLine, $sEdge = $aEdges[1])
 					EndIf
 				Case StringInStr($sCMDLine, "--ip-aumid=") ; Edge "Apps"
 					If _IsSafeApp($sCMDLine) Then
-						ShellExecute(StringReplace($sEdge, "msedge.exe", "msedge_no_ifeo.exe"), $sCMDLine)
+						ShellExecute($sEdge, $sCMDLine)
 					Else
 						FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
 					EndIf
