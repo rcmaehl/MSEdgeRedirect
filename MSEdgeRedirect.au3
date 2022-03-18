@@ -149,11 +149,19 @@ Func ProcessCMDLine()
 					RunRepair()
 					Exit
 				Case "/settings"
-					If $bIsPriv And Not $bIsAdmin Then
-						ShellExecute(@ScriptFullPath, "/settings", @ScriptDir, "RunAs")
-						Exit
+					If $bIsPriv Then
+						If Not $bIsAdmin Then
+							ShellExecute(@ScriptFullPath, "/settings", @ScriptDir, "RunAs")
+							Exit
+						EndIf
+					Else
+						$aPIDs = ProcessList(@ScriptName)
+						For $iLoop = 1 To $aPIDs[0][0] Step 1
+							If $aPIDs[$iLoop][1] <> @AutoItPID Then ProcessClose($aPIDs[$iLoop][1])
+						Next
 					EndIf
 					RunSetup(True, False, 2)
+					If Not $bIsPriv THen ShellExecute(@ScriptFullPath)
 					Exit
 				Case "/si", "/silentinstall"
 					$bSilent = True
@@ -295,8 +303,15 @@ Func ReactiveMode($bHide = False)
 
 	If FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then TrayItemSetState($hStartup, $TRAY_CHECKED)
 
+	Local $sRegex
 	Local $aProcessList
 	Local $sCommandline
+
+	If _GetSettingValue("NoApps") Then
+		$sRegex = ".*(microsoft\-edge|app\-id).*"
+	Else
+		$sRegex = ".*(microsoft\-edge).*"
+	EndIf
 
 	While True
 		$hMsg = TrayGetMsg()
@@ -305,7 +320,7 @@ Func ReactiveMode($bHide = False)
 			$aProcessList = ProcessList("msedge.exe")
 			For $iLoop = 1 To $aProcessList[0][0] - 1
 				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
-				If StringRegExp($sCommandline, ".*(microsoft\-edge|app\-id).*") Then
+				If StringRegExp($sCommandline, $sRegex) Then
 					ProcessClose($aProcessList[$iLoop][1])
 					If _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]), 1, $aEdges[0]) > 0 Then
 						_DecodeAndRun($sCommandline)

@@ -532,7 +532,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								Next
 								SetIFEORegistry($aChannels)
 							EndIf
-							If $iMode = $hSettings Then Exit
+							If $iMode = $hSettings Then Return
 							GUICtrlSetData($hNext, "Finish")
 							GUICtrlSetState($hHelp, $GUI_DISABLE)
 							GUICtrlSetState($hBack, $GUI_DISABLE)
