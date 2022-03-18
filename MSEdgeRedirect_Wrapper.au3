@@ -395,10 +395,15 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hNoPDFs = GUICtrlCreateCheckbox("PDF Viewer:", 50, 330, 180, 20)
 			Local $hPDFPath = GUICtrlCreateEdit("", 50, 350, 180, 20, $ES_READONLY+$ES_AUTOHSCROLL)
 			Local $hNoApps = GUICtrlCreateCheckbox("Windows Store 'Apps'", 50, 375, 180, 20)
+			Local $hAppEng = GUICtrlCreateCombo("", 50, 395, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			GUICtrlSetData(-1, "Default Browser|Chrome App|Firefox App", "Default Browser")
+			GUICtrlSetState(-1, $GUI_DISABLE)
+			GUICtrlSetState(-1, $GUI_HIDE)
 
 			#forceref $hNoNews
 			#forceref $hNewSrc
 			#forceref $hImages
+			#forceref $hAppEng
 
 		If $bUpdate Then
 			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
