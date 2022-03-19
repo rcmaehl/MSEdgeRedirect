@@ -25,6 +25,11 @@ If you're on older Windows builds, check out: https://github.com/da2x/EdgeDeflec
 [Download latest testing release](https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/MSER/main/mser.zip)\
 **Keep in mind that you will have to update testing releases manually**
 
+### Package Managers
+
+![image](https://user-images.githubusercontent.com/716581/159123573-58e5ccba-5c82-46ec-adcc-08b897284a6d.png)
+
+
 ### System Requirements
  |Minimum Requirements|Recommended
 ----|----|----
