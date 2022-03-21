@@ -1,5 +1,3 @@
-$toolsPath = Split-Path -parent $MyInvocation.MyCommand.Definition
-
 $packageArgs = @{
   packageName    = $env:ChocolateyPackageName
   fileType       = 'exe'
