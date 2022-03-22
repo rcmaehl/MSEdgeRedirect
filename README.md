@@ -29,7 +29,7 @@ If you're on older Windows builds, check out: https://github.com/da2x/EdgeDeflec
 
 [![image](https://user-images.githubusercontent.com/716581/159123573-58e5ccba-5c82-46ec-adcc-08b897284a6d.png)](https://github.com/microsoft/winget-pkgs/tree/master/manifests/r/rcmaehl/MSEdgeRedirect)  
 ```powershell
-winget install rcmaehl.MSEdgeRedirect
+winget install MSEdgeRedirect
 ```
 
 [![image](https://user-images.githubusercontent.com/716581/159197666-761d9b5e-18f6-427c-bae7-2cc6bd348b9a.png)](https://community.chocolatey.org/packages/msedgeredirect/)
@@ -106,5 +106,10 @@ Yes, as of 0.5.0.0, you can select One of 8 available Search Engines, or set you
   
 ### How do I uninstall?
 
-**0.4.0.0 & Newer:** Use Programs and Features\
+**0.4.0.0 & Newer (also works with Winget and Chocolatey installation modes):** Use Programs and Features\
 **BEFORE 0.4.0.0:** Simply delete MSEdgeRedirect.exe!
+
+**Winget:**
+```powershell
+winget uninstall MSEdgeRedirect
+```
