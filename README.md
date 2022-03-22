@@ -27,7 +27,10 @@ If you're on older Windows builds, check out: https://github.com/da2x/EdgeDeflec
 
 ### Package Managers
 
-![image](https://user-images.githubusercontent.com/716581/159123573-58e5ccba-5c82-46ec-adcc-08b897284a6d.png)
+[![image](https://user-images.githubusercontent.com/716581/159123573-58e5ccba-5c82-46ec-adcc-08b897284a6d.png)](https://github.com/microsoft/winget-pkgs/tree/master/manifests/r/rcmaehl/MSEdgeRedirect)  
+```powershell
+winget install rcmaehl.MSEdgeRedirect
+```
 
 [![image](https://user-images.githubusercontent.com/716581/159197666-761d9b5e-18f6-427c-bae7-2cc6bd348b9a.png)](https://community.chocolatey.org/packages/msedgeredirect/)
 
