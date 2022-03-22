@@ -751,10 +751,10 @@ Func SetAppShortcuts(ByRef $aConfig, ByRef $aSettings)
 		Case "Full"
 			If $aConfig[$vMode] Then
 				DirCreate(@ProgramsCommonDir & "\MSEdgeRedirect")
-				FileCreateShortcut("C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", @ProgramsCommonDir & "\MSEdgeRedirect\Settings.lnk", "C:\Program Files\MSEdgeRedirect\", "/settings")
+				FileCreateShortcut("C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", @ProgramsCommonDir & "\MSEdgeRedirect\MSER Settings.lnk", "C:\Program Files\MSEdgeRedirect\", "/settings")
 			Else
 				DirCreate(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect")
-				FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\Settings.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", "/settings")
+				FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\MSER Settings.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", "/settings")
 				ContinueCase
 			EndIf
 
