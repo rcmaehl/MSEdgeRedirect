@@ -12,11 +12,9 @@ This tool filters and passes the command line arguments of Microsoft Edge proces
 
 No Default App walkthrough or other steps, just set and forget.
 
-If you're on older Windows builds, check out: https://github.com/da2x/EdgeDeflector
+> ℹ️ If you're on older Windows builds, check out: https://github.com/da2x/EdgeDeflector
 
-## Disclaimer
-
-### PLEASE NOTE: MSEdgeRedirect is still BETA. Changes are to be expected, and performance to be improved.
+> :warning: PLEASE NOTE: MSEdgeRedirect is still BETA. Changes are to be expected, and performance to be improved.
 
 ## Download
 
