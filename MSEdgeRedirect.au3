@@ -82,7 +82,7 @@ Func CheckEdgeIntegrity($sLocation)
 	Select
 		Case FileGetVersion($sLocation) <> FileGetVersion(StringReplace($sLocation, "msedge.exe", "msedge_no_ifeo.exe"))
 			ContinueCase
-		Case Not FileExists(FileGetVersion(StringReplace($sLocation, "msedge.exe", "msedge_no_ifeo.exe")))
+		Case Not FileExists(FileGetVersion($sLocation))
 			If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
 				_Translate($aMUI[1], "File Update Required"), _
 				_Translate($aMUI[1], "Microsoft Edge has updated, as such the IFEO exclusion file is out of date and needs to be updated. Update Now?"), _
