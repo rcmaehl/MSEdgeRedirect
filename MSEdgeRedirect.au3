@@ -297,17 +297,13 @@ Func ReactiveMode($bHide = False)
 	TrayCreateItem($sVersion)
 	TrayItemSetState(-1, $TRAY_DISABLE)
 	TrayCreateItem("")
-	Local $hStartup = TrayCreateItem("Start With Windows")
-	Local $hUpdate = TrayCreateItem("Check for Updates")
-	TrayCreateItem("")
+	Local $hSettings = TrayCreateItem("Settings")
 	Local $hDonate = TrayCreateItem("Donate")
 	TrayCreateItem("")
-	Local $hHide = TrayCreateItem("Hide Icon")
+	Local $hUpdate = TrayCreateItem("Check for Updates")
 	Local $hExit = TrayCreateItem("Exit")
 
 	If $bHide Then TraySetState($TRAY_ICONSTATE_HIDE)
-
-	If FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then TrayItemSetState($hStartup, $TRAY_CHECKED)
 
 	Local $sRegex
 	Local $aProcessList
@@ -338,8 +334,8 @@ Func ReactiveMode($bHide = False)
 
 		Switch $hMsg
 
-			Case $hHide
-				TraySetState($TRAY_ICONSTATE_HIDE)
+			Case $hSettings
+				ShellExecute(@ScriptFullPath, "/settings", @ScriptDir)
 
 			Case $hExit
 				ExitLoop
@@ -349,15 +345,6 @@ Func ReactiveMode($bHide = False)
 
 			Case $hUpdate
 				RunUpdateCheck(True)
-
-			Case $hStartup
-				If Not FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then
-					FileCreateShortcut(@AutoItExe, @StartupDir & "\MSEdgeRedirect.lnk", @ScriptDir)
-					TrayItemSetState($hStartup, $TRAY_CHECKED)
-				ElseIf FileExists(@StartupDir & "\MSEdgeRedirect.lnk") Then
-					FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
-					TrayItemSetState($hStartup, $TRAY_UNCHECKED)
-				EndIf
 
 			Case Else
 
