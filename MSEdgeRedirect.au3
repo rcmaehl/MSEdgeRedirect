@@ -73,7 +73,7 @@ Func ActiveMode(ByRef $aCMDLine)
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
 		Case Else
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
-			_DecodeAndRun($sCMDLine, $aCMDLine[1])
+			_DecodeAndRun($aCMDLine[1], $sCMDLine)
 	EndSelect
 
 EndFunc
@@ -325,7 +325,7 @@ Func ReactiveMode($bHide = False)
 				If StringRegExp($sCommandline, $sRegex) Then
 					ProcessClose($aProcessList[$iLoop][1])
 					If _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]), 1, $aEdges[0]) > 0 Then
-						_DecodeAndRun($sCommandline)
+						_DecodeAndRun(Default, $sCommandline)
 					EndIf
 				EndIf
 			Next
@@ -600,7 +600,7 @@ Func _ChangeWeatherProvider($sURL)
 
 EndFunc
 
-Func _DecodeAndRun($sCMDLine, $sEdge = $aEdges[1])
+Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
 	Local $sCaller
 	Local $aLaunchContext
