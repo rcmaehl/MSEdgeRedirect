@@ -610,10 +610,15 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			ShellExecute($sEdge, $sCMDLine)
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Settings URL: " & $sCMDLine & @CRLF)
-			$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
-			ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
+		Case StringInStr($sCMDLine, ".pdf")
 			If _GetSettingValue("NoPDFs") Then
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
+				ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
+			Else
+				If _IsPriviledgedInstall() Then $sEdge = StringReplace($sEdge, "msedge.exe", "msedge_no_ifeo.exe")
+				MsgBox(0, $sEdge, $sCMDLine)
+				ShellExecute($sEdge, $sCMDLine)
+			EndIf
 		Case StringInStr($sCMDLine, "--app-id")
 			Select
 				Case StringInStr($sCMDLine, "--app-fallback-url=") And _GetSettingValue("NoApps"); Windows Store "Apps"
