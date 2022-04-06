@@ -63,13 +63,13 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--inprivate" ; In Private Browsing, No Parameters
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68
+			CheckEdgeIntegrity($aCMDLine[1])
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
-			CheckEdgeIntegrity($aCMDLine[1])
 			ShellExecute($aCMDLine[1], $sCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
-			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			CheckEdgeIntegrity($aCMDLine[1])
+			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
 		Case Else
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
@@ -82,7 +82,7 @@ Func CheckEdgeIntegrity($sLocation)
 	Select
 		Case FileGetVersion($sLocation) <> FileGetVersion(StringReplace($sLocation, "msedge.exe", "msedge_no_ifeo.exe"))
 			ContinueCase
-		Case Not FileExists(FileGetVersion($sLocation))
+		Case Not FileExists(StringReplace($sLocation, "msedge.exe", FileGetVersion($sLocation)))
 			If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
 				_Translate($aMUI[1], "File Update Required"), _
 				_Translate($aMUI[1], "Microsoft Edge has updated, as such the IFEO exclusion file is out of date and needs to be updated. Update Now?"), _
