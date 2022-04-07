@@ -11,7 +11,7 @@
 This tool filters and passes the command line arguments of Microsoft Edge processes into your default browser instead of hooking into the microsoft-edge: handler, this should provide resiliency against future changes. Additionally, an Image File Execution Options mode is available to operate similarly to the Old EdgeDeflector. Additional modes are planned for future versions.
 
 #### False positive virus detections
-MSEdgeRedirect app is created using AutoIt codes. AutoIt coded EXEs are detected by a handful of virus scanners as "malicious" which is a false positive. Detailed explanation present here: https://www.autoitscript.com/forum/topic/34658-are-my-autoit-exes-really-infected/
+MSEdgeRedirect is created using AutoIt. AutoIt EXEs are detected by a handful of virus scanners as "malicious" which is are false positive. A Detailed explanation is present here: https://www.autoitscript.com/forum/topic/34658-are-my-autoit-exes-really-infected/
     </description>
     <packageSourceUrl>https://github.com/rcmaehl/MSEdgeRedirect/tree/main/Assets/Choco/MSEdgeRedirect</packageSourceUrl>
     <projectUrl>https://msedgeredirect.com</projectUrl>
