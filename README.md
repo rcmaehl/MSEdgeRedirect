@@ -31,7 +31,9 @@ winget install MSEdgeRedirect
 ```
 
 [![image](https://user-images.githubusercontent.com/716581/159197666-761d9b5e-18f6-427c-bae7-2cc6bd348b9a.png)](https://community.chocolatey.org/packages/msedgeredirect/)
-
+```powershell
+choco install msedgeredirect --version=0.6.4.0
+```
 
 ### System Requirements
  |Minimum Requirements|Recommended
