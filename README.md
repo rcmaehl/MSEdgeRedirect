@@ -113,3 +113,8 @@ Yes, as of 0.5.0.0, you can select One of 8 available Search Engines, or set you
 ```powershell
 winget uninstall MSEdgeRedirect
 ```
+
+**Chocolatey:**
+```powershell
+choco uninstall msedgeredirect
+```
