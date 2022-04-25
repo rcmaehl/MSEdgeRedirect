@@ -1,6 +1,7 @@
 [![Build Status](https://img.shields.io/github/workflow/status/rcmaehl/MSEdgeRedirect/mser)](https://github.com/rcmaehl/MSEdgeRedirect/actions?query=workflow%3Amser)
 [![Download](https://img.shields.io/github/v/release/rcmaehl/MSEdgeRedirect)](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/)
-[![Download count)](https://img.shields.io/github/downloads/rcmaehl/MSEdgeRedirect/total?label=Downloads)](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/)
+[![Download count](https://img.shields.io/github/downloads/rcmaehl/MSEdgeRedirect/total?label=Downloads)](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/)
+[![Chocolatey download count](https://img.shields.io/chocolatey/dt/msedgeredirect?label=Chocolatey+downloads)](https://chocolatey.org/packages/msedgeredirect)
 [![Ko-fi](https://img.shields.io/badge/Support%20me%20on-Ko--fi-FF5E5B.svg?logo=ko-fi)](https://ko-fi.com/rcmaehl)
 [![PayPal](https://img.shields.io/badge/Donate%20on-PayPal-00457C.svg?logo=paypal)](https://paypal.me/rhsky)
 [![Join the Discord chat](https://img.shields.io/badge/Discord-chat-7289da.svg?&logo=discord)](https://discord.gg/uBnBcBx)
@@ -32,7 +33,7 @@ winget install MSEdgeRedirect
 
 [![image](https://user-images.githubusercontent.com/716581/159197666-761d9b5e-18f6-427c-bae7-2cc6bd348b9a.png)](https://community.chocolatey.org/packages/msedgeredirect/)
 ```powershell
-choco install msedgeredirect --version=0.6.4.0
+choco install msedgeredirect
 ```
 
 ### System Requirements
