@@ -54,6 +54,7 @@ ProcessCMDLine()
 Func ActiveMode(ByRef $aCMDLine)
 
 	Local $sCMDLine = ""
+	CheckEdgeIntegrity($aCMDLine[1])
 
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
@@ -65,12 +66,10 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--inprivate" ; In Private Browsing, No Parameters
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68
-			CheckEdgeIntegrity($aCMDLine[1])
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			ShellExecute($aCMDLine[1], $sCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
-			CheckEdgeIntegrity($aCMDLine[1])
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
 		Case Else
