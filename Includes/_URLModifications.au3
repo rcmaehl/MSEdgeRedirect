@@ -78,6 +78,7 @@ EndFunc
 Func _ChangeWeatherProvider($sURL)
 
 	;https://a.msn.com/54/en-us/ct<LATITUDE>,<LONGITUDE>?weadegreetype=F&weaext0={%22l%22:%22<CITY>%22,%22r%22:%22<STATE>%22,%22c%22:%22<COUNTRY>...
+	;http://a.msn.com/54/<LOCALE>/ct<LAT>,<LONG>?ctsrc=outlook&ocid=outlookdesktopcalendar&weadegreetype=F&day=1 #126
 
 	Local $fLat
 	Local $aData
