@@ -34,8 +34,10 @@
 
 #include "Includes\_Logging.au3"
 #include "Includes\_Theming.au3"
+;#include "Includes\_Security.au3"
 #include "Includes\_Settings.au3"
 #include "Includes\_Translation.au3"
+;#include "Includes\_URLModifications.au3"
 
 #include "Includes\Base64.au3"
 #include "Includes\ResourcesEx.au3"
