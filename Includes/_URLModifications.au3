@@ -1,3 +1,5 @@
+#include "_Settings.au3"
+
 Func _ChangeNewsProvider($sURL)
 
 	Local $sOriginal = $sURL
@@ -205,6 +207,17 @@ Func _DeEmbedImage($sURL)
 		$sURL = StringRegExpReplace($sURL, "(?=&s=)(.*)", "")
 		$sURL = _UnicodeURLDecode($sURL)
 	EndIf
+
+	Return $sURL
+
+EndFunc
+
+Func _ModifyURL($sURL)
+
+	If _GetSettingValue("SrcImg") Then $sURL = _DeEmbedImage($sURL)
+	If _GetSettingValue("NoBing") Then $sURL = _ChangeSearchEngine($sURL)
+	If _GetSettingValue("NoMSN") Then $sURL = _ChangeWeatherProvider($sURL)
+	If _GetSettingValue("NoNews") Then $sURL = _ChangeNewsProvider($sURL)
 
 	Return $sURL
 

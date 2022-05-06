@@ -1,3 +1,5 @@
+#include "_Logging.au3"
+
 Func _IsSafeApp(ByRef $sApp)
 
 	Local $aApp
