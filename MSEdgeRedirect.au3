@@ -463,6 +463,22 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			Else
 				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
 			EndIf
+		Case StringRegExp($sCMDLine, "microsoft-edge:[\/]*?\?source")
+			$aLaunchContext = StringSplit($sCMDLine, "=")
+			_ArrayDisplay($aLaunchContext)
+			If $aLaunchContext[0] >= 3 Then
+				If $sCaller = "" Then $sCaller = $aLaunchContext[2]
+				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call from: " & $sCaller & @CRLF)
+				$sCMDLine = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
+				If _IsSafeURL($sCMDLine) Then
+					$sCMDLine = _ModifyURL($sCMDLine)
+					ShellExecute($sCMDLine)
+				Else
+					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid Regexed URL: " & $sCMDLine & @CRLF)
+				EndIf
+			Else
+				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
+			EndIf
 		Case Else
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "")
 			If _IsSafeURL($sCMDLine) Then
