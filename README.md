@@ -6,8 +6,6 @@
 [![PayPal](https://img.shields.io/badge/Donate%20on-PayPal-00457C.svg?logo=paypal)](https://paypal.me/rhsky)
 [![Join the Discord chat](https://img.shields.io/badge/Discord-chat-7289da.svg?&logo=discord)](https://discord.gg/uBnBcBx)
 
-## I am aware of Optional Update KB5011831 breaking MSEdgeRedirect and investigating the cause
-
 # MSEdgeRedirect
 A Tool to Redirect News, Search, Widgets, Weather and More to Your Default Browser
 
