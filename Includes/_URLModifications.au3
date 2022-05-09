@@ -12,10 +12,10 @@ Func _ChangeNewsProvider($sURL)
 		Switch _GetSettingValue("News")
 
 			Case "DuckDuckGo"
-				$sURL = "https://duckduckgo.com/?q=%5C" & $sURL & "+-site%3Abing.com"
+				$sURL = "https://duckduckgo.com/?q=%5C" & $sURL & "+-site%3Amsn.com%20-site%3Abing.com
 
 			Case "Google"
-				$sURL = "https://www.google.com/search?q=" & $sURL & "+-site%3Amsn.com&btnI=I%27m+Feeling+Lucky"
+				$sURL = "https://www.google.com/search?q=" & $sURL & "+-site%3Amsn.com%20-site%3Abing.com&btnI=I%27m+Feeling+Lucky"
 
 			Case Null
 				ContinueCase
