@@ -465,7 +465,6 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			EndIf
 		Case StringRegExp($sCMDLine, "microsoft-edge:[\/]*?\?source")
 			$aLaunchContext = StringSplit($sCMDLine, "=")
-			_ArrayDisplay($aLaunchContext)
 			If $aLaunchContext[0] >= 3 Then
 				If $sCaller = "" Then $sCaller = $aLaunchContext[2]
 				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call from: " & $sCaller & @CRLF)
