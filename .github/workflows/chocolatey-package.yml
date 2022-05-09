@@ -24,12 +24,6 @@ jobs:
         id: latesttag
       - name: Set Checksum
         run: |
-          filename="MSEdgeRedirect_x86.exe"
-          url="https://github.com/${{ github.repository }}/releases/download/${{ steps.latesttag.outputs.tag }}/${filename}"
-          sed -i "s#{URL32}#${url}#g" "Assets/Choco/MSEdgeRedirect/tools/chocolateyinstall.ps1"
-          curl -sSL "${url}" -o "Assets/Choco/${filename}"
-          sha256=$(cat "Assets/Choco/${filename}" | sha256sum -)
-          sed -i "s/{SHA256CHECKSUM32}/${sha256:0:64}/g" "Assets/Choco/MSEdgeRedirect/tools/chocolateyinstall.ps1"
           filename="MSEdgeRedirect.exe"
           url="https://github.com/${{ github.repository }}/releases/download/${{ steps.latesttag.outputs.tag }}/${filename}"
           sed -i "s#{URL64}#${url}#g" "Assets/Choco/MSEdgeRedirect/tools/chocolateyinstall.ps1"
