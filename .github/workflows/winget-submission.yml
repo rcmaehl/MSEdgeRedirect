@@ -29,8 +29,8 @@ jobs:
         uses: gnpaone/winget-push-test@v1
         with:
           version: ${{ steps.versionset.outputs.version }} #Package version
-          url32: https://github.com/${{ github.repository }}/releases/download/${{ steps.latesttag.outputs.tag }}/MSEdgeRedirect_x86.exe
-          url64: https://github.com/${{ github.repository }}/releases/download/${{ steps.latesttag.outputs.tag }}/MSEdgeRedirect.exe#Package url
+          url32: https://github.com/rcmaehl/MSEdgeRedirect/releases/download/${{ steps.versionset.outputs.version }}/MSEdgeRedirect_x86.exe #Package url (32-bit)
+          url64: https://github.com/rcmaehl/MSEdgeRedirect/releases/download/${{ steps.versionset.outputs.version }}/MSEdgeRedirect.exe #Package url (64-bit)
           token:  ${{ secrets.MSEdgeRedirect_PAT }} #Token used to submit to Winget repository
           packageid: rcmaehl.MSEdgeRedirect #Package ID
           user: microsoft #Github username where test winget repo exists
