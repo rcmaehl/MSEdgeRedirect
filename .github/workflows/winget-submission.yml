@@ -7,16 +7,31 @@ on:
 jobs:
   winget-bump:
     name: mser winget
-    runs-on: windows-2019
+    runs-on: windows-latest
+    if: github.repository == 'rcmaehl/MSEdgeRedirect'
     defaults:
       run:
-        shell: powershell
+        shell: bash
     steps:
-      - name: Create winget PR
+      - name: Clone Repository
+        uses: actions/checkout@v2
+      - uses: oprypin/find-latest-tag@v1
+        with:
+          repository: rcmaehl/MSEdgeRedirect  # The repository to scan.
+          releases-only: true  # We know that all relevant tags have a GitHub release for them.
+        id: latesttag
+      - name: Set Version
+        id: versionset
         run: |
-          $github = Get-Content '${{ github.event_path }}' | ConvertFrom-Json
-          $asset = $github.release.assets | Where-Object -Property name -match 'MSEdgeRedirect_x86.exe'
-          $asset64 = $github.release.assets | Where-Object -Property name -match 'MSEdgeRedirect.exe'
-          $version = $github.release.tag_name
-          iwr https://aka.ms/wingetcreate/latest -OutFile wingetcreate.exe
-          .\wingetcreate.exe update -u "$asset64.browser_download_url|x64" "$asset.browser_download_url|x86" -v $version -t "${{ secrets.MSEdgeRedirect_PAT }}" -s rcmaehl.MSEdgeRedirect
+          version="${{ steps.latesttag.outputs.tag }}"
+          echo "::set-output name=version::$version"
+      - name: Submit to winget repository #Name of the workflow step
+        uses: gnpaone/winget-push-test@v1
+        with:
+          version: ${{ steps.versionset.outputs.version }} #Package version
+          url32: https://github.com/${{ github.repository }}/releases/download/${{ steps.latesttag.outputs.tag }}/MSEdgeRedirect_x86.exe
+          url64: https://github.com/${{ github.repository }}/releases/download/${{ steps.latesttag.outputs.tag }}/MSEdgeRedirect.exe#Package url
+          token:  ${{ secrets.MSEdgeRedirect_PAT }} #Token used to submit to Winget repository
+          packageid: rcmaehl.MSEdgeRedirect #Package ID
+          user: microsoft #Github username where test winget repo exists
+          repo: winget-pkgs #Name of winget test repo
