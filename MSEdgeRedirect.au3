@@ -423,7 +423,6 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
 			Else
 				If _IsPriviledgedInstall() Then $sEdge = StringReplace($sEdge, "msedge.exe", "msedge_no_ifeo.exe")
-				MsgBox(0, $sEdge, $sCMDLine)
 				ShellExecute($sEdge, $sCMDLine)
 			EndIf
 		Case StringInStr($sCMDLine, "--app-id")
