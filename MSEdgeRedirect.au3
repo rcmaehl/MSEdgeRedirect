@@ -68,7 +68,9 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--winrt-background-task-event", 2, 0, 0, 1) > 0 ; #94 & #95, Apps
 			ContinueCase
-		Case _ArraySearch($sCMDLine, "--web-widget-jumplist-launch", 2, 0,0, 1) > 0 ; #123, EdgeBar
+		Case _ArraySearch($aCMDLine, "--web-widget-jumplist-launch", 2, 0,0, 1) > 0 ; #123, EdgeBar
+			ContinueCase
+		Case _ArraySearch($aCMDLine, "--app-id", 2, 0,0, 1) > 0 And Not _GetSettingValue("NoApps")
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
