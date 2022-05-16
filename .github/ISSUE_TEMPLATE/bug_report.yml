@@ -8,6 +8,16 @@ body:
     value: |
       Please make sure to [search for existing issues](https://github.com/rcmaehl/MSEdgeRedirect/issues) before filing a new one!
 
+- type: checkboxes
+  attributes:
+    label: Preflight Checklist
+    options:
+      - label: Microsoft Edge is still installed (see issue 26)
+        required: true
+      - Running microsoft-edge:https://google.com redirects successfully
+        required: true
+      - Microsoft Edge is selected in any "How do you want to open this?" box (if applicable)
+
 - type: dropdown
   attributes:
     label: Install Type
