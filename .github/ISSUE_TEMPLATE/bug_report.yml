@@ -16,8 +16,8 @@ body:
     options:
       - New Install
       - Manual Update
-      - New Deployment (Winget/Chocolatey)
-      - Managed Update (Winget/Chocolatey)
+      - New Deployment (Chocolatey, Winget, Etc)
+      - Managed Update (Chocolatey, Winget, Etc)
   validations:
     required: true
 
@@ -28,7 +28,7 @@ body:
     multiple: false
     options:
       - Active Mode
-      - Serivice Mode
+      - Service Mode
       - Unsure
   validations:
     required: true
