@@ -14,9 +14,9 @@ body:
     options:
       - label: Microsoft Edge is still installed (see issue 26)
         required: true
-      - Running microsoft-edge:https://google.com redirects successfully
+      - label: Running microsoft-edge:https://google.com redirects successfully
         required: true
-      - Microsoft Edge is selected in any "How do you want to open this?" box (if applicable)
+      - label: Microsoft Edge is selected in any "How do you want to open this?" box (if applicable)
 
 - type: dropdown
   attributes:
