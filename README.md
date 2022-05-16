@@ -95,7 +95,7 @@ Not currently, see [#26](https://github.com/rcmaehl/MSEdgeRedirect/issues/26). T
 
 ### It isn’t working for me?
 
-Make sure the application is running in the system tray, then run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that is not properly redirected, [file a bug report!](https://github.com/rcmaehl/MSEdgeRedirect/issues/new?assignees=&labels=&template=bug_report.md&title=)
+run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that is not properly redirected, [file a bug report!](https://github.com/rcmaehl/MSEdgeRedirect/issues/new?assignees=&labels=&template=bug_report.md&title=)
 
 ### Will searches inside \<app name here\> still use Bing?
 
