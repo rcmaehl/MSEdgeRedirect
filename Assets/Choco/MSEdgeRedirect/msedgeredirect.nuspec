@@ -18,7 +18,7 @@ MSEdgeRedirect is created using AutoIt. AutoIt EXEs are detected by a handful of
     <projectSourceUrl>https://github.com/rcmaehl/MSEdgeRedirect</projectSourceUrl>
     <bugTrackerUrl>https://github.com/rcmaehl/MSEdgeRedirect/issues</bugTrackerUrl>
     <docsUrl>https://github.com/rcmaehl/MSEdgeRedirect/wiki</docsUrl>
-    <iconUrl>https://raw.githubusercontent.com/rcmaehl/MSEdgeRedirect/main/Assets/MSEdgeRedirect.ico</iconUrl>
+    <iconUrl>https://cdn.jsdelivr.net/gh/Smart123s/chocolatey-packages@49d54bb431862664125b55899f26c68c718c2e25/icons/msedgeredirect.png</iconUrl>
     <tags>msedgeredirect</tags>
     <copyright>© 2021 MSEdgeRedirect Developers</copyright>
     <licenseUrl>https://github.com/rcmaehl/MSEdgeRedirect/blob/main/LICENSE</licenseUrl>
