@@ -505,35 +505,3 @@ Func _GetDefaultBrowser()
 	Return $sBrowser
 
 EndFunc
-
-; #FUNCTION# ====================================================================================================================
-; Name ..........: _UnicodeURLDecode
-; Description ...: Tranlates a URL-friendly string to a normal string
-; Syntax ........: _UnicodeURLDecode($toDecode)
-; Parameters ....: $$toDecode           - The URL-friendly string to decode
-; Return values .: The URL decoded string
-; Author ........: nfwu, Dhilip89, rcmaehl
-; Modified ......: 12/19/2021
-; Remarks .......: Modified from _URLDecode() that only supported non-unicode.
-; Related .......:
-; Link ..........:
-; Example .......: No
-; ===============================================================================================================================
-Func _UnicodeURLDecode($toDecode)
-    Local $strChar = "", $iOne, $iTwo
-    Local $aryHex = StringSplit($toDecode, "")
-    For $i = 1 To $aryHex[0]
-        If $aryHex[$i] = "%" Then
-            $i += 1
-            $iOne = $aryHex[$i]
-            $i += 1
-            $iTwo = $aryHex[$i]
-            $strChar = $strChar & Chr(Dec($iOne & $iTwo))
-        Else
-            $strChar = $strChar & $aryHex[$i]
-        EndIf
-    Next
-    Local $Process = StringToBinary(StringReplace($strChar, "+", " "))
-    Local $DecodedString = BinaryToString($Process, 4)
-    Return $DecodedString
-EndFunc   ;==>_UnicodeURLDecode
