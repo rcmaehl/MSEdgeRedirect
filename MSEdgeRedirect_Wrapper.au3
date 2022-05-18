@@ -28,7 +28,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 
 	Local $sArgs = ""
 	Local Enum $bManaged = 1, $vMode
-	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $bStartup = 10, $sWeather
+	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $bSrcImg, $bStartup = 10, $sWeather
 
 	SetOptionsRegistry("NoApps", $aSettings[$bNoApps], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoBing", $aSettings[$bNoBing], $aConfig[$vMode], $aConfig[$bManaged])
@@ -39,6 +39,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 	SetOptionsRegistry("PDFApp", $aSettings[$sPDFApp], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("Search", $aSettings[$sSearch], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("SearchPath", $aSettings[$sSearchPath], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("SrcImg", $aSettings[$bSrcImg], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("Weather", $aSettings[$sWeather], $aConfig[$vMode], $aConfig[$bManaged])
 
 	If $aConfig[$vMode] Then
@@ -150,13 +151,14 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $aConfig[3] = [$hSetupFile, False, "Service"] ; Default Setup.ini Values
 	Local Enum $hFile, $bManaged, $vMode
 
-	Local $aSettings[12] = [False, False, False, False, False, False, "", "", "", "Full", True, ""]
-	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather
+	Local $aSettings[12] = [False, False, False, False, False, False, "", "", "", False, "Full", True, ""]
+	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $bSrcImg, $sStartMenu, $bStartup, $sWeather
 
 	If $bSilent Then
 
 		If $bUpdate Then
 			$aSettings[$bNoApps] = _Bool(_GetSettingValue("NoApps"))
+			$aSettings[$bSrcImg] = _Bool(_GetSettingValue("SrcImg"))
 			$aSettings[$bNoPDFs] = _Bool(_GetSettingValue("NoPDFs"))
 			If $aSettings[$bNoPDFs] Then $aSettings[$sPDFApp] = _GetSettingValue("PDFApp")
 			$aSettings[$bNoBing] = _Bool(_GetSettingValue("NoBing"))
@@ -192,6 +194,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$aSettings[$sPDFApp] = IniRead($aConfig[$hFile], "Settings", "PDFApp", $aSettings[$sPDFApp])
 			$aSettings[$sSearch] = IniRead($aConfig[$hFile], "Settings", "Search", $aSettings[$sSearch])
 			$aSettings[$sSearchPath] = IniRead($aConfig[$hFile], "Settings", "SearchPath", $aSettings[$sSearchPath])
+			$aSettings[$bSrcImg] = _Bool(IniRead($aConfig[$hFile], "Settings", "SrcImg", $aSettings[$bStartup]))
 			$aSettings[$sStartMenu] = IniRead($aConfig[$hFile], "Settings", "StartMenu", $aSettings[$sStartMenu])
 			$aSettings[$bStartup] = _Bool(IniRead($aConfig[$hFile], "Settings", "Startup", $aSettings[$bStartup]))
 			$aSettings[$sWeather] = IniRead($aConfig[$hFile], "Settings", "Weather", $aSettings[$sSearch])
@@ -381,8 +384,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hEngine = GUICtrlCreateCombo("", 50, 260, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Ask|Baidu|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hImages = GUICtrlCreateCheckbox("Bing Images (Coming Soon)", 240, 240, 180, 20)
-			GUICtrlSetState(-1, $GUI_DISABLE)
+			Local $hImages = GUICtrlCreateCheckbox("Bing Images", 240, 240, 180, 20)
 			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (Coming Soon)", 50, 285, 180, 20)
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNewSRC = GUICtrlCreateCombo("", 50, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
@@ -395,10 +397,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hNoPDFs = GUICtrlCreateCheckbox("PDF Viewer:", 50, 330, 180, 20)
 			Local $hPDFPath = GUICtrlCreateEdit("", 50, 350, 180, 20, $ES_READONLY+$ES_AUTOHSCROLL)
 			Local $hNoApps = GUICtrlCreateCheckbox("Windows Store 'Apps'", 50, 375, 180, 20)
-			Local $hAppEng = GUICtrlCreateCombo("", 50, 395, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
-			GUICtrlSetData(-1, "Default Browser|Chrome App|Firefox App", "Default Browser")
-			GUICtrlSetState(-1, $GUI_DISABLE)
-			GUICtrlSetState(-1, $GUI_HIDE)
 
 			#forceref $hNoNews
 			#forceref $hNewSrc
