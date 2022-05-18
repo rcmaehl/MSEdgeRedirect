@@ -203,9 +203,10 @@ EndFunc
 Func _DeEmbedImage($sURL)
 
 	If StringInStr($sURL, "bing.com/images/search?q=") Then
-		$sURL = StringRegExpReplace($sURL, "(.*)(imgurl%3a)", "")
-		$sURL = StringRegExpReplace($sURL, "(?=&s=)(.*)", "")
-		$sURL = _UnicodeURLDecode($sURL)
+		$sURL = StringRegExpReplace($sURL, "(.*)(q=)", "")
+		$sURL = StringRegExpReplace($sURL, "(?=&id=)(.*)", "")
+		$sURL = StringReplace($sURL, " ", "+")
+		$sURL = "https://www.google.com/search?tbm=isch&q=" & $sURL
 	EndIf
 
 	Return $sURL
