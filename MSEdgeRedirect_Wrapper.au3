@@ -358,7 +358,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		GUICtrlCreateGroup("Active Mode Options", 20, 80, 420, 50)
 			$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 50, 100, 95, 20)
-			GUICtrlSetState(-1, $GUI_CHECKED)
 			$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 145, 100, 95, 20)
 			$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 240, 100, 95, 20)
 			$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 335, 100, 90, 20)
