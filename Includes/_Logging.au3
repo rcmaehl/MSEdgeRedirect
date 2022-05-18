@@ -1,5 +1,6 @@
 #include-once
 
+#include <Date.au3>
 #include <FileConstants.au3>
 
 Global $hLogs[5] = _

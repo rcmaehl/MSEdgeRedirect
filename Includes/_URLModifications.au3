@@ -1,3 +1,8 @@
+#include-once
+
+#include <Array.au3>
+
+#include "Base64.au3"
 #include "_Settings.au3"
 
 Func _ChangeNewsProvider($sURL)

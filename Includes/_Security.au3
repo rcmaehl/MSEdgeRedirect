@@ -1,3 +1,8 @@
+#include-once
+
+#include <WinAPIShPath.au3>
+#include <StringConstants.au3>
+
 #include "_Logging.au3"
 
 Func _IsSafeApp(ByRef $sApp)
