@@ -400,8 +400,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 			#forceref $hNoNews
 			#forceref $hNewSrc
-			#forceref $hImages
-			#forceref $hAppEng
 
 		If $bUpdate Then
 			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
@@ -421,6 +419,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				GUICtrlSetState($hWeather, $GUI_ENABLE)
 				GUICtrlSetData($hWeather, _GetSettingValue("Weather"))
 			EndIf
+			GUICtrlSetState($hImages, _GetSettingValue("SrcImg"))
 		EndIf
 
 		GUISwitch($hInstallGUI)
@@ -523,6 +522,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							$aSettings[$sPDFApp] = $sHandler
 							$aSettings[$sSearch] = GUICtrlRead($hEngine)
 							$aSettings[$sSearchPath] = $sEngine
+							$aSettings[$bSrcImg] = _IsChecked($hImages)
 							$aSettings[$bStartup] = _IsChecked($hStartup)
 							$aSettings[$sWeather] = GUICtrlRead($hWeather)
 
