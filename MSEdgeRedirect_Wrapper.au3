@@ -369,7 +369,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				GUICtrlSetState($hChannels[2], $GUI_DISABLE)
 				GUICtrlSetState($hChannels[3], $GUI_DISABLE)
 			Else
-				If $iMode = $hSettings Then
+				If $bUpdate Or $iMode = $hSettings Then
 					If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER1", "Debugger") Then GUICtrlSetState($hChannels[0], $GUI_CHECKED)
 					If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER2", "Debugger") Then GUICtrlSetState($hChannels[1], $GUI_CHECKED)
 					If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER3", "Debugger") Then GUICtrlSetState($hChannels[2], $GUI_CHECKED)
