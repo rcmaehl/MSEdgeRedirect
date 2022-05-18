@@ -28,7 +28,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 
 	Local $sArgs = ""
 	Local Enum $bManaged = 1, $vMode
-	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $bSrcImg, $bStartup = 10, $sWeather
+	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $bSrcImg, $bStartup = 11, $sWeather
 
 	SetOptionsRegistry("NoApps", $aSettings[$bNoApps], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoBing", $aSettings[$bNoBing], $aConfig[$vMode], $aConfig[$bManaged])
@@ -151,7 +151,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $aConfig[3] = [$hSetupFile, False, "Service"] ; Default Setup.ini Values
 	Local Enum $hFile, $bManaged, $vMode
 
-	Local $aSettings[12] = [False, False, False, False, False, False, "", "", "", False, "Full", True, ""]
+	Local $aSettings[13] = [False, False, False, False, False, False, "", "", "", False, "Full", True, ""]
 	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $bSrcImg, $sStartMenu, $bStartup, $sWeather
 
 	If $bSilent Then
