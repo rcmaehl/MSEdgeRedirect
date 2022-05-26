@@ -15,6 +15,8 @@ No Default App walkthrough or other steps, just set and forget.
 
 > :warning: PLEASE NOTE: MSEdgeRedirect is still BETA. Changes are to be expected, and performance to be improved.
 
+Not looking for Extra Features? Try [@AveYo](https://github.com/AveYo)'s [Chrome Removal + ChrEdgeFckOff](https://github.com/AveYo/fox/blob/main/Edge_Removal.bat)
+
 ## Download
 
 [Download latest stable release](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe)
@@ -48,6 +50,7 @@ Disk (Storage)|5MB Free|100MB Free
 Redirection Modes|URI Handler<br/><br/>|IFEO<br/><br/>|IFEO<br/><br/>|URI Handler<br/><br/>|URI Detection<sup>*</sup><br/>or IFEO<sup>†</sup>
 Redirects Search|☑|☑|☑|☑|☑
 Installs without Admin|☑| | | |☑<sup>*</sup>
+Works without Edge Installed||☑|||Soon
 Windows 11 Support| |☑|☑| |☑
 Windows 10 21H2+ Support| |☑|☑| |☑
 Windows on ARM Support| |☑|☑| |
