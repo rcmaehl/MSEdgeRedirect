@@ -62,6 +62,10 @@ Func ActiveMode(ByRef $aCMDLine)
 			ReDim $aCMDLine[3]
 			$aCMDLine[2] = ""
 			ContinueCase
+		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--uninstall" ; Uninstalling Edge
+			ContinueCase
+		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--suspend-background-mode" ; Uninstalling Edge
+			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--from-installer" ; Installing Edge
 			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--inprivate" ; In Private Browsing, No Parameters
