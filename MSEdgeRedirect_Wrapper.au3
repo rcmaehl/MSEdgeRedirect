@@ -407,7 +407,10 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hEngine = GUICtrlCreateCombo("", 50, 260, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Ask|Baidu|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hImages = GUICtrlCreateCheckbox("Bing Images", 240, 240, 180, 20)
+			Local $hImages = GUICtrlCreateCheckbox("Bing Images (Beta)", 240, 240, 180, 20)
+			Local $hImgSRC = GUICtrlCreateCombo("", 240, 260, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			GUICtrlSetData(-1, "DuckDuckGo|Google", "Google")
+			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (Coming Soon)", 50, 285, 180, 20)
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNewSRC = GUICtrlCreateCombo("", 50, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
@@ -422,6 +425,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hNoApps = GUICtrlCreateCheckbox("Windows Store 'Apps'", 50, 375, 180, 20)
 
 			#forceref $hNoNews
+			#forceref $hImgSrc
 			#forceref $hNewSrc
 
 		If $bUpdate Then
