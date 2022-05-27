@@ -389,6 +389,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER5", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\0", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 					Else
+						GUICtrlSetState($hChannels[4], $GUI_DISABLE)
 						GUICtrlSetState($hChannels[0], $GUI_CHECKED)
 					EndIf
 			EndSelect
@@ -622,6 +623,10 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER5", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\0", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 							Else
+								GUICtrlSetState($hChannels[0], $GUI_ENABLE)
+								GUICtrlSetState($hChannels[1], $GUI_ENABLE)
+								GUICtrlSetState($hChannels[2], $GUI_ENABLE)
+								GUICtrlSetState($hChannels[3], $GUI_ENABLE)
 								GUICtrlSetState($hChannels[0], $GUI_CHECKED)
 							EndIf
 						EndIf
