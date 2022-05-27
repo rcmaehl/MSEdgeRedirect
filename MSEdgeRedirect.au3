@@ -87,20 +87,22 @@ Func ActiveMode(ByRef $aCMDLine)
 EndFunc
 
 Func CheckEdgeIntegrity($sLocation)
-	Select
-		Case FileGetVersion($sLocation) <> FileGetVersion(StringReplace($sLocation, "msedge.exe", "msedge_no_ifeo.exe"))
-			ContinueCase
-		Case Not FileExists(StringReplace($sLocation, "msedge.exe", FileGetVersion($sLocation)))
-			If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
-				_Translate($aMUI[1], "File Update Required"), _
-				_Translate($aMUI[1], "Microsoft Edge has updated, as such the IFEO exclusion file is out of date and needs to be updated. Update Now?"), _
-				10) = $IDYES Then ShellExecuteWait(@ScriptFullPath, "/repair", @ScriptDir, "RunAs")
-			If @error Then MsgBox($MB_ICONERROR+$MB_OK, _
-				"Repair Failed", _
-				"Unable to update Microsoft Edge IFEO exclusion file without Admin Rights!")
-		Case Else
-			;;;
-	EndSelect
+	If Not StringInStr($sLocation, "ProgramData") Then
+		Select
+			Case FileGetVersion($sLocation) <> FileGetVersion(StringReplace($sLocation, "msedge.exe", "msedge_no_ifeo.exe"))
+				ContinueCase
+			Case Not FileExists(StringReplace($sLocation, "msedge.exe", FileGetVersion($sLocation)))
+				If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
+					_Translate($aMUI[1], "File Update Required"), _
+					_Translate($aMUI[1], "Microsoft Edge has updated, as such the IFEO exclusion file is out of date and needs to be updated. Update Now?"), _
+					10) = $IDYES Then ShellExecuteWait(@ScriptFullPath, "/repair", @ScriptDir, "RunAs")
+				If @error Then MsgBox($MB_ICONERROR+$MB_OK, _
+					"Repair Failed", _
+					"Unable to update Microsoft Edge IFEO exclusion file without Admin Rights!")
+			Case Else
+				;;;
+		EndSelect
+	EndIf
 EndFunc
 
 Func ProcessCMDLine()
