@@ -10,18 +10,19 @@ Global $bIsWOW64 = _WinAPI_IsWow64Process()
 Global $bIs64Bit = @AutoItX64
 
 If $bIs64Bit Then
-	Global $aEdges[5] = [4, _
+	Global $aEdges[6] = [5, _
 		"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", _
 		"C:\Program Files (x86)\Microsoft\Edge Beta\Application\msedge.exe", _
 		"C:\Program Files (x86)\Microsoft\Edge Dev\Application\msedge.exe", _
 		@LocalAppDataDir & "\Microsoft\Edge SXS\Application\msedge.exe"]
 Else
-	Global $aEdges[5] = [4, _
+	Global $aEdges[6] = [5, _
 		"C:\Program Files\Microsoft\Edge\Application\msedge.exe", _
 		"C:\Program Files\Microsoft\Edge Beta\Application\msedge.exe", _
 		"C:\Program Files\Microsoft\Edge Dev\Application\msedge.exe", _
 		@LocalAppDataDir & "\Microsoft\Edge SXS\Application\msedge.exe"]
 EndIf
+$aEdges[5] = "C:\ProgramData\ie_to_edge_stub.exe"
 
 Func _Bool($sString)
 	Switch $sString

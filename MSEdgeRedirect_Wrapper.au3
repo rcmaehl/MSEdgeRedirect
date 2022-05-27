@@ -145,8 +145,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $sEdges
 	Local $sEngine
 	Local $sHandler
-	Local $hChannels[4]
-	Local $aChannels[4] = [True, False, False, False]
+	Local $hChannels[5]
+	Local $aChannels[5] = [True, False, False, False, True]
 
 	Local $aConfig[3] = [$hSetupFile, False, "Service"] ; Default Setup.ini Values
 	Local Enum $hFile, $bManaged, $vMode
@@ -204,12 +204,13 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			If StringInStr($sEdges, "Beta") Then $aChannels[1] = True
 			If StringInStr($sEdges, "Dev") Then $aChannels[2] = True
 			If StringInStr($sEdges, "Canary") Then $aChannels[3] = True
+			If StringInStr($sEdges, "Removed") Then $aChannels[4] = True
 
 		EndIf
 
 		If ($aConfig[$bManaged] Or $aConfig[$vMode]) And Not $bIsAdmin Then Exit 5 ; ERROR_ACCESS_DENIED
 
-		For $iLoop = 0 To 3 Step 1
+		For $iLoop = 0 To UBound($aChannels) - 1 Step 1
 			If $aChannels[$iLoop] = True Then ExitLoop
 			If $iLoop = 3 Then Exit 160 ; ERROR_BAD_ARGUMENTS
 		Next
@@ -304,16 +305,16 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		If $bUpdate Then
 			GUICtrlCreateLabel("MSEdgeRedirect " & $sVersion & " Update", 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Next to continue the Update of MSEdgeRedirect after customizing your preferred mode", 20, 40, 420, 40)
-			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+;			GUICtrlCreateLabel("Click Next to continue the Update of MSEdgeRedirect after customizing your preferred mode", 20, 40, 420, 40)
+;			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		Else
 			GUICtrlCreateLabel("Install MSEdgeRedirect " & $sVersion, 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Next to continue the Install of MSEdgeRedirect after customizing your preferred mode", 20, 40, 420, 40)
-			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+;			GUICtrlCreateLabel("Click Next to continue the Install of MSEdgeRedirect after customizing your preferred mode", 20, 40, 420, 40)
+;			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
 
-		GUICtrlCreateGroup("Mode", 20, 80, 420, 320)
+		GUICtrlCreateGroup("Mode", 20, 60, 420, 340)
 			Local $hService = GUICtrlCreateRadio("Service Mode" & @CRLF & _
 				@CRLF & _
 				"* Single User Install" & @CRLF & _
@@ -322,19 +323,20 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				"* Doesn't require Admin Rights" & @CRLF & _
 				@CRLF & _
 				"MSEdgeRedirect stays running in the background. Detected Edge data is redirected to your default browser.", _
-				50, 100, 380, 130, $BS_TOP+$BS_MULTILINE)
+				50, 80, 380, 130, $BS_TOP+$BS_MULTILINE)
 			If Not $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
 
-			GUICtrlCreateIcon("imageres.dll", 78, 30, 250, 16, 16)
+			GUICtrlCreateIcon("imageres.dll", 78, 30, 230, 16, 16)
 			Local $hActive = GUICtrlCreateRadio("Active Mode - RECOMMENDED" & @CRLF & _
 				@CRLF & _
 				"* Better Performance" & @CRLF & _
 				"* System Wide Install" & @CRLF & _
 				"* Finer Redirection Control" & @CRLF & _
 				"* No Startup or Tray Icon Needed" & @CRLF & _
+				"* Supports AveYo's Edge Remover Tool" & @CRLF & _
 				@CRLF & _
 				"MSEdgeRedirect only runs when a selected Edge is launched, similary to the old EdgeDeflector app.", _
-				50, 250, 380, 130, $BS_TOP+$BS_MULTILINE)
+				50, 230, 380, 130, $BS_TOP+$BS_MULTILINE)
 			If $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
 
 		GUISwitch($hInstallGUI)
@@ -347,36 +349,48 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		If $bUpdate Then
 			GUICtrlCreateLabel("MSEdgeRedirect " & $sVersion & " Update", 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Install to continue the Update of MSEdgeRedirect after customizing your preferred settings", 20, 40, 420, 40)
-			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+;			GUICtrlCreateLabel("Click Install to continue the Update of MSEdgeRedirect after customizing your preferred settings", 20, 40, 420, 40)
+;			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		Else
 			GUICtrlCreateLabel("Install MSEdgeRedirect " & $sVersion, 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Install to continue the Install of MSEdgeRedirect after customizing your preferred settings", 20, 40, 420, 40)
-			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+;			GUICtrlCreateLabel("Click Install to continue the Install of MSEdgeRedirect after customizing your preferred settings", 20, 40, 420, 40)
+;			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
 
-		GUICtrlCreateGroup("Active Mode Options", 20, 80, 420, 50)
-			$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 50, 100, 95, 20)
-			$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 145, 100, 95, 20)
-			$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 240, 100, 95, 20)
-			$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 335, 100, 90, 20)
+		GUICtrlCreateGroup("Active Mode Options", 20, 60, 420, 70)
+			$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 50, 80, 95, 20)
+			$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 145, 80, 95, 20)
+			$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 240, 80, 95, 20)
+			$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 335, 80, 95, 20)
+			$hChannels[4] = GUICtrlCreateCheckbox("Edge Removed Using AveYo's Edge Remover (Automatically Detected)", 50, 100, 380, 20)
 
-			If Not $bIsAdmin Then
-				GUICtrlSetState($hChannels[0], $GUI_DISABLE)
-				GUICtrlSetState($hChannels[1], $GUI_DISABLE)
-				GUICtrlSetState($hChannels[2], $GUI_DISABLE)
-				GUICtrlSetState($hChannels[3], $GUI_DISABLE)
-			Else
-				If $bUpdate Or $iMode = $hSettings Then
-					If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER1", "Debugger") Then GUICtrlSetState($hChannels[0], $GUI_CHECKED)
-					If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER2", "Debugger") Then GUICtrlSetState($hChannels[1], $GUI_CHECKED)
-					If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER3", "Debugger") Then GUICtrlSetState($hChannels[2], $GUI_CHECKED)
-					If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER4", "Debugger") Then GUICtrlSetState($hChannels[3], $GUI_CHECKED)
-				Else
-					GUICtrlSetState($hChannels[0], $GUI_CHECKED)
-				EndIf
-			EndIf
+			Select
+				Case Not $bIsAdmin
+					GUICtrlSetState($hChannels[0], $GUI_DISABLE)
+					GUICtrlSetState($hChannels[1], $GUI_DISABLE)
+					GUICtrlSetState($hChannels[2], $GUI_DISABLE)
+					GUICtrlSetState($hChannels[3], $GUI_DISABLE)
+					GUICtrlSetState($hChannels[4], $GUI_DISABLE)
+				Case RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger")
+					GUICtrlSetState($hChannels[0], $GUI_DISABLE)
+					GUICtrlSetState($hChannels[1], $GUI_DISABLE)
+					GUICtrlSetState($hChannels[2], $GUI_DISABLE)
+					GUICtrlSetState($hChannels[3], $GUI_DISABLE)
+					GUICtrlSetState($hChannels[4], $GUI_DISABLE)
+					GUICtrlSetState($hChannels[4], $GUI_CHECKED)
+				Case Else
+					If $bUpdate Or $iMode = $hSettings Then
+						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER1", "Debugger") Then GUICtrlSetState($hChannels[0], $GUI_CHECKED)
+						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER2", "Debugger") Then GUICtrlSetState($hChannels[1], $GUI_CHECKED)
+						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER3", "Debugger") Then GUICtrlSetState($hChannels[2], $GUI_CHECKED)
+						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER4", "Debugger") Then GUICtrlSetState($hChannels[3], $GUI_CHECKED)
+						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER5", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
+						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\0", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
+					Else
+						GUICtrlSetState($hChannels[0], $GUI_CHECKED)
+					EndIf
+			EndSelect
 
 		GUICtrlCreateGroup("Service Mode Options", 20, 140, 420, 70)
 			Local $hNoIcon = GUICtrlCreateCheckbox("Hide Service Mode from Tray", 50, 160, 190, 20)
@@ -538,7 +552,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							RunInstall($aConfig, $aSettings)
 							SetAppRegistry($aConfig[$vMode])
 							If $aConfig[$vMode] Then
-								For $iLoop = 0 To 3 Step 1
+								For $iLoop = 0 To UBound($aChannels) - 1 Step 1
 									$aChannels[$iLoop] = _IsChecked($hChannels[$iLoop])
 								Next
 								SetIFEORegistry($aChannels)
@@ -587,16 +601,31 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					Else
 						GUICtrlSetState($hStartup, $GUI_DISABLE)
 						GUICtrlSetState($hNoIcon, $GUI_DISABLE)
-						GUICtrlSetState($hChannels[0], $GUI_ENABLE)
-						GUICtrlSetState($hChannels[1], $GUI_ENABLE)
-						GUICtrlSetState($hChannels[2], $GUI_ENABLE)
-						GUICtrlSetState($hChannels[3], $GUI_ENABLE)
+						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger") Then
+							GUICtrlSetState($hChannels[0], $GUI_DISABLE)
+							GUICtrlSetState($hChannels[1], $GUI_DISABLE)
+							GUICtrlSetState($hChannels[2], $GUI_DISABLE)
+							GUICtrlSetState($hChannels[3], $GUI_DISABLE)
+							GUICtrlSetState($hChannels[4], $GUI_DISABLE)
+							GUICtrlSetState($hChannels[4], $GUI_CHECKED)
+						 Else
+							If $bUpdate Or $iMode = $hSettings Then
+								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER1", "Debugger") Then GUICtrlSetState($hChannels[0], $GUI_CHECKED)
+								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER2", "Debugger") Then GUICtrlSetState($hChannels[1], $GUI_CHECKED)
+								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER3", "Debugger") Then GUICtrlSetState($hChannels[2], $GUI_CHECKED)
+								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER4", "Debugger") Then GUICtrlSetState($hChannels[3], $GUI_CHECKED)
+								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER5", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
+								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\0", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
+							Else
+								GUICtrlSetState($hChannels[0], $GUI_CHECKED)
+							EndIf
+						EndIf
 						ContinueCase
 					EndIf
 
 				Case $hMsg = $hChannels[0] Or $hMsg = $hChannels[1] Or $hMsg = $hChannels[2] Or $hMsg = $hChannels[3]
 					;GUICtrlSetState($hInstall, $GUI_DISABLE)
-					For $iLoop = 0 To 3 Step 1
+					For $iLoop = 0 To UBound($aChannels) - 1 Step 1
 						If _IsChecked($hChannels[$iLoop]) Then
 							;GUICtrlSetState($hInstall, $GUI_ENABLE)
 							ExitLoop
@@ -787,7 +816,13 @@ Func SetIFEORegistry(ByRef $aChannels)
 			FileCopy($aEdges[$iLoop], StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"), $FC_OVERWRITE)
 		EndIf
 	Next
-
+	If $aChannels[4] Then ; IE_TO_EDGE_STUB
+		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe")
+		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe", "UseFilter", "REG_DWORD", 1)
+		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0")
+		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\0", "Debugger", "REG_SZ", "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
+		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\0", "FilterFullPath", "REG_SZ", $aEdges[5])
+	EndIf
 EndFunc
 
 Func SetOptionsRegistry($sName, $vValue, $bAllUsers, $bManaged = False)
