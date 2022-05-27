@@ -15,7 +15,7 @@ No Default App walkthrough or other steps, just set and forget.
 
 > :warning: PLEASE NOTE: MSEdgeRedirect is still BETA. Changes are to be expected, and performance to be improved.
 
-Not looking for Extra Features? Try [@AveYo](https://github.com/AveYo)'s [Chrome Removal + ChrEdgeFckOff](https://github.com/AveYo/fox/blob/main/Edge_Removal.bat)
+Not looking for Extra Features? Try [@AveYo](https://github.com/AveYo)'s [Edge Removal + ChrEdgeFckOff](https://github.com/AveYo/fox/blob/main/Edge_Removal.bat)
 
 ## Download
 
