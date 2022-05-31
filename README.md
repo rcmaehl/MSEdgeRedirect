@@ -50,7 +50,7 @@ Disk (Storage)|5MB Free|100MB Free
 Redirection Modes|URI Handler<br/><br/>|IFEO<br/><br/>|IFEO<br/><br/>|URI Handler<br/><br/>|URI Detection<sup>*</sup><br/>or IFEO<sup>†</sup>
 Redirects Search|☑|☑|☑|☑|☑
 Installs without Admin|☑| | | |☑<sup>*</sup>
-Works without Edge Installed||☑|||Soon
+Works without Edge Installed||☑|||☑‡
 Windows 11 Support| |☑|☑| |☑
 Windows 10 21H2+ Support| |☑|☑| |☑
 Windows on ARM Support| |☑|☑| |
@@ -61,11 +61,14 @@ Search Engine Customizations| | |☑, 8|☑, 14|☑, 9
 Search Engine Shortcut Support| | |☑, DDG !Bang| | 
 Weather Forecast Customizations| | | | |☑, 6
 Customizable Edge Support| | | | |☑<sup>†</sup>
-Can be used Portably (USB)| | | | |☑<sup>‡</sup>
+Can be used Portably (USB)| | | | |☑<sup>§</sup>
 Supports GPO Registry Keys| | | | |☑
 
 
-<sub><sup>\* When using Service Mode, † When using Active Mode, ‡ When using /portable flag, uses Service Mode</sub></sup>
+<sub><sup>\* When using Service Mode \
+  † When using Active Mode \
+  ‡ When using Active Mode and [@AveYo](https://github.com/AveYo)'s [Edge Removal](https://github.com/AveYo/fox/blob/main/Edge_Removal.bat) \
+  § When using /portable flag, uses Service Mode</sub></sup>
 
 ## Compiling
 
@@ -92,7 +95,7 @@ Select the **Featured** Microsoft Edge. MSEdgeRedirect will still properly funct
 
 ### Will MSEdgeRedirect work with Edge uninstalled?
 
-Not currently, see [#26](https://github.com/rcmaehl/MSEdgeRedirect/issues/26). The recommended work around is to install Edge Canary as it does not install system wide.
+MSEdgeRedirect is compatible with [@AveYo](https://github.com/AveYo)'s [Edge Removal](https://github.com/AveYo/fox/blob/main/Edge_Removal.bat) as it retains a needed component. If Edge was removed using another method, reinstall Edge Stable, then run AveYo's tool. After AveYo's Edge Removal has been run, simply install MSEdgeRedirect and it will be detected automatically.
 
 ### It isn’t working for me?
 
