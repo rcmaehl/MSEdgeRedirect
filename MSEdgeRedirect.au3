@@ -91,7 +91,9 @@ Func ActiveMode(ByRef $aCMDLine)
 EndFunc
 
 Func CheckEdgeIntegrity($sLocation)
-	If Not StringInStr($sLocation, "ProgramData") Then
+	If StringInStr($sLocation, "ProgramData") Then
+		;;;
+	Else
 		Select
 			Case FileGetVersion($sLocation) <> FileGetVersion(StringReplace($sLocation, "msedge.exe", "msedge_no_ifeo.exe"))
 				ContinueCase
