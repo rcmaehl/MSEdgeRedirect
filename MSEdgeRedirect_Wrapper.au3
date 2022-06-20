@@ -413,11 +413,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hImgSRC = GUICtrlCreateCombo("", 240, 260, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "DuckDuckGo|Google", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (Coming Soon)", 50, 285, 180, 20)
-			GUICtrlSetState(-1, $GUI_DISABLE)
+			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (BETA)", 50, 285, 180, 20)
 			Local $hNewSRC = GUICtrlCreateCombo("", 50, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "DuckDuckGo|Google", "Google")
-			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoMSN = GUICtrlCreateCheckbox("MSN Weather:", 240, 285, 180, 20)
 			Local $hWeather = GUICtrlCreateCombo("", 240, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "AccuWeather|DarkSky|Weather.com|Weather.gov|Windy|WUnderground|Ventusky|Yandex", "Weather.com")
@@ -426,12 +424,15 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hPDFPath = GUICtrlCreateEdit("", 50, 350, 180, 20, $ES_READONLY+$ES_AUTOHSCROLL)
 			Local $hNoApps = GUICtrlCreateCheckbox("Windows Store 'Apps'", 50, 375, 180, 20)
 
-			#forceref $hNoNews
 			#forceref $hImgSrc
-			#forceref $hNewSrc
 
 		If $bUpdate Then
 			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
+			GUICtrlSetState($hNoNews, _GetSettingValue("NoNews"))
+			If _IsChecked($hNoNews) Then
+				GUICtrlSetState($hNewSRC, $GUI_ENABLE)
+				GUICtrlSetData($hNewSRC, _GetSettingValue("News"))
+			EndIf
 			GUICtrlSetState($hNoPDFs, _GetSettingValue("NoPDFs"))
 			If _IsChecked($hNoPDFs) Then
 				$sHandler = _GetSettingValue("PDFApp")
