@@ -416,6 +416,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (BETA)", 50, 285, 180, 20)
 			Local $hNewSRC = GUICtrlCreateCombo("", 50, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "DuckDuckGo|Google", "Google")
+			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoMSN = GUICtrlCreateCheckbox("MSN Weather:", 240, 285, 180, 20)
 			Local $hWeather = GUICtrlCreateCombo("", 240, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "AccuWeather|DarkSky|Weather.com|Weather.gov|Windy|WUnderground|Ventusky|Yandex", "Weather.com")
@@ -660,6 +661,13 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						GUICtrlSetState($hWeather, $GUI_ENABLE)
 					Else
 						GUICtrlSetState($hWeather, $GUI_DISABLE)
+					EndIf
+
+				Case $hMsg = $hNoNews
+					If _IsChecked($hNoNews) Then
+						GUICtrlSetState($hNewSRC, $GUI_ENABLE)
+					Else
+						GUICtrlSetState($hNewSRC, $GUI_DISABLE)
 					EndIf
 
 				Case $hMsg = $hNoPDFs
