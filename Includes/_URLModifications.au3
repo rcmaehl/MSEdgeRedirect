@@ -5,6 +5,51 @@
 #include "Base64.au3"
 #include "_Settings.au3"
 
+Func _ChangeImageProvider($sURL)
+
+	If StringInStr($sURL, "bing.com/images/search?q=") Then
+		$sURL = StringRegExpReplace($sURL, "(.*)(q=)", "")
+		$sURL = StringRegExpReplace($sURL, "(?=&id=)(.*)", "")
+		$sURL = StringReplace($sURL, " ", "+")
+		Switch _GetSettingValue("Image")
+
+			Case "Baidu"
+				$sURL = "https://image.baidu.com/search/index?tn=baiduimage&word=" & $sURL
+
+			Case "Custom"
+				$sURL = _GetSettingValue("ImagePath") & $sURL
+
+			Case "DuckDuckGo"
+				$sURL = "https://duckduckgo.com/?ia=images&iax=images&q=" & $sURL
+
+			Case "Ecosia"
+				$sURL = "https://www.ecosia.org/images?q=" & $sURL
+
+			Case "Google"
+				$sURL = "https://www.google.com/search?tbm=isch&q=" & $sURL
+
+			Case "Sogou"
+				$sURL = "https://image.sogou.com/pics?query=" & $sURL
+
+			Case "Yahoo"
+				$sURL = "https://images.search.yahoo.com/search/images?p=" & $sURL
+
+			Case "Yandex"
+				$sURL = "https://yandex.com/images/search?text=" & $sURL
+
+			Case Null
+				$sURL = "https://bing.com/images/search?q=" & $sURL
+
+			Case Else
+				$sURL = _GetSettingValue("ImagePath") & $sURL
+
+		EndSwitch
+	EndIf
+
+	Return $sURL
+
+EndFunc
+
 Func _ChangeNewsProvider($sURL)
 
 	Local $sOriginal = $sURL
@@ -206,57 +251,12 @@ Func _ChangeWeatherProvider($sURL)
 
 EndFunc
 
-Func _DeEmbedImage($sURL)
-
-	If StringInStr($sURL, "bing.com/images/search?q=") Then
-		$sURL = StringRegExpReplace($sURL, "(.*)(q=)", "")
-		$sURL = StringRegExpReplace($sURL, "(?=&id=)(.*)", "")
-		$sURL = StringReplace($sURL, " ", "+")
-		Switch _GetSettingValue("Image")
-
-			Case "Baidu"
-				$sURL = "https://image.baidu.com/search/index?tn=baiduimage&word=" & $sURL
-
-			Case "Custom"
-				$sURL = _GetSettingValue("ImagePath") & $sURL
-
-			Case "DuckDuckGo"
-				$sURL = "https://duckduckgo.com/?ia=images&iax=images&q=" & $sURL
-
-			Case "Ecosia"
-				$sURL = "https://www.ecosia.org/images?q=" & $sURL
-
-			Case "Google"
-				$sURL = "https://www.google.com/search?tbm=isch&q=" & $sURL
-
-			Case "Sogou"
-				$sURL = "https://image.sogou.com/pics?query=" & $sURL
-
-			Case "Yahoo"
-				$sURL = "https://images.search.yahoo.com/search/images?p=" & $sURL
-
-			Case "Yandex"
-				$sURL = "https://yandex.com/images/search?text=" & $sURL
-
-			Case Null
-				$sURL = "https://bing.com/images/search?q=" & $sURL
-
-			Case Else
-				$sURL = _GetSettingValue("ImagePath") & $sURL
-
-		EndSwitch
-	EndIf
-
-	Return $sURL
-
-EndFunc
-
 Func _ModifyURL($sURL)
 
-	If _GetSettingValue("SrcImg") Then $sURL = _DeEmbedImage($sURL)
+	If _GetSettingValue("NoImgs") Then $sURL = _ChangeImageProvider($sURL)
+	If _GetSettingValue("NoNews") Then $sURL = _ChangeNewsProvider($sURL)
 	If _GetSettingValue("NoBing") Then $sURL = _ChangeSearchEngine($sURL)
 	If _GetSettingValue("NoMSN") Then $sURL = _ChangeWeatherProvider($sURL)
-	If _GetSettingValue("NoNews") Then $sURL = _ChangeNewsProvider($sURL)
 
 	Return $sURL
 
