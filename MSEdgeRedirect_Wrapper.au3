@@ -17,7 +17,7 @@
 
 Global $sVersion
 Global $bIsPriv = _IsPriviledgedInstall()
-Global Enum $bNoApps, $bNoBing, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoTray, $bNoUpdates, $sImages, $sImagePath, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather
+Global Enum $bNoApps, $bNoBing, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoTray, $bNoUpdates, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather
 
 If @Compiled Then
 	$sVersion = FileGetVersion(@ScriptFullPath)
@@ -39,6 +39,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 	SetOptionsRegistry("NoUpdates", $aSettings[$bNoUpdates], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("Images", $aSettings[$sImages], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("ImagePath", $aSettings[$sImagePath], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("News", $aSettings[$sNews], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("PDFApp", $aSettings[$sPDFApp], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("Search", $aSettings[$sSearch], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("SearchPath", $aSettings[$sSearchPath], $aConfig[$vMode], $aConfig[$bManaged])
@@ -155,7 +156,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $aConfig[3] = [$hSetupFile, False, "Service"] ; Default Setup.ini Values
 	Local Enum $hFile, $bManaged, $vMode
 
-	Local $aSettings[16] = [False, False, False, False, False, False, False, False, "", "", "", "", "", "Full", True, ""]
+	Local $aSettings[17] = [False, False, False, False, False, False, False, False, "", "", "", "", "", "", "Full", True, ""]
 
 	If $bSilent Then
 
@@ -554,10 +555,12 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							$aSettings[$bNoBing] = _IsChecked($hSearch)
 							$aSettings[$bNoImgs] = _IsChecked($hNoImgs)
 							$aSettings[$bNoMSN] = _IsChecked($hNoMSN)
+							$aSettings[$bNoNews] = _IsChecked($hNoNews)
 							$aSettings[$bNoPDFs] = _IsChecked($hNoPDFs)
 							$aSettings[$bNoTray] = _IsChecked($hNoIcon)
 							$aSettings[$sImages] = GUICtrlRead($hImgSRC)
 							$aSettings[$sImagePath] = $sImgEng
+							$asettings[$sNews] = GUICtrlRead($hNewSRC)
 							$aSettings[$sPDFApp] = $sHandler
 							$aSettings[$sSearch] = GUICtrlRead($hEngine)
 							$aSettings[$sSearchPath] = $sEngine
@@ -815,7 +818,6 @@ Func SetAppShortcuts(ByRef $aConfig, ByRef $aSettings)
 
 	Local $sArgs = ""
 	Local Enum $vMode = 2
-	Local Enum $bNoTray = 4, $sStartMenu = 10
 
 	If $aSettings[$bNoTray] Then $sArgs = "/hide"
 
