@@ -147,6 +147,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $iMode = $iPage
 	Local $sEdges
 	Local $sEngine
+	Local $sImgEng
 	Local $sHandler
 	Local $hChannels[5]
 	Local $aChannels[5] = [True, False, False, False, True]
@@ -187,7 +188,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				$aConfig[$vMode] = False
 			EndIf
 
-			; TODO: Merge with _GetSettingsValue(Value, Forced Location)
+			; TODO: Merge with _GetSettingValue(Value, Forced Location)
 			$aSettings[$bNoApps] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoApps", $aSettings[$bNoApps]))
 			$aSettings[$bNoBing] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoBing", $aSettings[$bNoBing]))
 			$aSettings[$bNoImgs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoImgs", $aSettings[$bNoImgs]))
@@ -412,7 +413,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoImgs = GUICtrlCreateCheckbox("Bing Images:", 240, 240, 180, 20)
 			Local $hImgSRC = GUICtrlCreateCombo("", 240, 260, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
-			GUICtrlSetData(-1, "DuckDuckGo|Google", "Google")
+			GUICtrlSetData(-1, "Baidu|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (ALPHA)", 50, 285, 180, 20)
 			Local $hNewSRC = GUICtrlCreateCombo("", 50, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
@@ -428,6 +429,23 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		If $bUpdate Then
 			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
+			GUICtrlSetState($hSearch, _GetSettingValue("NoBing"))
+			If _IsChecked($hSearch) Then
+				GUICtrlSetState($hEngine, $GUI_ENABLE)
+				GUICtrlSetData($hEngine, _GetSettingValue("Search"))
+				$sEngine = _GetSettingValue("SearchPath")
+			EndIf
+			GUICtrlSetState($hNoImgs, _GetSettingValue("NoImgs"))
+			If _IsChecked($hNoImgs) Then
+				GUICtrlSetState($hImgSRC, $GUI_ENABLE)
+				GUICtrlSetState($hImgSRC, _GetSettingValue("SrcImg"))
+				$sImgEng = _GetSettingValue("ImagePath")
+			EndIf
+			GUICtrlSetState($hNoMSN, _GetSettingValue("NoMSN"))
+			If _IsChecked($hNoMSN) Then
+				GUICtrlSetState($hWeather, $GUI_ENABLE)
+				GUICtrlSetData($hWeather, _GetSettingValue("Weather"))
+			EndIf
 			GUICtrlSetState($hNoNews, _GetSettingValue("NoNews"))
 			If _IsChecked($hNoNews) Then
 				GUICtrlSetState($hNewSRC, $GUI_ENABLE)
@@ -437,21 +455,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			If _IsChecked($hNoPDFs) Then
 				$sHandler = _GetSettingValue("PDFApp")
 				GUICtrlSetData($hPDFPath, " " & $sHandler)
-			EndIf
-			GUICtrlSetState($hSearch, _GetSettingValue("NoBing"))
-			If _IsChecked($hSearch) Then
-				GUICtrlSetState($hEngine, $GUI_ENABLE)
-				GUICtrlSetData($hEngine, _GetSettingValue("Search"))
-				$sEngine = _GetSettingValue("SearchPath")
-			EndIf
-			GUICtrlSetState($hNoMSN, _GetSettingValue("NoMSN"))
-			If _IsChecked($hNoMSN) Then
-				GUICtrlSetState($hWeather, $GUI_ENABLE)
-				GUICtrlSetData($hWeather, _GetSettingValue("Weather"))
-			EndIf
-			If _IsChecked($hNoImgs) Then
-				GUICtrlSetState($hImgSRC, $GUI_ENABLE)
-				GUICtrlSetState($hImgSRC, _GetSettingValue("SrcImg"))
 			EndIf
 		EndIf
 
@@ -553,6 +556,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							$aSettings[$bNoMSN] = _IsChecked($hNoMSN)
 							$aSettings[$bNoPDFs] = _IsChecked($hNoPDFs)
 							$aSettings[$bNoTray] = _IsChecked($hNoIcon)
+							$aSettings[$sImages] = GUICtrlRead($hImgSRC)
+							$aSettings[$sImagePath] = $sImgEng
 							$aSettings[$sPDFApp] = $sHandler
 							$aSettings[$sSearch] = GUICtrlRead($hEngine)
 							$aSettings[$sSearchPath] = $sEngine
@@ -655,8 +660,19 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					EndIf
 
 				Case $hMsg = $hEngine And GUICtrlRead($hEngine) = "Custom"
-					$sEngine = InputBox("Enter Search Engine URL", "Enter the URL format of the custom search Engine to use", "https://duckduckgo.com/?q=")
+					$sEngine = InputBox("Enter Search Engine URL", "Enter the URL format of the custom Search Engine to use", "https://duckduckgo.com/?q=")
 					If @error Then GUICtrlSetData($hEngine, "Google")
+
+				Case $hMsg = $hNoImgs
+					If _IsChecked($hNoImgs) Then
+						GUICtrlSetState($hImgSRC, $GUI_ENABLE)
+					Else
+						GUICtrlSetState($hImgSRC, $GUI_DISABLE)
+					EndIf
+
+				Case $hMsg = $hImgSRC And GUICtrlRead($hImgSRC) = "Custom"
+					$sImgEng = InputBox("Enter Image Search Engine URL", "Enter the URL format of the custom Image Search Engine to use", "https://duckduckgo.com/?ia=images&iax=images&q=")
+					If @error Then GUICtrlSetData($hImgSRC, "Google")
 
 				Case $hMsg = $hNoMSN
 					If _IsChecked($hNoMSN) Then
