@@ -34,6 +34,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 	SetOptionsRegistry("NoBing", $aSettings[$bNoBing], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoImgs", $aSettings[$bNoImgs], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoMSN", $aSettings[$bNoMSN], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoNews", $aSettings[$bNoNews], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoPDFs", $aSettings[$bNoPDFs], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoTray", $aSettings[$bNoTray], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoUpdates", $aSettings[$bNoUpdates], $aConfig[$vMode], $aConfig[$bManaged])
@@ -439,7 +440,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetState($hNoImgs, _GetSettingValue("NoImgs"))
 			If _IsChecked($hNoImgs) Then
 				GUICtrlSetState($hImgSRC, $GUI_ENABLE)
-				GUICtrlSetState($hImgSRC, _GetSettingValue("SrcImg"))
+				GUICtrlSetState($hImgSRC, _GetSettingValue("Images"))
 				$sImgEng = _GetSettingValue("ImagePath")
 			EndIf
 			GUICtrlSetState($hNoMSN, _GetSettingValue("NoMSN"))
