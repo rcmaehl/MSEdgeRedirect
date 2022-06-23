@@ -440,7 +440,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetState($hNoImgs, _GetSettingValue("NoImgs"))
 			If _IsChecked($hNoImgs) Then
 				GUICtrlSetState($hImgSRC, $GUI_ENABLE)
-				GUICtrlSetState($hImgSRC, _GetSettingValue("Images"))
+				GUICtrlSetData($hImgSRC, _GetSettingValue("Images"))
 				$sImgEng = _GetSettingValue("ImagePath")
 			EndIf
 			GUICtrlSetState($hNoMSN, _GetSettingValue("NoMSN"))
