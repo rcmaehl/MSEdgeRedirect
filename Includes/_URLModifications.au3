@@ -11,7 +11,7 @@ Func _ChangeImageProvider($sURL)
 		$sURL = StringRegExpReplace($sURL, "(.*)(q=)", "")
 		$sURL = StringRegExpReplace($sURL, "(?=&id=)(.*)", "")
 		$sURL = StringReplace($sURL, " ", "+")
-		Switch _GetSettingValue("Image")
+		Switch _GetSettingValue("Images")
 
 			Case "Baidu"
 				$sURL = "https://image.baidu.com/search/index?tn=baiduimage&word=" & $sURL
