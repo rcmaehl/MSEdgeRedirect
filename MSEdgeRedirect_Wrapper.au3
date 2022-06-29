@@ -900,6 +900,9 @@ Func SetOptionsRegistry($sName, $vValue, $bAllUsers, $bManaged = False)
 
 EndFunc
 
+Func SetScheduledTask(ByRef $aConfig)
+EndFunc
+
 Func SetupAppdata()
 	Select
 		Case Not FileExists(@LocalAppDataDir & "\MSEdgeRedirect\")
