@@ -100,8 +100,8 @@ Func CheckEdgeIntegrity($sLocation)
 			Case Not FileExists(StringReplace($sLocation, "msedge.exe", FileGetVersion($sLocation)))
 				If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
 					_Translate($aMUI[1], "File Update Required"), _
-					_Translate($aMUI[1], "Microsoft Edge has updated, as such the IFEO exclusion file is out of date and needs to be updated. Update Now?"), _
-					10) = $IDYES Then ShellExecuteWait(@ScriptFullPath, "/repair", @ScriptDir, "RunAs")
+					_Translate($aMUI[1], "Microsoft Edge has updated, as such the IFEO exclusion file for MSEdgeRedirect is out of date and needs to be updated. Update Now?"), _
+					0) = $IDYES Then ShellExecuteWait(@ScriptFullPath, "/repair", @ScriptDir, "RunAs")
 				If @error Then MsgBox($MB_ICONERROR+$MB_OK, _
 					"Repair Failed", _
 					"Unable to update Microsoft Edge IFEO exclusion file without Admin Rights!")
