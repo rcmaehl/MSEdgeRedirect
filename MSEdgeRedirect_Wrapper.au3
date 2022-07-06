@@ -901,6 +901,7 @@ Func SetOptionsRegistry($sName, $vValue, $bAllUsers, $bManaged = False)
 EndFunc
 
 Func SetScheduledTask(ByRef $aConfig)
+	#forceref $aConfig
 EndFunc
 
 Func SetupAppdata()
