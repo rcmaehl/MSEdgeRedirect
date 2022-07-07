@@ -54,8 +54,20 @@ Func _ChangeNewsProvider($sURL)
 
 	Local $sOriginal = $sURL
 
-	If StringInStr($sURL, "msn.com/") And StringRegExp($sURL, ".*\/(autos(\/enthusiasts)?|comics|companies|medical|news(\/crime|\/other|\/politics|\/us)?|research|retirement|sports|topstories)\/") Then
-		$sURL = StringRegExpReplace($sURL, ".*\/(autos(\/enthusiasts)?|comics|companies|medical|news(\/crime|\/other|\/politics|\/us)?|research|retirement|sports|topstories)\/", "")
+	Local $sRegex = ".*\/(" & _
+		"autos(\/enthusiasts)?" & _
+		"|comics" & _
+		"|companies" & _
+		"|medical" & _
+		"|news(\/crime|\/other|\/politics|\/us)?" & _
+		"|research" & _
+		"|retirement" & _
+		"|sports" & _
+		"|topstories" & _
+		")\/"
+
+	If StringInStr($sURL, "msn.com/") And StringRegExp($sURL, $sRegex) Then
+		$sURL = StringRegExpReplace($sURL, $sRegex, "")
 		$sURL = StringRegExpReplace($sURL, "(?=)\/.*", "")
 
 		Switch _GetSettingValue("News")
