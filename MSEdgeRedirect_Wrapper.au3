@@ -163,15 +163,18 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		If $bUpdate Then
 			$aSettings[$bNoApps] = _Bool(_GetSettingValue("NoApps"))
-			$aSettings[$bNoImgs] = _Bool(_GetSettingValue("NoImgs"))
-			$aSettings[$bNoPDFs] = _Bool(_GetSettingValue("NoPDFs"))
-			If $aSettings[$bNoPDFs] Then $aSettings[$sPDFApp] = _GetSettingValue("PDFApp")
 			$aSettings[$bNoBing] = _Bool(_GetSettingValue("NoBing"))
+			$aSettings[$bNoImgs] = _Bool(_GetSettingValue("NoImgs"))
+			$aSettings[$bNoMSN] = _Bool(_GetSettingValue("NoMSN"))
+			$aSettings[$bNoNews] = _Bool(_GetSettingValue("NoNews"))
+			$aSettings[$bNoPDFs] = _Bool(_GetSettingValue("NoPDFs"))
+			$aSettings[$bNoTray] = _Bool(_GetSettingValue("NoTray"))
+			$aSettings[$bNoUpdates] = _Bool(_GetSettingValue("NoUpdates"))
+			If $aSettings[$bNoPDFs] Then $aSettings[$sPDFApp] = _GetSettingValue("PDFApp")
 			If $aSettings[$bNoBing] Then
 				$aSettings[$sSearch] = _GetSettingValue("Search")
 				$aSettings[$sSearchPath] = _GetSettingValue("SearchPath")
 			EndIf
-			$aSettings[$bNoMSN] = _Bool(_GetSettingValue("NoMSN"))
 			If $aSettings[$bNoMSN] Then $aSettings[$sWeather] = _GetSettingValue("Weather")
 		EndIf
 
@@ -195,6 +198,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$aSettings[$bNoBing] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoBing", $aSettings[$bNoBing]))
 			$aSettings[$bNoImgs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoImgs", $aSettings[$bNoImgs]))
 			$aSettings[$bNoMSN] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoMSN", $aSettings[$bNoBing]))
+			$aSettings[$bNoNews] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoNews", $aSettings[$bNoBing]))
 			$aSettings[$bNoPDFs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoPDFs", $aSettings[$bNoPDFs]))
 			$aSettings[$bNoTray] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoTray", $aSettings[$bNoTray]))
 			$aSettings[$bNoUpdates] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoUpdates", $aSettings[$bNoUpdates]))
@@ -218,7 +222,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		For $iLoop = 0 To UBound($aChannels) - 1 Step 1
 			If $aChannels[$iLoop] = True Then ExitLoop
-			If $iLoop = 3 Then Exit 160 ; ERROR_BAD_ARGUMENTS
+			If $iLoop = UBound($aChannels) - 1 Then Exit 160 ; ERROR_BAD_ARGUMENTS
 		Next
 
 		For $iLoop = $bNoApps To $bNoUpdates Step 1
