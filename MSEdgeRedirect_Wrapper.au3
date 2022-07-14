@@ -222,13 +222,31 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		For $iLoop = 0 To UBound($aChannels) - 1 Step 1
 			If $aChannels[$iLoop] = True Then ExitLoop
-			If $iLoop = UBound($aChannels) - 1 Then Exit 160 ; ERROR_BAD_ARGUMENTS
+			If $iLoop = UBound($aChannels) - 1 Then
+				If $aConfig[$hFile] = "WINGET" Then
+					_FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate IEFO Channels." & @CRLF)
+				Else
+					Exit 160 ; ERROR_BAD_ARGUMENTS
+				EndIf
+			EndIf
 		Next
 
 		For $iLoop = $bNoApps To $bNoUpdates Step 1
-			If Not IsBool($aSettings[$iLoop]) Then Exit 160 ; ERROR_BAD_ARGUMENTS
+			If Not IsBool($aSettings[$iLoop]) Then
+				If $aConfig[$hFile] = "WINGET" Then
+					_FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Boolean Settings." & @CRLF)
+				Else
+					Exit 160 ; ERROR_BAD_ARGUMENTS
+				EndIf
+			EndIf
 		Next
-		If Not IsBool($aSettings[$bStartup]) Then Exit 160 ; ERROR_BAD_ARGUMENTS
+		If Not IsBool($aSettings[$bStartup]) Then
+			If $aConfig[$hFile] = "WINGET" Then
+				_FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Startup Boolean." & @CRLF)
+			Else
+				Exit 160 ; ERROR_BAD_ARGUMENTS
+			EndIf
+		EndIf
 
 		If $bUpdate Then RunRemoval(True)
 		RunInstall($aConfig, $aSettings)
