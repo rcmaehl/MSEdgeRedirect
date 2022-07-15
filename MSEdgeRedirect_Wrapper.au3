@@ -224,7 +224,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			If $aChannels[$iLoop] = True Then ExitLoop
 			If $iLoop = UBound($aChannels) - 1 Then
 				If $aConfig[$hFile] = "WINGET" Then
-					_FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate IEFO Channels." & @CRLF)
+					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate IEFO Channels." & @CRLF)
 				Else
 					Exit 160 ; ERROR_BAD_ARGUMENTS
 				EndIf
@@ -234,7 +234,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		For $iLoop = $bNoApps To $bNoUpdates Step 1
 			If Not IsBool($aSettings[$iLoop]) Then
 				If $aConfig[$hFile] = "WINGET" Then
-					_FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Boolean Settings." & @CRLF)
+					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Boolean Settings." & @CRLF)
 				Else
 					Exit 160 ; ERROR_BAD_ARGUMENTS
 				EndIf
@@ -242,7 +242,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		Next
 		If Not IsBool($aSettings[$bStartup]) Then
 			If $aConfig[$hFile] = "WINGET" Then
-				_FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Startup Boolean." & @CRLF)
+				FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Startup Boolean." & @CRLF)
 			Else
 				Exit 160 ; ERROR_BAD_ARGUMENTS
 			EndIf
