@@ -226,7 +226,13 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		EndIf
 
-		If ($aConfig[$bManaged] Or $aConfig[$vMode]) And Not $bIsAdmin Then Exit 5 ; ERROR_ACCESS_DENIED
+		If ($aConfig[$bManaged] Or $aConfig[$vMode]) And Not $bIsAdmin Then
+			If $aConfig[$hFile] = "WINGET" Then
+				FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Escalate for Deployment." & @CRLF)
+			Else
+				Exit 5 ; ERROR_ACCESS_DENIED
+			EndIf
+		EndIf
 
 		For $iLoop = 0 To UBound($aChannels) - 1 Step 1
 			If $aChannels[$iLoop] = True Then ExitLoop
