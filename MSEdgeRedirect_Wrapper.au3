@@ -17,6 +17,7 @@
 
 Global $sVersion
 Global $bIsPriv = _IsPriviledgedInstall()
+Global Enum $bNoApps, $bNoBing, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoTray, $bNoUpdates, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather
 
 If @Compiled Then
 	$sVersion = FileGetVersion(@ScriptFullPath)
@@ -28,18 +29,21 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 
 	Local $sArgs = ""
 	Local Enum $bManaged = 1, $vMode
-	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $bSrcImg, $bStartup = 11, $sWeather
 
 	SetOptionsRegistry("NoApps", $aSettings[$bNoApps], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoBing", $aSettings[$bNoBing], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoImgs", $aSettings[$bNoImgs], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoMSN", $aSettings[$bNoMSN], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoNews", $aSettings[$bNoNews], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoPDFs", $aSettings[$bNoPDFs], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoTray", $aSettings[$bNoTray], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("NoUpdates", $aSettings[$bNoUpdates], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("Images", $aSettings[$sImages], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("ImagePath", $aSettings[$sImagePath], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("News", $aSettings[$sNews], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("PDFApp", $aSettings[$sPDFApp], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("Search", $aSettings[$sSearch], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("SearchPath", $aSettings[$sSearchPath], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("SrcImg", $aSettings[$bSrcImg], $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("Weather", $aSettings[$sWeather], $aConfig[$vMode], $aConfig[$bManaged])
 
 	If $aConfig[$vMode] Then
@@ -145,6 +149,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $iMode = $iPage
 	Local $sEdges
 	Local $sEngine
+	Local $sImgEng
 	Local $sHandler
 	Local $hChannels[5]
 	Local $aChannels[5] = [True, False, False, False, True]
@@ -152,23 +157,30 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $aConfig[3] = [$hSetupFile, False, "Service"] ; Default Setup.ini Values
 	Local Enum $hFile, $bManaged, $vMode
 
-	Local $aSettings[13] = [False, False, False, False, False, False, "", "", "", False, "Full", True, ""]
-	Local Enum $bNoApps, $bNoBing, $bNoMSN, $bNoPDFs, $bNoTray, $bNoUpdates, $sPDFApp, $sSearch, $sSearchPath, $bSrcImg, $sStartMenu, $bStartup, $sWeather
+	Local $aSettings[17] = [False, False, False, False, False, False, False, False, "", "", "", "", "", "", "Full", True, ""]
 
 	If $bSilent Then
 
 		If $bUpdate Then
 			$aSettings[$bNoApps] = _Bool(_GetSettingValue("NoApps"))
-			$aSettings[$bSrcImg] = _Bool(_GetSettingValue("SrcImg"))
-			$aSettings[$bNoPDFs] = _Bool(_GetSettingValue("NoPDFs"))
-			If $aSettings[$bNoPDFs] Then $aSettings[$sPDFApp] = _GetSettingValue("PDFApp")
 			$aSettings[$bNoBing] = _Bool(_GetSettingValue("NoBing"))
+			$aSettings[$bNoImgs] = _Bool(_GetSettingValue("NoImgs"))
+			$aSettings[$bNoMSN] = _Bool(_GetSettingValue("NoMSN"))
+			$aSettings[$bNoNews] = _Bool(_GetSettingValue("NoNews"))
+			$aSettings[$bNoPDFs] = _Bool(_GetSettingValue("NoPDFs"))
+			$aSettings[$bNoTray] = _Bool(_GetSettingValue("NoTray"))
+			$aSettings[$bNoUpdates] = _Bool(_GetSettingValue("NoUpdates"))
 			If $aSettings[$bNoBing] Then
 				$aSettings[$sSearch] = _GetSettingValue("Search")
 				$aSettings[$sSearchPath] = _GetSettingValue("SearchPath")
 			EndIf
-			$aSettings[$bNoMSN] = _Bool(_GetSettingValue("NoMSN"))
+			If $aSettings[$bNoImgs] Then
+				$aSettings[$sImages] = _GetSettingValue("Images")
+				$aSettings[$sImagePath] = _GetSettingValue("ImagePath")
+			EndIf
+			If $aSettings[$bNoPDFs] Then $aSettings[$sPDFApp] = _GetSettingValue("PDFApp")
 			If $aSettings[$bNoMSN] Then $aSettings[$sWeather] = _GetSettingValue("Weather")
+			If $aSettings[$bNoNews] Then $asettings[$sNews] = _GetSettingValue("News")
 		EndIf
 
 		If $aConfig[$hFile] = "WINGET" Then
@@ -186,17 +198,22 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				$aConfig[$vMode] = False
 			EndIf
 
+			; TODO: Merge with _GetSettingValue(Value, Forced Location)
 			$aSettings[$bNoApps] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoApps", $aSettings[$bNoApps]))
 			$aSettings[$bNoBing] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoBing", $aSettings[$bNoBing]))
+			$aSettings[$bNoImgs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoImgs", $aSettings[$bNoImgs]))
 			$aSettings[$bNoMSN] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoMSN", $aSettings[$bNoBing]))
+			$aSettings[$bNoNews] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoNews", $aSettings[$bNoBing]))
 			$aSettings[$bNoPDFs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoPDFs", $aSettings[$bNoPDFs]))
 			$aSettings[$bNoTray] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoTray", $aSettings[$bNoTray]))
 			$aSettings[$bNoUpdates] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoUpdates", $aSettings[$bNoUpdates]))
+			$aSettings[$sImages] = _Bool(IniRead($aConfig[$hFile], "Settings", "Images", $aSettings[$bNoUpdates]))
+			$aSettings[$sImagePath] = _Bool(IniRead($aConfig[$hFile], "Settings", "ImagePath", $aSettings[$bNoUpdates]))
+			$aSettings[$sNews] = _Bool(IniRead($aConfig[$hFile], "Settings", "News", $aSettings[$bNoUpdates]))
 			$aSettings[$sPDFApp] = IniRead($aConfig[$hFile], "Settings", "PDFApp", $aSettings[$sPDFApp])
-			$aSettings[$sSearch] = IniRead($aConfig[$hFile], "Settings", "Search", $aSettings[$sSearch])
 			$aSettings[$sSearchPath] = IniRead($aConfig[$hFile], "Settings", "SearchPath", $aSettings[$sSearchPath])
-			$aSettings[$bSrcImg] = _Bool(IniRead($aConfig[$hFile], "Settings", "SrcImg", $aSettings[$bStartup]))
 			$aSettings[$sStartMenu] = IniRead($aConfig[$hFile], "Settings", "StartMenu", $aSettings[$sStartMenu])
+			$aSettings[$sSearch] = IniRead($aConfig[$hFile], "Settings", "Search", $aSettings[$sSearch])
 			$aSettings[$bStartup] = _Bool(IniRead($aConfig[$hFile], "Settings", "Startup", $aSettings[$bStartup]))
 			$aSettings[$sWeather] = IniRead($aConfig[$hFile], "Settings", "Weather", $aSettings[$sSearch])
 
@@ -209,17 +226,41 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		EndIf
 
-		If ($aConfig[$bManaged] Or $aConfig[$vMode]) And Not $bIsAdmin Then Exit 5 ; ERROR_ACCESS_DENIED
+		If ($aConfig[$bManaged] Or $aConfig[$vMode]) And Not $bIsAdmin Then
+			If $aConfig[$hFile] = "WINGET" Then
+				FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Escalate for Deployment." & @CRLF)
+			Else
+				Exit 5 ; ERROR_ACCESS_DENIED
+			EndIf
+		EndIf
 
 		For $iLoop = 0 To UBound($aChannels) - 1 Step 1
 			If $aChannels[$iLoop] = True Then ExitLoop
-			If $iLoop = 3 Then Exit 160 ; ERROR_BAD_ARGUMENTS
+			If $iLoop = UBound($aChannels) - 1 Then
+				If $aConfig[$hFile] = "WINGET" Then
+					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate IEFO Channels." & @CRLF)
+				Else
+					Exit 160 ; ERROR_BAD_ARGUMENTS
+				EndIf
+			EndIf
 		Next
 
 		For $iLoop = $bNoApps To $bNoUpdates Step 1
-			If Not IsBool($aSettings[$iLoop]) Then Exit 160 ; ERROR_BAD_ARGUMENTS
+			If Not IsBool($aSettings[$iLoop]) Then
+				If $aConfig[$hFile] = "WINGET" Then
+					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Boolean Settings." & @CRLF)
+				Else
+					Exit 160 ; ERROR_BAD_ARGUMENTS
+				EndIf
+			EndIf
 		Next
-		If Not IsBool($aSettings[$bStartup]) Then Exit 160 ; ERROR_BAD_ARGUMENTS
+		If Not IsBool($aSettings[$bStartup]) Then
+			If $aConfig[$hFile] = "WINGET" Then
+				FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Startup Boolean." & @CRLF)
+			Else
+				Exit 160 ; ERROR_BAD_ARGUMENTS
+			EndIf
+		EndIf
 
 		If $bUpdate Then RunRemoval(True)
 		RunInstall($aConfig, $aSettings)
@@ -408,12 +449,11 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hEngine = GUICtrlCreateCombo("", 50, 260, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Ask|Baidu|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hImages = GUICtrlCreateCheckbox("Bing Images (Beta)", 240, 240, 180, 20)
+			Local $hNoImgs = GUICtrlCreateCheckbox("Bing Images:", 240, 240, 180, 20)
 			Local $hImgSRC = GUICtrlCreateCombo("", 240, 260, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
-			GUICtrlSetData(-1, "DuckDuckGo|Google", "Google")
+			GUICtrlSetData(-1, "Baidu|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (Coming Soon)", 50, 285, 180, 20)
-			GUICtrlSetState(-1, $GUI_DISABLE)
+			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (ALPHA)", 50, 285, 180, 20)
 			Local $hNewSRC = GUICtrlCreateCombo("", 50, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "DuckDuckGo|Google", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
@@ -425,29 +465,35 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hPDFPath = GUICtrlCreateEdit("", 50, 350, 180, 20, $ES_READONLY+$ES_AUTOHSCROLL)
 			Local $hNoApps = GUICtrlCreateCheckbox("Windows Store 'Apps'", 50, 375, 180, 20)
 
-			#forceref $hNoNews
-			#forceref $hImgSrc
-			#forceref $hNewSrc
-
 		If $bUpdate Then
 			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
-			GUICtrlSetState($hNoPDFs, _GetSettingValue("NoPDFs"))
-			If _IsChecked($hNoPDFs) Then
-				$sHandler = _GetSettingValue("PDFApp")
-				GUICtrlSetData($hPDFPath, " " & $sHandler)
-			EndIf
 			GUICtrlSetState($hSearch, _GetSettingValue("NoBing"))
 			If _IsChecked($hSearch) Then
 				GUICtrlSetState($hEngine, $GUI_ENABLE)
 				GUICtrlSetData($hEngine, _GetSettingValue("Search"))
 				$sEngine = _GetSettingValue("SearchPath")
 			EndIf
+			GUICtrlSetState($hNoImgs, _GetSettingValue("NoImgs"))
+			If _IsChecked($hNoImgs) Then
+				GUICtrlSetState($hImgSRC, $GUI_ENABLE)
+				GUICtrlSetData($hImgSRC, _GetSettingValue("Images"))
+				$sImgEng = _GetSettingValue("ImagePath")
+			EndIf
 			GUICtrlSetState($hNoMSN, _GetSettingValue("NoMSN"))
 			If _IsChecked($hNoMSN) Then
 				GUICtrlSetState($hWeather, $GUI_ENABLE)
 				GUICtrlSetData($hWeather, _GetSettingValue("Weather"))
 			EndIf
-			GUICtrlSetState($hImages, _GetSettingValue("SrcImg"))
+			GUICtrlSetState($hNoNews, _GetSettingValue("NoNews"))
+			If _IsChecked($hNoNews) Then
+				GUICtrlSetState($hNewSRC, $GUI_ENABLE)
+				GUICtrlSetData($hNewSRC, _GetSettingValue("News"))
+			EndIf
+			GUICtrlSetState($hNoPDFs, _GetSettingValue("NoPDFs"))
+			If _IsChecked($hNoPDFs) Then
+				$sHandler = _GetSettingValue("PDFApp")
+				GUICtrlSetData($hPDFPath, " " & $sHandler)
+			EndIf
 		EndIf
 
 		GUISwitch($hInstallGUI)
@@ -544,13 +590,17 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 							$aSettings[$bNoApps] = _IsChecked($hNoApps)
 							$aSettings[$bNoBing] = _IsChecked($hSearch)
+							$aSettings[$bNoImgs] = _IsChecked($hNoImgs)
 							$aSettings[$bNoMSN] = _IsChecked($hNoMSN)
+							$aSettings[$bNoNews] = _IsChecked($hNoNews)
 							$aSettings[$bNoPDFs] = _IsChecked($hNoPDFs)
 							$aSettings[$bNoTray] = _IsChecked($hNoIcon)
+							$aSettings[$sImages] = GUICtrlRead($hImgSRC)
+							$aSettings[$sImagePath] = $sImgEng
+							$asettings[$sNews] = GUICtrlRead($hNewSRC)
 							$aSettings[$sPDFApp] = $sHandler
 							$aSettings[$sSearch] = GUICtrlRead($hEngine)
 							$aSettings[$sSearchPath] = $sEngine
-							$aSettings[$bSrcImg] = _IsChecked($hImages)
 							$aSettings[$bStartup] = _IsChecked($hStartup)
 							$aSettings[$sWeather] = GUICtrlRead($hWeather)
 
@@ -650,14 +700,32 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					EndIf
 
 				Case $hMsg = $hEngine And GUICtrlRead($hEngine) = "Custom"
-					$sEngine = InputBox("Enter Search Engine URL", "Enter the URL format of the custom search Engine to use", "https://duckduckgo.com/?q=")
+					$sEngine = InputBox("Enter Search Engine URL", "Enter the URL format of the custom Search Engine to use", "https://duckduckgo.com/?q=")
 					If @error Then GUICtrlSetData($hEngine, "Google")
+
+				Case $hMsg = $hNoImgs
+					If _IsChecked($hNoImgs) Then
+						GUICtrlSetState($hImgSRC, $GUI_ENABLE)
+					Else
+						GUICtrlSetState($hImgSRC, $GUI_DISABLE)
+					EndIf
+
+				Case $hMsg = $hImgSRC And GUICtrlRead($hImgSRC) = "Custom"
+					$sImgEng = InputBox("Enter Image Search Engine URL", "Enter the URL format of the custom Image Search Engine to use", "https://duckduckgo.com/?ia=images&iax=images&q=")
+					If @error Then GUICtrlSetData($hImgSRC, "Google")
 
 				Case $hMsg = $hNoMSN
 					If _IsChecked($hNoMSN) Then
 						GUICtrlSetState($hWeather, $GUI_ENABLE)
 					Else
 						GUICtrlSetState($hWeather, $GUI_DISABLE)
+					EndIf
+
+				Case $hMsg = $hNoNews
+					If _IsChecked($hNoNews) Then
+						GUICtrlSetState($hNewSRC, $GUI_ENABLE)
+					Else
+						GUICtrlSetState($hNewSRC, $GUI_DISABLE)
 					EndIf
 
 				Case $hMsg = $hNoPDFs
@@ -787,7 +855,6 @@ Func SetAppShortcuts(ByRef $aConfig, ByRef $aSettings)
 
 	Local $sArgs = ""
 	Local Enum $vMode = 2
-	Local Enum $bNoTray = 4, $sStartMenu = 9
 
 	If $aSettings[$bNoTray] Then $sArgs = "/hide"
 
@@ -867,6 +934,10 @@ Func SetOptionsRegistry($sName, $vValue, $bAllUsers, $bManaged = False)
 
 	EndSelect
 
+EndFunc
+
+Func SetScheduledTask(ByRef $aConfig)
+	#forceref $aConfig
 EndFunc
 
 Func SetupAppdata()

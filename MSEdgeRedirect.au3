@@ -7,9 +7,9 @@
 #AutoIt3Wrapper_Res_Comment=https://www.msedgeredirect.com
 #AutoIt3Wrapper_Res_CompanyName=Robert Maehl Software
 #AutoIt3Wrapper_Res_Description=MSEdgeRedirect
-#AutoIt3Wrapper_Res_Fileversion=0.6.5.0
+#AutoIt3Wrapper_Res_Fileversion=0.7.0.1
 #AutoIt3Wrapper_Res_ProductName=MSEdgeRedirect App & Service
-#AutoIt3Wrapper_Res_ProductVersion=0.6.5.0
+#AutoIt3Wrapper_Res_ProductVersion=0.7.0.1
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
@@ -100,8 +100,8 @@ Func CheckEdgeIntegrity($sLocation)
 			Case Not FileExists(StringReplace($sLocation, "msedge.exe", FileGetVersion($sLocation)))
 				If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
 					_Translate($aMUI[1], "File Update Required"), _
-					_Translate($aMUI[1], "Microsoft Edge has updated, as such the IFEO exclusion file is out of date and needs to be updated. Update Now?"), _
-					10) = $IDYES Then ShellExecuteWait(@ScriptFullPath, "/repair", @ScriptDir, "RunAs")
+					_Translate($aMUI[1], "Microsoft Edge has updated, as such the IFEO exclusion file for MSEdgeRedirect is out of date and needs to be updated. Update Now?"), _
+					0) = $IDYES Then ShellExecuteWait(@ScriptFullPath, "/repair", @ScriptDir, "RunAs")
 				If @error Then MsgBox($MB_ICONERROR+$MB_OK, _
 					"Repair Failed", _
 					"Unable to update Microsoft Edge IFEO exclusion file without Admin Rights!")
@@ -426,6 +426,8 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			ShellExecute($sEdge, $sCMDLine)
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Settings URL: " & $sCMDLine & @CRLF)
+		Case StringInStr($sCMDLine, "profiles_settings")
+			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Profile Settings URL: " & $sCMDLine & @CRLF)
 		Case StringInStr($sCMDLine, ".pdf")
 			If _GetSettingValue("NoPDFs") Then
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
