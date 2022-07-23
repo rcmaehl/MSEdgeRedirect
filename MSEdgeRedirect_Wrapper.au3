@@ -180,7 +180,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			EndIf
 			If $aSettings[$bNoPDFs] Then $aSettings[$sPDFApp] = _GetSettingValue("PDFApp")
 			If $aSettings[$bNoMSN] Then $aSettings[$sWeather] = _GetSettingValue("Weather")
-			If $aSettings[$bNoNews] Then $asettings[$sNews] = _GetSettingValue("News")
+			If $aSettings[$bNoNews] Then $aSettings[$sNews] = _GetSettingValue("News")
 		EndIf
 
 		If $aConfig[$hFile] = "WINGET" Then
@@ -442,6 +442,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			If $bIsAdmin Then
 				GUICtrlSetState($hStartup, $GUI_DISABLE)
 				GUICtrlSetState($hNoIcon, $GUI_DISABLE)
+			ElseIf $bUpdate Then
+				GUICtrlSetState($hStartup, FileExists(@StartupDir & "\MSEdgeRedirect.lnk"))
+				GUICtrlSetState($hNoIcon, _GetSettingValue("NoApps"))
 			EndIf
 
 		GUICtrlCreateGroup("Additional Redirections", 20, 220, 420, 190)
@@ -597,7 +600,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							$aSettings[$bNoTray] = _IsChecked($hNoIcon)
 							$aSettings[$sImages] = GUICtrlRead($hImgSRC)
 							$aSettings[$sImagePath] = $sImgEng
-							$asettings[$sNews] = GUICtrlRead($hNewSRC)
+							$aSettings[$sNews] = GUICtrlRead($hNewSRC)
 							$aSettings[$sPDFApp] = $sHandler
 							$aSettings[$sSearch] = GUICtrlRead($hEngine)
 							$aSettings[$sSearchPath] = $sEngine
