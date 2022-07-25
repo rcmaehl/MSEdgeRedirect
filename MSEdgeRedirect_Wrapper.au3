@@ -583,7 +583,12 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								GUICtrlSetData($hNext, "Install")
 							EndIf
 						Case $hFinish
-							If $bUpdate And $iMode <> $hSettings Then RunRemoval(True)
+							# 8.0.0.0 Refactor
+							If $bUpdate And $iMode <> $hSettings Then
+								RunRemoval(True)
+							Else
+								FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
+							EndIf
 
 							If $iMode = $hSettings Then
 								$aConfig[$vMode] = $bIsAdmin
