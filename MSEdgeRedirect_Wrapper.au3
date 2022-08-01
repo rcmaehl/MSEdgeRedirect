@@ -803,7 +803,7 @@ Func RunUpdateCheck($bFull = False)
 			If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
 				_Translate($aMUI[1], "MSEdgeRedirect Update Available"), _
 				_Translate($aMUI[1], "An Update is Available, would you like to download it?"), _
-				10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases")
+				10) = $IDYES Then ShellExecute("https://fcofix.org/MSEdgeRedirect/releases/latest")
 	EndSwitch
 EndFunc
 
@@ -854,7 +854,7 @@ Func SetAppRegistry($bAllUsers)
 	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "Readme", "REG_SZ", "https://msedgeredirect.com/blob/main/README.md")
 	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "UninstallString", "REG_SZ", '"' & $sLocation & 'MSEdgeRedirect.exe" /uninstall')
 	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "URLInfoAbout", "REG_SZ", "https://msedgeredirect.com")
-	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "URLUpdateInfo", "REG_SZ", "https://msedgeredirect.com/releases")
+	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "URLUpdateInfo", "REG_SZ", "https://msedgeredirect.com/releases/latest")
 	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect", "Version", "REG_SZ", $sVersion)
 
 EndFunc
