@@ -46,7 +46,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            MSEdgeRedirect*.exe
+            MSEdgeRedirect.exe
             MSEdgeRedirect.zip
             checksums.sha256
         env:
