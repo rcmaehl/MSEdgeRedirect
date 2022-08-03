@@ -110,6 +110,10 @@ Func RunRemoval($bUpdate = False)
 	DirRemove(@ProgramsCommonDir & "\MSEdgeRedirect", $DIR_REMOVE)
 	DirRemove(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect", $DIR_REMOVE)
 
+	; Parent Registry Key
+	RegEnumKey($sHive & "\SOFTWARE\Robert Maehl Software", 1)
+	If @error Then RegDelete($sHive & "\SOFTWARE\Robert Maehl Software")
+
 	If $bIsAdmin Then
 		For $iLoop = 1 To $aEdges[0] Step 1
 			If FileExists(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe")) Then
