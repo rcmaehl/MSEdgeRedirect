@@ -17,7 +17,7 @@ No Default App walkthrough or other steps, just set and forget.
 
 ## Recommended Alternatives
 
-Not looking for Extra Features? Try [@AveYo](https://github.com/AveYo)'s [ChrEdgeFckOff](https://github.com/AveYo/fox/blob/main/Edge_Removal.bat)\
+Not looking for Extra Features? Try [@AveYo](https://github.com/AveYo)'s [ChrEdgeFckOff](https://github.com/AveYo/fox/blob/main/ChrEdgeFkOff.cmd)\
 Looking to Disable Web Search Entirely? Try [@krlvm](https://github.com/krlvm)'s [BeautySearch](https://github.com/krlvm/BeautySearch)
 
 ## Download
