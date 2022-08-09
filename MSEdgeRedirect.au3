@@ -132,6 +132,8 @@ Func ProcessCMDLine()
 
 	If $iParams > 0 Then
 
+		$CMDLine = RepairCMDLine($CMDLine)
+
 		If _ArraySearch($aEdges, $CMDLine[1]) > 0 Then ; Image File Execution Options Mode
 			RunHTTPCheck()
 			ActiveMode($CMDLine)
@@ -188,7 +190,7 @@ Func ProcessCMDLine()
 						Next
 					EndIf
 					RunSetup(True, False, 2)
-					If Not $bIsPriv THen ShellExecute(@ScriptFullPath)
+					If Not $bIsPriv Then ShellExecute(@ScriptFullPath)
 					Exit
 				Case "/si", "/silentinstall"
 					$bSilent = True
@@ -378,6 +380,25 @@ Func ReactiveMode($bHide = False)
 		FileClose($hLogs[$iLoop])
 	Next
 	Exit
+
+EndFunc
+
+Func RepairCMDLine($aCMDLine)
+
+	Local $sCMDLine
+
+	$sCMDLine = _ArrayToString($aCMDLine, "|")
+	Select
+		Case StringInStr($sCMDLine, "Program|Files|(x86)")
+			$sCMDLine = StringReplace($sCMDLine, "Program|Files|(x86)", "Program Files (x86)")
+		Case Else
+			;;;
+	EndSelect
+
+	$aCMDLine = StringSplit($sCMDLine, "|", $STR_NOCOUNT)
+	$aCMDLine[0] = UBound($aCMDLine)
+
+	Return $aCMDLine
 
 EndFunc
 
