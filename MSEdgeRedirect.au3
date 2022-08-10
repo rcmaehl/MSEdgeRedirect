@@ -83,6 +83,9 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
+		Case _ArraySearch($aCMDLine, "127.0.0.1", 2, 0,0, 1) > 0 ; #162
+			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
+			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Localhost URL: " & $sCMDLine & @CRLF)
 		Case Else
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			_DecodeAndRun($aCMDLine[1], $sCMDLine)
