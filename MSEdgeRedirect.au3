@@ -465,6 +465,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			Else
 				If _IsPriviledgedInstall() Then $sEdge = StringReplace($sEdge, "msedge.exe", "msedge_no_ifeo.exe")
 				ShellExecute($sEdge, $sCMDLine)
+				If Not _IsPriviledgedInstall() Then Sleep(1000)
 			EndIf
 		Case StringInStr($sCMDLine, "--app-id")
 			Select
