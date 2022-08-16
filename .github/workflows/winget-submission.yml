@@ -11,4 +11,5 @@ jobs:
       - uses: vedantmgoyal2009/winget-releaser@latest
         with:
           identifier: rcmaehl.MSEdgeRedirect
+          delete-previous-version: 'true'
           token: ${{ secrets.MSEdgeRedirect_PAT }}
