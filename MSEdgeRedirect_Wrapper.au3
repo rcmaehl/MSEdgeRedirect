@@ -522,6 +522,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		Local $hAppLnk = GUICtrlCreateCheckbox("Create Start Menu Shortcuts", 20, 220, 190, 20)
 		GUICtrlSetState(-1, $GUI_CHECKED)
 		Local $hDonate = GUICtrlCreateCheckbox("Donate to the Project via PayPal", 20, 240, 190, 20)
+		Local $hHelpUs = GUICtrlCreateCheckbox("Help MSEdgeRedirect get off Google's Blacklist", 20, 260, 190, 20)
 
 		GUISwitch($hInstallGUI)
 		#EndRegion
@@ -638,6 +639,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						Case $hExit
 							If _IsChecked($hAppLnk) Then SetAppShortcuts($aConfig, $aSettings)
 							If _IsChecked($hDonate) Then ShellExecute("https://paypal.me/rhsky")
+							If _IsChecked($hHelpUs) Then ShellExecute("https://safebrowsing.google.com/safebrowsing/report_error/?url=https://github.com/rcmaehl/MSEdgeRedirect/releases")
 							If Not $aConfig[$vMode] And _IsChecked($hLaunch) Then
 								If $aSettings[$bNoTray] Then $sArgs = "/hide"
 								ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
