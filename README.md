@@ -29,30 +29,19 @@ Looking to Disable Web Search Entirely? Try [@krlvm](https://github.com/krlvm)'s
 
 ### Package Managers
 
-[![image](https://user-images.githubusercontent.com/716581/159123573-58e5ccba-5c82-46ec-adcc-08b897284a6d.png)](https://github.com/microsoft/winget-pkgs/tree/master/manifests/r/rcmaehl/MSEdgeRedirect)  
-```powershell
-winget install MSEdgeRedirect
-```
+[![image](https://user-images.githubusercontent.com/716581/159197666-761d9b5e-18f6-427c-bae7-2cc6bd348b9a.png?w=300&h=108)](https://community.chocolatey.org/packages/msedgeredirect/)|[![image](https://user-images.githubusercontent.com/716581/185218464-f84115df-fe0e-454c-9147-4da089273faf.png)](https://scoop.sh/#/apps?q=msedgeredirect&s=0&d=1&o=true)|[![image](https://user-images.githubusercontent.com/716581/159123573-58e5ccba-5c82-46ec-adcc-08b897284a6d.png)](https://github.com/microsoft/winget-pkgs/tree/master/manifests/r/rcmaehl/MSEdgeRedirect)|
+----|----|----
+`choco install msedgeredirect`|`scoop bucket add extras`<br/>`scoop install msedgeredirect`|`winget install MSEdgeRedirect`
 
-[![image](https://user-images.githubusercontent.com/716581/159197666-761d9b5e-18f6-427c-bae7-2cc6bd348b9a.png)](https://community.chocolatey.org/packages/msedgeredirect/)
-```powershell
-choco install msedgeredirect
-```
-&nbsp;
 
-**SCOOP**
-```
-scoop bucket add extras
-scoop install thisiswin11
-```
-
-### System Requirements
+## System Requirements
  |Minimum Requirements|Recommended
 ----|----|----
 OS|Windows 8.1|Latest Windows 11 Build
 CPU|32-bit Single Core|64-bit Dual Core or Higher
 RAM (Memory)|40MB Free|100MB Free
 Disk (Storage)|5MB Free|100MB Free
+
 
 ## Program Comparisons
  |[Edge Deflector](https://github.com/da2x/EdgeDeflector)|[ChrEdgeFkOff](https://github.com/AveYo/fox/blob/main/ChrEdgeFkOff.cmd)|[NoMoreEdge](https://github.com/HarshalKudale/NoMoreEdge)|[Search Deflector](https://github.com/spikespaz/search-deflector)|[MSEdgeRedirect](https://github.com/rcmaehl/MSEdgeRedirect/)
