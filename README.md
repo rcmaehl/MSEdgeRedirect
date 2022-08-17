@@ -38,6 +38,13 @@ winget install MSEdgeRedirect
 ```powershell
 choco install msedgeredirect
 ```
+&nbsp;
+
+**SCOOP**
+```
+scoop bucket add extras
+scoop install thisiswin11
+```
 
 ### System Requirements
  |Minimum Requirements|Recommended
