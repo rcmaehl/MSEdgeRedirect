@@ -30,21 +30,21 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 	Local $sArgs = ""
 	Local Enum $bManaged = 1, $vMode
 
-	SetOptionsRegistry("NoApps", $aSettings[$bNoApps], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoBing", $aSettings[$bNoBing], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoImgs", $aSettings[$bNoImgs], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoMSN", $aSettings[$bNoMSN], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoNews", $aSettings[$bNoNews], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoPDFs", $aSettings[$bNoPDFs], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoTray", $aSettings[$bNoTray], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoUpdates", $aSettings[$bNoUpdates], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("Images", $aSettings[$sImages], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("ImagePath", $aSettings[$sImagePath], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("News", $aSettings[$sNews], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("PDFApp", $aSettings[$sPDFApp], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("Search", $aSettings[$sSearch], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoApps"    , $aSettings[$bNoApps]    , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoBing"    , $aSettings[$bNoBing]    , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoImgs"    , $aSettings[$bNoImgs]    , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoMSN"     , $aSettings[$bNoMSN]     , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoNews"    , $aSettings[$bNoNews]    , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoPDFs"    , $aSettings[$bNoPDFs]    , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoTray"    , $aSettings[$bNoTray]    , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoUpdates" , $aSettings[$bNoUpdates] , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("Images"    , $aSettings[$sImages]    , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("ImagePath" , $aSettings[$sImagePath] , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("News"      , $aSettings[$sNews]      , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("PDFApp"    , $aSettings[$sPDFApp]    , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("Search"    , $aSettings[$sSearch]    , $aConfig[$vMode], $aConfig[$bManaged])
 	SetOptionsRegistry("SearchPath", $aSettings[$sSearchPath], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("Weather", $aSettings[$sWeather], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("Weather"   , $aSettings[$sWeather]   , $aConfig[$vMode], $aConfig[$bManaged])
 
 	If $aConfig[$vMode] Then
 		If Not FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
@@ -868,7 +868,7 @@ EndFunc
 Func SetAppShortcuts(ByRef $aConfig, ByRef $aSettings)
 
 	Local $sArgs = ""
-	Local Enum $vMode = 2
+	Local Enum $vMode = 1
 
 	If $aSettings[$bNoTray] Then $sArgs = "/hide"
 
