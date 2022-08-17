@@ -1,3 +1,6 @@
 [submodule "au3WebDriver"]
 	path = Includes/au3WebDriver
 	url = https://github.com/Danp2/au3WebDriver
+[submodule "autoit-winhttp"]
+	path = Includes/autoit-winhttp
+	url = https://github.com/dragana-r/autoit-winhttp
