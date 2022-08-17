@@ -7,9 +7,9 @@
 #AutoIt3Wrapper_Res_Comment=https://www.msedgeredirect.com
 #AutoIt3Wrapper_Res_CompanyName=Robert Maehl Software
 #AutoIt3Wrapper_Res_Description=MSEdgeRedirect
-#AutoIt3Wrapper_Res_Fileversion=0.7.0.1
+#AutoIt3Wrapper_Res_Fileversion=0.7.0.2
 #AutoIt3Wrapper_Res_ProductName=MSEdgeRedirect App & Service
-#AutoIt3Wrapper_Res_ProductVersion=0.7.0.1
+#AutoIt3Wrapper_Res_ProductVersion=0.7.0.2
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
@@ -465,6 +465,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			Else
 				If _IsPriviledgedInstall() Then $sEdge = StringReplace($sEdge, "msedge.exe", "msedge_no_ifeo.exe")
 				ShellExecute($sEdge, $sCMDLine)
+				If Not _IsPriviledgedInstall() Then Sleep(1000)
 			EndIf
 		Case StringInStr($sCMDLine, "--app-id")
 			Select
