@@ -82,21 +82,6 @@ Yes, as of 0.5.0.0, you can select One of 8 available Search Engines, or set you
   
 ### How do I uninstall?
 
-**0.4.0.0 & Newer (also works with Winget and Chocolatey installation modes):** Use Programs and Features\
-**BEFORE 0.4.0.0:** Simply delete MSEdgeRedirect.exe!
-
-**Winget:**
-```powershell
-winget uninstall MSEdgeRedirect
-```
-
-**Chocolatey:**
-```powershell
-choco uninstall msedgeredirect
-```
-
-**Scoop:**
-
-```powershell
-scoop uninstall msedgeredirect
-```
+0.4.0.0 & Newer|Pre-0.4.0.0|Chocolatey|Scoop|Winget
+----|----|----|----|----
+Use Programs and Features|Simply delete MSEdgeRedirect.exe|`choco uninstall msedgeredirect`|`scoop uninstall msedgeredirect`|`winget uninstall MSEdgeRedirect`
