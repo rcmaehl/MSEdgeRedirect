@@ -22,7 +22,7 @@ Looking to Disable Web Search Entirely? Try [@krlvm](https://github.com/krlvm)'s
 
 ## Downloads
 
-Github Stable|Download Latest Testing
+Github Stable|Github Testing
 ----|----
 <a href="https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe"><img src="https://img.shields.io/github/v/release/rcmaehl/msedgeredirect?display_name=tag&style=for-the-badge" height="60px" /></a>|<a href="https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/MSER/main/mser.zip"><img src="https://img.shields.io/github/workflow/status/rcmaehl/MSEdgeRedirect/mser?style=for-the-badge" height="60px" /></a>
 
