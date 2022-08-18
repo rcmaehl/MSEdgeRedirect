@@ -410,6 +410,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 240, 80, 95, 20)
 			$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 335, 80, 95, 20)
 			$hChannels[4] = GUICtrlCreateCheckbox("Edge Removed Using AveYo's Edge Remover (Automatically Detected)", 50, 100, 380, 20)
+			GUICtrlSetState(-1, $GUI_DISABLE)
 
 			Select
 				Case Not $bIsAdmin
@@ -417,14 +418,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUICtrlSetState($hChannels[1], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[2], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[3], $GUI_DISABLE)
-					GUICtrlSetState($hChannels[4], $GUI_DISABLE)
 				Case RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger")
-					GUICtrlSetState($hChannels[0], $GUI_DISABLE)
-					GUICtrlSetState($hChannels[1], $GUI_DISABLE)
-					GUICtrlSetState($hChannels[2], $GUI_DISABLE)
-					GUICtrlSetState($hChannels[3], $GUI_DISABLE)
-					GUICtrlSetState($hChannels[4], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[4], $GUI_CHECKED)
+					ContinueCase
 				Case Else
 					If $bUpdate Or $iMode = $hSettings Then
 						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER1", "Debugger") Then GUICtrlSetState($hChannels[0], $GUI_CHECKED)
@@ -432,9 +428,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER3", "Debugger") Then GUICtrlSetState($hChannels[2], $GUI_CHECKED)
 						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER4", "Debugger") Then GUICtrlSetState($hChannels[3], $GUI_CHECKED)
 						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER5", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
-						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\0", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 					Else
-						GUICtrlSetState($hChannels[4], $GUI_DISABLE)
 						GUICtrlSetState($hChannels[0], $GUI_CHECKED)
 					EndIf
 			EndSelect
