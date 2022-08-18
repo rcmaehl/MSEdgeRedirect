@@ -1,7 +1,19 @@
 name: mser
 
-on: [push, pull_request, workflow_dispatch]
-
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+  workflow_dispatch:
+    paths-ignore:
+      - '**.md'
+      - '**.yml'
+  
 jobs:
   build:
     runs-on: windows-latest
