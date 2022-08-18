@@ -1,5 +1,5 @@
-[![Build Status](https://img.shields.io/github/workflow/status/rcmaehl/MSEdgeRedirect/mser)](https://github.com/rcmaehl/MSEdgeRedirect/actions?query=workflow%3Amser)
-[![Download](https://img.shields.io/github/v/release/rcmaehl/MSEdgeRedirect)](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/)
+<!---[![Build Status](https://img.shields.io/github/workflow/status/rcmaehl/MSEdgeRedirect/mser)](https://github.com/rcmaehl/MSEdgeRedirect/actions?query=workflow%3Amser)
+[![Download](https://img.shields.io/github/v/release/rcmaehl/MSEdgeRedirect)](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/)--->
 [![Latest download count](https://img.shields.io/github/downloads/rcmaehl/MSEdgeRedirect/latest/total)](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/)
 [![Chocolatey download count](https://img.shields.io/chocolatey/dt/msedgeredirect?label=Chocolatey+downloads)](https://chocolatey.org/packages/msedgeredirect)
 [![Ko-fi](https://img.shields.io/badge/Support%20me%20on-Ko--fi-FF5E5B.svg?logo=ko-fi)](https://ko-fi.com/rcmaehl)
@@ -20,16 +20,15 @@ No Default App walkthrough or other steps, just set and forget.
 Not looking for Extra Features? Try [@AveYo](https://github.com/AveYo)'s [ChrEdgeFckOff](https://github.com/AveYo/fox/blob/main/ChrEdgeFkOff.cmd)\
 Looking to Disable Web Search Entirely? Try [@krlvm](https://github.com/krlvm)'s [BeautySearch](https://github.com/krlvm/BeautySearch)
 
-## Download
+## Downloads
 
-[Download latest stable release](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe)
-
-[Download latest testing release](https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/MSER/main/mser.zip)\
-**Keep in mind that you will have to update testing releases manually**
+Github Stable|Download Latest Testing
+----|----
+<a href="https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe"><img src="https://img.shields.io/github/v/release/rcmaehl/msedgeredirect?display_name=tag&style=for-the-badge" height="60px" /></a>|<a href="https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/MSER/main/mser.zip"><img src="https://img.shields.io/github/workflow/status/rcmaehl/MSEdgeRedirect/mser?style=for-the-badge" height="60px" /></a>
 
 ### Package Managers
 
-[![image](https://user-images.githubusercontent.com/716581/159197666-761d9b5e-18f6-427c-bae7-2cc6bd348b9a.png?w=300&h=108)](https://community.chocolatey.org/packages/msedgeredirect/)|[![image](https://user-images.githubusercontent.com/716581/185218464-f84115df-fe0e-454c-9147-4da089273faf.png)](https://scoop.sh/#/apps?q=msedgeredirect&s=0&d=1&o=true)|[![image](https://user-images.githubusercontent.com/716581/159123573-58e5ccba-5c82-46ec-adcc-08b897284a6d.png)](https://github.com/microsoft/winget-pkgs/tree/master/manifests/r/rcmaehl/MSEdgeRedirect)|
+<a href="https://community.chocolatey.org/packages/msedgeredirect/"><img src="https://user-images.githubusercontent.com/716581/159197666-761d9b5e-18f6-427c-bae7-2cc6bd348b9a.png" height="108px" /></a>|[![image](https://user-images.githubusercontent.com/716581/185218464-f84115df-fe0e-454c-9147-4da089273faf.png)](https://scoop.sh/#/apps?q=msedgeredirect&s=0&d=1&o=true)|[![image](https://user-images.githubusercontent.com/716581/159123573-58e5ccba-5c82-46ec-adcc-08b897284a6d.png)](https://github.com/microsoft/winget-pkgs/tree/master/manifests/r/rcmaehl/MSEdgeRedirect)|
 ----|----|----
 `choco install msedgeredirect`|`scoop bucket add extras`<br/>`scoop install msedgeredirect`|`winget install MSEdgeRedirect`
 
@@ -98,7 +97,7 @@ MSEdgeRedirect is compatible with [@AveYo](https://github.com/AveYo)'s [Edge Rem
 
 ### It isn’t working for me?
 
-run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that is not properly redirected, [file a bug report!](https://github.com/rcmaehl/MSEdgeRedirect/issues/new?assignees=&labels=&template=bug_report.md&title=)
+Run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that is not properly redirected, [file a bug report!](https://github.com/rcmaehl/MSEdgeRedirect/issues/new?assignees=&labels=&template=bug_report.md&title=)
 
 ### Will searches inside \<app name here\> still use Bing?
 
