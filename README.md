@@ -94,3 +94,9 @@ winget uninstall MSEdgeRedirect
 ```powershell
 choco uninstall msedgeredirect
 ```
+
+**Scoop:**
+
+```powershell
+scoop uninstall msedgeredirect
+```
