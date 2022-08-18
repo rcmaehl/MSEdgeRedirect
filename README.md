@@ -17,12 +17,13 @@ No Default App walkthrough or other steps, just set and forget.
 
 ## Recommended Alternatives
 
+Looking for Alternatives? [Check Out This Chart](https://github.com/rcmaehl/MSEdgeRedirect/wiki/Alternative-Apps-Comparison-Chart)\
 Not looking for Extra Features? Try [@AveYo](https://github.com/AveYo)'s [ChrEdgeFckOff](https://github.com/AveYo/fox/blob/main/ChrEdgeFkOff.cmd)\
 Looking to Disable Web Search Entirely? Try [@krlvm](https://github.com/krlvm)'s [BeautySearch](https://github.com/krlvm/BeautySearch)
 
 ## Downloads
 
-Github Stable|Github Testing
+Download Stable (GitHub)|Download Testing (GitHub)
 ----|----
 <a href="https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe"><img src="https://img.shields.io/github/v/release/rcmaehl/msedgeredirect?display_name=tag&style=for-the-badge" height="60px" /></a>|<a href="https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/MSER/main/mser.zip"><img src="https://img.shields.io/github/workflow/status/rcmaehl/MSEdgeRedirect/mser?style=for-the-badge" height="60px" /></a>
 
@@ -32,48 +33,20 @@ Github Stable|Github Testing
 ----|----|----
 `choco install msedgeredirect`|`scoop bucket add extras`<br/>`scoop install msedgeredirect`|`winget install MSEdgeRedirect`
 
+### Compiling
 
-## System Requirements
+1. Download and run "AutoIt Full Installation" from [official website](https://www.autoitscript.com/site/autoit/downloads). 
+1. Get the source code either by [downloading zip](https://github.com/rcmaehl/MSEdgeRedirect/archive/main.zip) or do `git clone https://github.com/rcmaehl/MSEdgeRedirect`.
+1. Right click on `MSEdgeRedirect.au3` in the MSEdgeRedirect directory and select "Compile Script (x64) (or x86 if you have 32 bit Windows install).
+1. This will create MSEdgeRedirect.exe in the same directory.
+
+### System Requirements
  |Minimum Requirements|Recommended
 ----|----|----
 OS|Windows 8.1|Latest Windows 11 Build
 CPU|32-bit Single Core|64-bit Dual Core or Higher
 RAM (Memory)|40MB Free|100MB Free
 Disk (Storage)|5MB Free|100MB Free
-
-
-## Program Comparisons
- |[Edge Deflector](https://github.com/da2x/EdgeDeflector)|[ChrEdgeFkOff](https://github.com/AveYo/fox/blob/main/ChrEdgeFkOff.cmd)|[NoMoreEdge](https://github.com/HarshalKudale/NoMoreEdge)|[Search Deflector](https://github.com/spikespaz/search-deflector)|[MSEdgeRedirect](https://github.com/rcmaehl/MSEdgeRedirect/)
-----|----|----|----|----|----
-Redirection Modes|URI Handler<br/><br/>|IFEO<br/><br/>|IFEO<br/><br/>|URI Handler<br/><br/>|URI Detection<sup>*</sup><br/>or IFEO<sup>†</sup>
-Redirects Search|☑|☑|☑|☑|☑
-Installs without Admin|☑| | | |☑<sup>*</sup>
-Works without Edge Installed||☑|||☑‡
-Windows 11 Support| |☑|☑| |☑
-Windows 10 21H2+ Support| |☑|☑| |☑
-Windows on ARM Support| |☑|☑| |
-Installs System Wide| |☑|☑|☑, Optionally|☑<sup>†</sup>
-Can be silently Deployed| |☑|☑| |☑
-Update Checker Module| | |☑|☑|☑
-Search Engine Customizations| | |☑, 8|☑, 14|☑, 9
-Search Engine Shortcut Support| | |☑, DDG !Bang| | 
-Weather Forecast Customizations| | | | |☑, 6
-Customizable Edge Support| | | | |☑<sup>†</sup>
-Can be used Portably (USB)| | | | |☑<sup>§</sup>
-Supports GPO Registry Keys| | | | |☑
-
-
-<sub><sup>\* When using Service Mode \
-  † When using Active Mode \
-  ‡ When using Active Mode and [@AveYo](https://github.com/AveYo)'s [Edge Removal](https://github.com/AveYo/fox/blob/main/Edge_Removal.bat) \
-  § When using /portable flag, uses Service Mode</sub></sup>
-
-## Compiling
-
-1. Download and run "AutoIt Full Installation" from [official website](https://www.autoitscript.com/site/autoit/downloads). 
-1. Get the source code either by [downloading zip](https://github.com/rcmaehl/MSEdgeRedirect/archive/main.zip) or do `git clone https://github.com/rcmaehl/MSEdgeRedirect`.
-1. Right click on `MSEdgeRedirect.au3` in the MSEdgeRedirect directory and select "Compile Script (x64) (or x86 if you have 32 bit Windows install).
-1. This will create MSEdgeRedirect.exe in the same directory.
 
 ## Contributing
 
