@@ -115,6 +115,7 @@ Func RunRemoval($bUpdate = False)
 
 	If $bIsAdmin Then
 		For $iLoop = 1 To $aEdges[0] Step 1
+			If $iLoop = $aEdges[0] Then ExitLoop ; Skip ie_to_edge_stub
 			If FileExists(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe")) Then
 				FileDelete(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"))
 			EndIf
