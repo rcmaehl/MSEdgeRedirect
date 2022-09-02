@@ -59,6 +59,8 @@ Func ActiveMode(ByRef $aCMDLine)
 
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
+			ContinueCase
+		Case $aCMDLine[0] = 2 And UBound($aCMDLine) < 2
 			ReDim $aCMDLine[3]
 			$aCMDLine[2] = ""
 			ContinueCase
@@ -399,7 +401,7 @@ Func RepairCMDLine($aCMDLine)
 	EndSelect
 
 	$aCMDLine = StringSplit($sCMDLine, "|", $STR_NOCOUNT)
-	$aCMDLine[0] = UBound($aCMDLine)
+	$aCMDLine[0] = UBound($aCMDLine) - 1
 
 	Return $aCMDLine
 
