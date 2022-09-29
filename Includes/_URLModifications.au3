@@ -219,6 +219,9 @@ Func _ChangeWeatherProvider($sURL)
 					Case "AccuWeather"
 						$sURL = "https://www.accuweather.com/en/search-locations?query=" & $fLat & "," & $fLong
 
+					Case "Custom"
+						$sURL = _GetSettingValue("WeatherPath") & $fLat & "," & $fLong
+
 					Case "DarkSky"
 						$sURL = "https://darksky.net/forecast/" & $fLat & "," & $fLong & "/"
 
