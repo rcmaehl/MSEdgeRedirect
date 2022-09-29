@@ -89,6 +89,10 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "localhost/", 2, 0,0, 1) > 0 ; Improve on #162
 			ContinueCase
+		Case _ArraySearch($aCMDLine, @ComputerName & ":", 2, 0,0, 1) > 0 ; Improve on #162
+			ContinueCase
+		Case _ArraySearch($aCMDLine, @ComputerName & "/", 2, 0,0, 1) > 0 ; Improve on #162
+			ContinueCase
 		Case _ArraySearch($aCMDLine, "127.0.0.1", 2, 0,0, 1) > 0 ; #162
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Localhost URL: " & $sCMDLine & @CRLF)
