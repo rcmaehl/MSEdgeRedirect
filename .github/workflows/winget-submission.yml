@@ -4,14 +4,20 @@ on:
   release:
     types: [released]
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Specific tag name'
+        required: true 
+        type: string
 
 jobs:
   publish:
     runs-on: windows-latest
     steps:
-      - uses: vedantmgoyal2009/winget-releaser@latest
+      - uses: vedantmgoyal2009/winget-releaser@v1
         with:
           identifier: rcmaehl.MSEdgeRedirect
           version: ${{ github.event.release.tag_name }}
+          release-tag: ${{ inputs.tag_name || github.release.tag_name }}
           delete-previous-version: 'true'
           token: ${{ secrets.MSEdgeRedirect_PAT }}
