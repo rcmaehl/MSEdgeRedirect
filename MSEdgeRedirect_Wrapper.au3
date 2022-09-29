@@ -440,8 +440,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			EndSelect
 
 		GUICtrlCreateGroup("Service Mode Options", 20, 140, 420, 70)
-			Local $hNoIcon = GUICtrlCreateCheckbox("Hide Service Mode from Tray", 50, 160, 190, 20)
-			Local $hStartup = GUICtrlCreateCheckbox("Start Service Mode With Windows", 50, 180, 190, 20)
+			Local $hNoIcon = GUICtrlCreateCheckbox("Hide Service Mode from Tray", 50, 160, 380, 20)
+			Local $hStartup = GUICtrlCreateCheckbox("Start Service Mode With Windows", 50, 180, 380, 20)
 
 			If $bIsAdmin Then
 				GUICtrlSetState($hStartup, $GUI_DISABLE)
