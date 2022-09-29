@@ -1,6 +1,7 @@
 #include-once
 
 #include <Misc.au3>
+#include <Array.au3>
 #include <String.au3>
 #include <EditConstants.au3>
 #include <FileConstants.au3>
@@ -78,12 +79,24 @@ Func RunRemoval($bUpdate = False)
 		If $aPIDs[$iLoop][1] <> @AutoItPID Then ProcessClose($aPIDs[$iLoop][1])
 	Next
 
-	If $bIsAdmin Then
-		$sLocation = "C:\Program Files\MSEdgeRedirect\"
-		$sHive = "HKLM"
+	If $bUpdate Then
+		$sHive = _IsInstalled()[1]
 	Else
+		If $bIsAdmin Then
+			$sHive = "HKLM"
+		Else
+			$sHive = "HKCU"
+		EndIf
+	EndIf
+
+	If $sHive = "HKLM" Then
+		$sLocation = "C:\Program Files\MSEdgeRedirect\"
+	ElseIf $sHive = "HKCU" THen
 		$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
-		$sHive = "HKCU"
+	Else
+		FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Determine Registry Hive for Uninstall." & @CRLF)
+		FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "DEBUG: " & _ArrayToString(_IsInstalled()) &  @CRLF)
+		Exit 1359 ; ERROR_INTERNAL_ERROR
 	EndIf
 
 	; App Paths
@@ -250,7 +263,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				If $aConfig[$hFile] = "WINGET" Then
 					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate IEFO Channels." & @CRLF)
 				Else
-					Exit 160 ; ERROR_BAD_ARGUMENTS
+					Exit 1359 ; ERROR_INTERNAL_ERROR
 				EndIf
 			EndIf
 		Next
@@ -260,7 +273,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				If $aConfig[$hFile] = "WINGET" Then
 					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Boolean Settings." & @CRLF)
 				Else
-					Exit 160 ; ERROR_BAD_ARGUMENTS
+					Exit 1359 ; ERROR_INTERNAL_ERROR
 				EndIf
 			EndIf
 		Next
@@ -268,7 +281,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			If $aConfig[$hFile] = "WINGET" Then
 				FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Startup Boolean." & @CRLF)
 			Else
-				Exit 160 ; ERROR_BAD_ARGUMENTS
+				Exit 1359 ; ERROR_INTERNAL_ERROR
 			EndIf
 		EndIf
 
