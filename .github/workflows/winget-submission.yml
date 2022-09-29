@@ -4,6 +4,11 @@ on:
   release:
     types: [released]
   workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Specific tag name'
+        required: true 
+        type: string
 
 jobs:
   publish:
@@ -13,5 +18,6 @@ jobs:
         with:
           identifier: rcmaehl.MSEdgeRedirect
           version: ${{ github.event.release.tag_name }}
+          release-tag: ${{ inputs.tag_name || github.release.tag_name }}
           delete-previous-version: 'true'
           token: ${{ secrets.MSEdgeRedirect_PAT }}
