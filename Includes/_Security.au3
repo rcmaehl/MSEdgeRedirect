@@ -75,6 +75,8 @@ Func _IsSafeFlag(ByRef $sCommandLine)
 				Case "--ip-proc-id"
 					ContinueCase
 				Case "--mojo-named-platform-channel-pipe"
+					ContinueCase
+				Case "--profile-directory"
 					$bSafe = True
 				Case Else
 					$bSafe = False
@@ -82,11 +84,19 @@ Func _IsSafeFlag(ByRef $sCommandLine)
 			EndSwitch
 		Else
 			Switch $aCMDLine[$iLoop]
+				Case "--from-installer"
+					ContinueCase
+				Case "--inprivate"
+					ContinueCase
 				Case "--ip-binding"
 					ContinueCase
 				Case "--kiosk"
 					ContinueCase
+				Case "--suspend-background-mode"
+					ContinueCase
 				Case "--windows-store-app"
+					ContinueCase
+				Case "--winrt-background-task-event"
 					$bSafe = True
 				Case Else
 					$bSafe = False
