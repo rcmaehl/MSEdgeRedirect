@@ -784,11 +784,13 @@ EndFunc
 
 Func RunUpdateCheck($bFull = False)
 	Switch _GetLatestRelease($sVersion)
+		#cs
 		Case -1
 			MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _
 				_Translate($aMUI[1], "Test Build?"), _
 				_Translate($aMUI[1], "You're running a newer build than publicly Available!"), _
 				10)
+		#ce
 		Case 0
 			If $bFull Then
 				Switch @error
