@@ -507,7 +507,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			For $iLoop = 0 To Ubound($aCMDLine) - 1 Step 1
 				If $aCMDLine[$iLoop][0] = "url" Then
 					$sURL = $aCMDLine[$iLoop][1]
-					$sURL = _UnicodeURLDecode($sURL)
+					If StringInStr($sURL, "%2F") Then $sURL = _UnicodeURLDecode($sURL)
 					ExitLoop
 				EndIf
 			Next
