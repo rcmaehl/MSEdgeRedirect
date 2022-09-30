@@ -887,7 +887,7 @@ EndFunc
 Func SetAppShortcuts(ByRef $aConfig, ByRef $aSettings)
 
 	Local $sArgs = ""
-	Local Enum $vMode = 1
+	Local Enum $vMode = 2
 
 	If $aSettings[$bNoTray] Then $sArgs = "/hide"
 
