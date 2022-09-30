@@ -463,8 +463,8 @@ EndFunc
 
 Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
-	Local $sCaller
-	Local $aLaunchContext
+	Local $sURL = ""
+	Local $aCMDLine
 
 	Select
 		Case StringLeft($sCMDLine, 2) = "--" And _GetSettingValue("RunUnsafe")
@@ -501,41 +501,29 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				Case Else
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
 			EndSelect
-		Case StringInStr($sCMDLine, "Windows.Widgets")
-			$sCaller = "Windows.Widgets"
-			ContinueCase
-		Case StringRegExp($sCMDLine, "microsoft-edge:[\/]*?\?launchContext1")
-			$aLaunchContext = StringSplit($sCMDLine, "=")
-			If $aLaunchContext[0] >= 3 Then
-				If $sCaller = "" Then $sCaller = $aLaunchContext[2]
-				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call from: " & $sCaller & @CRLF)
-				$sCMDLine = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
-				If _IsSafeURL($sCMDLine) Then
-					$sCMDLine = _ModifyURL($sCMDLine)
-					ShellExecute($sCMDLine)
-				Else
-					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid Regexed URL: " & $sCMDLine & @CRLF)
+		Case StringInStr($sCMDLine, "--edge-redirect")
+			$aCMDLine = _RedirectCMDDecode($sCMDLine)
+
+			For $iLoop = 0 To Ubound($aCMDLine) - 1 Step 1
+				If $aCMDLine[$iLoop][0] = "url" Then
+					$sURL = $aCMDLine[$iLoop][1]
+					$sURL = _UnicodeURLDecode($sURL)
+					ExitLoop
 				EndIf
-			Else
+			Next
+
+			If $sURL = "" Then
 				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
-			EndIf
-		Case StringRegExp($sCMDLine, "microsoft-edge:[\/]*?\?source")
-			$aLaunchContext = StringSplit($sCMDLine, "=")
-			If $aLaunchContext[0] >= 3 Then
-				If $sCaller = "" Then $sCaller = $aLaunchContext[2]
-				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call from: " & $sCaller & @CRLF)
-				$sCMDLine = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
-				If _IsSafeURL($sCMDLine) Then
-					$sCMDLine = _ModifyURL($sCMDLine)
-					ShellExecute($sCMDLine)
-				Else
-					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid Regexed URL: " & $sCMDLine & @CRLF)
+			Else
+				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call from: " & _ArrayToString($aCMDLine) & @CRLF)
+				If _IsSafeURL($sURL) Then
+					$sURL = _ModifyURL($sURL)
+					ShellExecute($sURL)
 				EndIf
-			Else
-				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
 			EndIf
 		Case Else
-			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "")
+			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
+			$sCMDLine = _UnicodeURLDecode($sCMDLine)
 			If _IsSafeURL($sCMDLine) Then
 				$sCMDLine = _ModifyURL($sCMDLine)
 				ShellExecute($sCMDLine)
