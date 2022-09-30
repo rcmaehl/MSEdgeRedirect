@@ -284,6 +284,7 @@ Func _RedirectCMDDecode($sCMDLine)
 
 	$sCMDLine = StringReplace($sCMDLine, "--edge-redirect", "Method")
 	$sCMDLine = StringReplace($sCMDLine, "microsoft-edge:?", "&")
+	$sCMDLine = StringRegExpReplace($sCMDLine, "microsoft-edge:[\/]*", "&url=") 
 	$aCMDLine_1D = StringSplit($sCMDLine, "&")
 	Redim $aCMDLine_2D[$aCMDLine_1D[0]+1][2]
 	$aCMDLine_2D[0][0] = $aCMDLine_1D[0]
