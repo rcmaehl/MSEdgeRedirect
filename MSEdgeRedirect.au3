@@ -501,6 +501,8 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				Case Else
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
 			EndSelect
+		Case StringInStr($sCMDLine, "&url=") ; Fix Windows 11 Widgets
+			ContinueCase
 		Case StringInStr($sCMDLine, "--edge-redirect")
 			$aCMDLine = _RedirectCMDDecode($sCMDLine)
 
