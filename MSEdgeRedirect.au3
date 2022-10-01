@@ -523,7 +523,8 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			EndIf
 		Case Else
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
-			$sCMDLine = _UnicodeURLDecode($sCMDLine)
+			$sCMDLine = StringReplace($sCMDLine, "?url=", "")
+			If StringInStr($sCMDLine, "%2F") Then $sCMDLine = _UnicodeURLDecode($sCMDLine)
 			If _IsSafeURL($sCMDLine) Then
 				$sCMDLine = _ModifyURL($sCMDLine)
 				ShellExecute($sCMDLine)
