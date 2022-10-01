@@ -1,6 +1,7 @@
 #include-once
 
 #include <Misc.au3>
+#include <Array.au3>
 #include <String.au3>
 #include <EditConstants.au3>
 #include <FileConstants.au3>
@@ -17,7 +18,7 @@
 
 Global $sVersion
 Global $bIsPriv = _IsPriviledgedInstall()
-Global Enum $bNoApps, $bNoBing, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoTray, $bNoUpdates, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather
+Global Enum $bNoApps, $bNoBing, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoTray, $bNoUpdates, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
 
 If @Compiled Then
 	$sVersion = FileGetVersion(@ScriptFullPath)
@@ -30,21 +31,22 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 	Local $sArgs = ""
 	Local Enum $bManaged = 1, $vMode
 
-	SetOptionsRegistry("NoApps"    , $aSettings[$bNoApps]    , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoBing"    , $aSettings[$bNoBing]    , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoImgs"    , $aSettings[$bNoImgs]    , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoMSN"     , $aSettings[$bNoMSN]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoNews"    , $aSettings[$bNoNews]    , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoPDFs"    , $aSettings[$bNoPDFs]    , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoTray"    , $aSettings[$bNoTray]    , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoUpdates" , $aSettings[$bNoUpdates] , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("Images"    , $aSettings[$sImages]    , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("ImagePath" , $aSettings[$sImagePath] , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("News"      , $aSettings[$sNews]      , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("PDFApp"    , $aSettings[$sPDFApp]    , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("Search"    , $aSettings[$sSearch]    , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("SearchPath", $aSettings[$sSearchPath], $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("Weather"   , $aSettings[$sWeather]   , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoApps"     , $aSettings[$bNoApps]     , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoBing"     , $aSettings[$bNoBing]     , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoImgs"     , $aSettings[$bNoImgs]     , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoMSN"      , $aSettings[$bNoMSN]      , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoNews"     , $aSettings[$bNoNews]     , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoPDFs"     , $aSettings[$bNoPDFs]     , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoTray"     , $aSettings[$bNoTray]     , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoUpdates"  , $aSettings[$bNoUpdates]  , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("Images"     , $aSettings[$sImages]     , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("ImagePath"  , $aSettings[$sImagePath]  , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("News"       , $aSettings[$sNews]       , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("PDFApp"     , $aSettings[$sPDFApp]     , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("Search"     , $aSettings[$sSearch]     , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("SearchPath" , $aSettings[$sSearchPath] , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("Weather"    , $aSettings[$sWeather]    , $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("WeatherPath", $aSettings[$sWeatherPath], $aConfig[$vMode], $aConfig[$bManaged])
 
 	If $aConfig[$vMode] Then
 		If Not FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
@@ -77,12 +79,24 @@ Func RunRemoval($bUpdate = False)
 		If $aPIDs[$iLoop][1] <> @AutoItPID Then ProcessClose($aPIDs[$iLoop][1])
 	Next
 
-	If $bIsAdmin Then
-		$sLocation = "C:\Program Files\MSEdgeRedirect\"
-		$sHive = "HKLM"
+	If $bUpdate Then
+		$sHive = _IsInstalled()[1]
 	Else
+		If $bIsAdmin Then
+			$sHive = "HKLM"
+		Else
+			$sHive = "HKCU"
+		EndIf
+	EndIf
+
+	If $sHive = "HKLM" Then
+		$sLocation = "C:\Program Files\MSEdgeRedirect\"
+	ElseIf $sHive = "HKCU" THen
 		$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
-		$sHive = "HKCU"
+	Else
+		FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Determine Registry Hive for Uninstall." & @CRLF)
+		FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "DEBUG: " & _ArrayToString(_IsInstalled()) &  @CRLF)
+		Exit 1359 ; ERROR_INTERNAL_ERROR
 	EndIf
 
 	; App Paths
@@ -157,11 +171,12 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $sHandler
 	Local $hChannels[5]
 	Local $aChannels[5] = [True, False, False, False, True]
+	Local $sWeatherEng
 
 	Local $aConfig[3] = [$hSetupFile, False, "Service"] ; Default Setup.ini Values
 	Local Enum $hFile, $bManaged, $vMode
 
-	Local $aSettings[17] = [False, False, False, False, False, False, False, False, "", "", "", "", "", "", "Full", True, ""]
+	Local $aSettings[18] = [False, False, False, False, False, False, False, False, "", "", "", "", "", "", "Full", True, "", ""]
 
 	If $bSilent Then
 
@@ -183,7 +198,10 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				$aSettings[$sImagePath] = _GetSettingValue("ImagePath")
 			EndIf
 			If $aSettings[$bNoPDFs] Then $aSettings[$sPDFApp] = _GetSettingValue("PDFApp")
-			If $aSettings[$bNoMSN] Then $aSettings[$sWeather] = _GetSettingValue("Weather")
+			If $aSettings[$bNoMSN] Then
+				$aSettings[$sWeather] = _GetSettingValue("Weather")
+				$aSettings[$sWeatherPath] = _GetSettingValue("WeatherPath")
+			EndIf
 			If $aSettings[$bNoNews] Then $aSettings[$sNews] = _GetSettingValue("News")
 		EndIf
 
@@ -206,20 +224,21 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$aSettings[$bNoApps] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoApps", $aSettings[$bNoApps]))
 			$aSettings[$bNoBing] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoBing", $aSettings[$bNoBing]))
 			$aSettings[$bNoImgs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoImgs", $aSettings[$bNoImgs]))
-			$aSettings[$bNoMSN] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoMSN", $aSettings[$bNoBing]))
-			$aSettings[$bNoNews] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoNews", $aSettings[$bNoBing]))
+			$aSettings[$bNoMSN] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoMSN", $aSettings[$bNoMSN]))
+			$aSettings[$bNoNews] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoNews", $aSettings[$bNoNews]))
 			$aSettings[$bNoPDFs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoPDFs", $aSettings[$bNoPDFs]))
 			$aSettings[$bNoTray] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoTray", $aSettings[$bNoTray]))
 			$aSettings[$bNoUpdates] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoUpdates", $aSettings[$bNoUpdates]))
-			$aSettings[$sImages] = _Bool(IniRead($aConfig[$hFile], "Settings", "Images", $aSettings[$bNoUpdates]))
-			$aSettings[$sImagePath] = _Bool(IniRead($aConfig[$hFile], "Settings", "ImagePath", $aSettings[$bNoUpdates]))
-			$aSettings[$sNews] = _Bool(IniRead($aConfig[$hFile], "Settings", "News", $aSettings[$bNoUpdates]))
+			$aSettings[$sImages] = _Bool(IniRead($aConfig[$hFile], "Settings", "Images", $aSettings[$sImages]))
+			$aSettings[$sImagePath] = _Bool(IniRead($aConfig[$hFile], "Settings", "ImagePath", $aSettings[$sImagePath]))
+			$aSettings[$sNews] = _Bool(IniRead($aConfig[$hFile], "Settings", "News", $aSettings[$sNews]))
 			$aSettings[$sPDFApp] = IniRead($aConfig[$hFile], "Settings", "PDFApp", $aSettings[$sPDFApp])
 			$aSettings[$sSearchPath] = IniRead($aConfig[$hFile], "Settings", "SearchPath", $aSettings[$sSearchPath])
 			$aSettings[$sStartMenu] = IniRead($aConfig[$hFile], "Settings", "StartMenu", $aSettings[$sStartMenu])
 			$aSettings[$sSearch] = IniRead($aConfig[$hFile], "Settings", "Search", $aSettings[$sSearch])
 			$aSettings[$bStartup] = _Bool(IniRead($aConfig[$hFile], "Settings", "Startup", $aSettings[$bStartup]))
-			$aSettings[$sWeather] = IniRead($aConfig[$hFile], "Settings", "Weather", $aSettings[$sSearch])
+			$aSettings[$sWeather] = IniRead($aConfig[$hFile], "Settings", "Weather", $aSettings[$sWeather])
+			$aSettings[$sWeatherPath] = IniRead($aConfig[$hFile], "Settings", "WeatherPath", $aSettings[$sWeatherPath])
 
 			$sEdges = IniRead($aConfig[$hFile], "Settings", "Edges", "")
 			If StringInStr($sEdges, "Stable") Then $aChannels[0] = True
@@ -244,7 +263,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				If $aConfig[$hFile] = "WINGET" Then
 					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate IEFO Channels." & @CRLF)
 				Else
-					Exit 160 ; ERROR_BAD_ARGUMENTS
+					Exit 1359 ; ERROR_INTERNAL_ERROR
 				EndIf
 			EndIf
 		Next
@@ -254,7 +273,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				If $aConfig[$hFile] = "WINGET" Then
 					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Boolean Settings." & @CRLF)
 				Else
-					Exit 160 ; ERROR_BAD_ARGUMENTS
+					Exit 1359 ; ERROR_INTERNAL_ERROR
 				EndIf
 			EndIf
 		Next
@@ -262,7 +281,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			If $aConfig[$hFile] = "WINGET" Then
 				FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Startup Boolean." & @CRLF)
 			Else
-				Exit 160 ; ERROR_BAD_ARGUMENTS
+				Exit 1359 ; ERROR_INTERNAL_ERROR
 			EndIf
 		EndIf
 
@@ -434,8 +453,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			EndSelect
 
 		GUICtrlCreateGroup("Service Mode Options", 20, 140, 420, 70)
-			Local $hNoIcon = GUICtrlCreateCheckbox("Hide Service Mode from Tray", 50, 160, 190, 20)
-			Local $hStartup = GUICtrlCreateCheckbox("Start Service Mode With Windows", 50, 180, 190, 20)
+			Local $hNoIcon = GUICtrlCreateCheckbox("Hide Service Mode from Tray", 50, 160, 380, 20)
+			Local $hStartup = GUICtrlCreateCheckbox("Start Service Mode With Windows", 50, 180, 380, 20)
 
 			If $bIsAdmin Then
 				GUICtrlSetState($hStartup, $GUI_DISABLE)
@@ -460,7 +479,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoMSN = GUICtrlCreateCheckbox("MSN Weather:", 240, 285, 180, 20)
 			Local $hWeather = GUICtrlCreateCombo("", 240, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
-			GUICtrlSetData(-1, "AccuWeather|DarkSky|Weather.com|Weather.gov|Windy|WUnderground|Ventusky|Yandex", "Weather.com")
+			GUICtrlSetData(-1, "AccuWeather|Custom|DarkSky|Weather.com|Weather.gov|Windy|WUnderground|Ventusky|Yandex", "Weather.com")
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoPDFs = GUICtrlCreateCheckbox("PDF Viewer:", 50, 330, 180, 20)
 			Local $hPDFPath = GUICtrlCreateEdit("", 50, 350, 180, 20, $ES_READONLY+$ES_AUTOHSCROLL)
@@ -484,6 +503,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			If _IsChecked($hNoMSN) Then
 				GUICtrlSetState($hWeather, $GUI_ENABLE)
 				GUICtrlSetData($hWeather, _GetSettingValue("Weather"))
+				$sWeatherEng = _GetSettingValue("WeatherPath")
 			EndIf
 			GUICtrlSetState($hNoNews, _GetSettingValue("NoNews"))
 			If _IsChecked($hNoNews) Then
@@ -516,7 +536,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		Local $hAppLnk = GUICtrlCreateCheckbox("Create Start Menu Shortcuts", 20, 220, 190, 20)
 		GUICtrlSetState(-1, $GUI_CHECKED)
 		Local $hDonate = GUICtrlCreateCheckbox("Donate to the Project via PayPal", 20, 240, 190, 20)
-		Local $hHelpUs = GUICtrlCreateCheckbox("Help MSEdgeRedirect get off Google's Blacklist", 20, 260, 190, 20)
 
 		GUISwitch($hInstallGUI)
 		#EndRegion
@@ -610,6 +629,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							$aSettings[$sSearchPath] = $sEngine
 							$aSettings[$bStartup] = _IsChecked($hStartup)
 							$aSettings[$sWeather] = GUICtrlRead($hWeather)
+							$aSettings[$sWeatherPath] = $sWeatherEng
 
 							GUISetState(@SW_HIDE, $hSettings)
 							RunInstall($aConfig, $aSettings)
@@ -633,7 +653,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						Case $hExit
 							If _IsChecked($hAppLnk) Then SetAppShortcuts($aConfig, $aSettings)
 							If _IsChecked($hDonate) Then ShellExecute("https://paypal.me/rhsky")
-							If _IsChecked($hHelpUs) Then ShellExecute("https://safebrowsing.google.com/safebrowsing/report_error/?url=https://github.com/rcmaehl/MSEdgeRedirect/releases")
 							If Not $aConfig[$vMode] And _IsChecked($hLaunch) Then
 								If $aSettings[$bNoTray] Then $sArgs = "/hide"
 								ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
@@ -729,6 +748,10 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						GUICtrlSetState($hWeather, $GUI_DISABLE)
 					EndIf
 
+				Case $hMsg = $hWeather And GUICtrlRead($hWeather) = "Custom"
+					$sWeatherEng = InputBox("Enter Weather Engine URL", "Enter the URL format of the custom Weather Engine to use (REQUIRES LAT,LONG SUPPORT!)", "https://www.accuweather.com/en/search-locations?query=")
+					If @error Then GUICtrlSetData($hImgSRC, "Weather.com")
+
 				Case $hMsg = $hNoNews
 					If _IsChecked($hNoNews) Then
 						GUICtrlSetState($hNewSRC, $GUI_ENABLE)
@@ -761,11 +784,13 @@ EndFunc
 
 Func RunUpdateCheck($bFull = False)
 	Switch _GetLatestRelease($sVersion)
+		#cs
 		Case -1
 			MsgBox($MB_OK + $MB_ICONWARNING + $MB_TOPMOST, _
 				_Translate($aMUI[1], "Test Build?"), _
 				_Translate($aMUI[1], "You're running a newer build than publicly Available!"), _
 				10)
+		#ce
 		Case 0
 			If $bFull Then
 				Switch @error
@@ -862,7 +887,7 @@ EndFunc
 Func SetAppShortcuts(ByRef $aConfig, ByRef $aSettings)
 
 	Local $sArgs = ""
-	Local Enum $vMode = 1
+	Local Enum $vMode = 2
 
 	If $aSettings[$bNoTray] Then $sArgs = "/hide"
 

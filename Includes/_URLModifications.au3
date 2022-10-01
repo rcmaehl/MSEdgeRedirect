@@ -219,6 +219,9 @@ Func _ChangeWeatherProvider($sURL)
 					Case "AccuWeather"
 						$sURL = "https://www.accuweather.com/en/search-locations?query=" & $fLat & "," & $fLong
 
+					Case "Custom"
+						$sURL = _GetSettingValue("WeatherPath") & $fLat & "," & $fLong
+
 					Case "DarkSky"
 						$sURL = "https://darksky.net/forecast/" & $fLat & "," & $fLong & "/"
 
@@ -272,6 +275,29 @@ Func _ModifyURL($sURL)
 	Return $sURL
 
 EndFunc
+
+Func _RedirectCMDDecode($sCMDLine)
+
+	Local $aTemp
+	Local $aCMDLine_1D
+	Local $aCMDLine_2D[0][0]
+
+	$sCMDLine = StringReplace($sCMDLine, "--edge-redirect", "Method")
+	$sCMDLine = StringReplace($sCMDLine, "microsoft-edge:?", "&")
+	$sCMDLine = StringRegExpReplace($sCMDLine, "microsoft-edge:[\/]*", "&url=") 
+	$aCMDLine_1D = StringSplit($sCMDLine, "&")
+	Redim $aCMDLine_2D[$aCMDLine_1D[0]+1][2]
+	$aCMDLine_2D[0][0] = $aCMDLine_1D[0]
+	For $iLoop = 1 To $aCMDLine_1D[0] Step 1
+		$aTemp = StringSplit($aCMDLine_1D[$iLoop], "=", $STR_NOCOUNT)
+		$aCMDLine_2D[$iLoop][0] = $aTemp[0]
+		$aCMDLine_2D[$iLoop][1] = $aTemp[1]
+	Next
+
+	Return $aCMDLine_2D
+
+EndFunc
+
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _UnicodeURLDecode

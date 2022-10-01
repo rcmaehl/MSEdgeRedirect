@@ -7,9 +7,9 @@
 #AutoIt3Wrapper_Res_Comment=https://www.msedgeredirect.com
 #AutoIt3Wrapper_Res_CompanyName=Robert Maehl Software
 #AutoIt3Wrapper_Res_Description=MSEdgeRedirect
-#AutoIt3Wrapper_Res_Fileversion=0.7.0.2
+#AutoIt3Wrapper_Res_Fileversion=0.7.1.0
 #AutoIt3Wrapper_Res_ProductName=MSEdgeRedirect App & Service
-#AutoIt3Wrapper_Res_ProductVersion=0.7.0.2
+#AutoIt3Wrapper_Res_ProductVersion=0.7.1.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
@@ -85,6 +85,14 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
+		Case _ArraySearch($aCMDLine, "localhost:", 2, 0,0, 1) > 0 ; Improve on #162
+			ContinueCase
+		Case _ArraySearch($aCMDLine, "localhost/", 2, 0,0, 1) > 0 ; Improve on #162
+			ContinueCase
+		Case _ArraySearch($aCMDLine, @ComputerName & ":", 2, 0,0, 1) > 0 ; Improve on #162
+			ContinueCase
+		Case _ArraySearch($aCMDLine, @ComputerName & "/", 2, 0,0, 1) > 0 ; Improve on #162
+			ContinueCase
 		Case _ArraySearch($aCMDLine, "127.0.0.1", 2, 0,0, 1) > 0 ; #162
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Localhost URL: " & $sCMDLine & @CRLF)
@@ -267,21 +275,26 @@ Func ProcessCMDLine()
 		Select
 			Case Not $aInstall[0] ; Not Installed
 				RunSetup(False, $bSilent, 0, $hFile)
-			Case _VersionCompare($sVersion, $aInstall[2]) And Not $bIsAdmin
-				ShellExecute(@ScriptFullPath, $sCMDLine, @ScriptDir, "RunAs")
-				If @error Then
-					If Not $bSilent Then MsgBox($MB_ICONWARNING+$MB_OK, _
-						"Existing Active Mode Install", _
-						"Unable to update an existing Active Mode install without Admin Rights! The installer will continue however.")
-					ContinueCase
-				Else
-					Exit
-				EndIf
 			Case _VersionCompare($sVersion, $aInstall[2]) ; Installed, Out of Date
-				RunSetup($aInstall[1], $bSilent, 0, $hFile)
+				Select
+					Case StringInStr($aInstall[1], "HKCU") ; Installed, Service Mode
+						RunSetup($aInstall[0], $bSilent, 0, $hFile)
+					Case StringInStr($aInstall[1], "HKLM") And Not $bIsAdmin ; Installed, Active Mode, Not Admin
+						ShellExecute(@ScriptFullPath, $sCMDLine, @ScriptDir, "RunAs")
+						If @error Then
+							If Not $bSilent Then MsgBox($MB_ICONWARNING+$MB_OK, _
+								"Existing Active Mode Install", _
+								"Unable to update an existing Active Mode install without Admin Rights! The installer will continue however.")
+							ContinueCase
+						Else
+							Exit
+						EndIf
+					Case StringInStr($aInstall[1], "HKLM") ; Installed, Active Mode
+						RunSetup($aInstall[0], $bSilent, 0, $hFile)
+				EndSelect
 			Case StringInStr($aInstall[1], "HKCU") ; Installed, Up to Date, Service Mode
 				If @ScriptDir <> @LocalAppDataDir & "\MSEdgeRedirect" Then
-					RunSetup($aInstall[1], $bSilent, 0, $hFile)
+					RunSetup($aInstall[0], $bSilent, 0, $hFile)
 					;ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", "", @LocalAppDataDir & "\MSEdgeRedirect\")
 				Else
 					$aPIDs = ProcessList(@ScriptName)
@@ -450,8 +463,8 @@ EndFunc
 
 Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
-	Local $sCaller
-	Local $aLaunchContext
+	Local $sURL = ""
+	Local $aCMDLine
 
 	Select
 		Case StringLeft($sCMDLine, 2) = "--" And _GetSettingValue("RunUnsafe")
@@ -488,41 +501,32 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				Case Else
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
 			EndSelect
-		Case StringInStr($sCMDLine, "Windows.Widgets")
-			$sCaller = "Windows.Widgets"
+		Case StringInStr($sCMDLine, "&url=") ; Fix Windows 11 Widgets
 			ContinueCase
-		Case StringRegExp($sCMDLine, "microsoft-edge:[\/]*?\?launchContext1")
-			$aLaunchContext = StringSplit($sCMDLine, "=")
-			If $aLaunchContext[0] >= 3 Then
-				If $sCaller = "" Then $sCaller = $aLaunchContext[2]
-				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call from: " & $sCaller & @CRLF)
-				$sCMDLine = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
-				If _IsSafeURL($sCMDLine) Then
-					$sCMDLine = _ModifyURL($sCMDLine)
-					ShellExecute($sCMDLine)
-				Else
-					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid Regexed URL: " & $sCMDLine & @CRLF)
+		Case StringInStr($sCMDLine, "--edge-redirect")
+			$aCMDLine = _RedirectCMDDecode($sCMDLine)
+
+			For $iLoop = 0 To Ubound($aCMDLine) - 1 Step 1
+				If $aCMDLine[$iLoop][0] = "url" Then
+					$sURL = $aCMDLine[$iLoop][1]
+					If StringInStr($sURL, "%2F") Then $sURL = _UnicodeURLDecode($sURL)
+					ExitLoop
 				EndIf
-			Else
+			Next
+
+			If $sURL = "" Then
 				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
-			EndIf
-		Case StringRegExp($sCMDLine, "microsoft-edge:[\/]*?\?source")
-			$aLaunchContext = StringSplit($sCMDLine, "=")
-			If $aLaunchContext[0] >= 3 Then
-				If $sCaller = "" Then $sCaller = $aLaunchContext[2]
-				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call from: " & $sCaller & @CRLF)
-				$sCMDLine = _UnicodeURLDecode($aLaunchContext[$aLaunchContext[0]])
-				If _IsSafeURL($sCMDLine) Then
-					$sCMDLine = _ModifyURL($sCMDLine)
-					ShellExecute($sCMDLine)
-				Else
-					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid Regexed URL: " & $sCMDLine & @CRLF)
+			Else
+				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call from: " & _ArrayToString($aCMDLine) & @CRLF)
+				If _IsSafeURL($sURL) Then
+					$sURL = _ModifyURL($sURL)
+					ShellExecute($sURL)
 				EndIf
-			Else
-				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
 			EndIf
 		Case Else
-			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "")
+			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
+			$sCMDLine = StringReplace($sCMDLine, "?url=", "")
+			If StringInStr($sCMDLine, "%2F") Then $sCMDLine = _UnicodeURLDecode($sCMDLine)
 			If _IsSafeURL($sCMDLine) Then
 				$sCMDLine = _ModifyURL($sCMDLine)
 				ShellExecute($sCMDLine)
