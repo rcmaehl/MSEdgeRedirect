@@ -287,11 +287,10 @@ Func _RedirectCMDDecode($sCMDLine)
 	$sCMDLine = StringRegExpReplace($sCMDLine, "microsoft-edge:[\/]*", "&url=") 
 	$aCMDLine_1D = StringSplit($sCMDLine, "&")
 	Redim $aCMDLine_2D[$aCMDLine_1D[0]+1][2]
-	$aCMDLine_2D[0][0] = $aCMDLine_1D[0]
-	For $iLoop = 1 To $aCMDLine_1D[0] Step 1
-		$aTemp = StringSplit($aCMDLine_1D[$iLoop], "=", $STR_NOCOUNT)
-		$aCMDLine_2D[$iLoop][0] = $aTemp[0]
-		$aCMDLine_2D[$iLoop][1] = $aTemp[1]
+	For $iLoop = 0 To $aCMDLine_1D[0] Step 1
+		$aTemp = StringSplit($aCMDLine_1D[$iLoop], "=")
+		$aCMDLine_2D[$iLoop][0] = $aTemp[1]
+		If $aTemp[0] >= 2 Then $aCMDLine_2D[$iLoop][1] = $aTemp[2]
 	Next
 
 	Return $aCMDLine_2D
