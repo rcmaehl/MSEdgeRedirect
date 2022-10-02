@@ -517,7 +517,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			If $sURL = "" Then
 				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
 			Else
-				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call from: " & _ArrayToString($aCMDLine) & @CRLF)
+				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 				If _IsSafeURL($sURL) Then
 					$sURL = _ModifyURL($sURL)
 					ShellExecute($sURL)
