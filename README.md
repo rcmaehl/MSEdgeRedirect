@@ -25,7 +25,7 @@ Looking to Disable Web Search Entirely? Try [@krlvm](https://github.com/krlvm)'s
 
 Download Stable (GitHub)|Download Testing (GitHub)
 ----|----
-<a href="https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe"><img src="https://img.shields.io/github/v/release/rcmaehl/msedgeredirect?display_name=tag&style=for-the-badge" height="45px" /></a>|<a href="https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/MSER/main/mser.zip"><img src="https://img.shields.io/github/workflow/status/rcmaehl/MSEdgeRedirect/mser?style=for-the-badge" height="45px" /></a>
+<a href="https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe"><img src="https://img.shields.io/github/v/release/rcmaehl/msedgeredirect?display_name=tag&style=for-the-badge" height="45px" /></a>|<a href="https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/MSER/0.8.0.0-dev/mser.zip"><img src="https://img.shields.io/github/workflow/status/rcmaehl/MSEdgeRedirect/mser?style=for-the-badge" height="45px" /></a>
 
 ### Package Managers
 
