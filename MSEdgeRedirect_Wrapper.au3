@@ -428,7 +428,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 145, 80, 95, 20)
 			$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 240, 80, 95, 20)
 			$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 335, 80, 95, 20)
-			$hChannels[4] = GUICtrlCreateCheckbox("Edge Removed Using AveYo's Edge Remover (Automatically Detected)", 50, 100, 380, 20)
+			$hChannels[4] = GUICtrlCreateCheckbox("Edge Removed Using AveYo's Edge Remover (Auto Detected)", 50, 100, 380, 20)
 			GUICtrlSetState(-1, $GUI_DISABLE)
 
 			Select
@@ -437,7 +437,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUICtrlSetState($hChannels[1], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[2], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[3], $GUI_DISABLE)
-				Case RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger")
+				Case FileExists("C:\ProgramData\ie_to_edge_stub.exe")
+					ContinueCase
+				Case FileExists("C:\Users\Public\ie_to_edge_stub.exe")
 					GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 					ContinueCase
 				Case Else
