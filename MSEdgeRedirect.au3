@@ -158,10 +158,18 @@ Func ProcessCMDLine()
 			Switch $CmdLine[1]
 				Case "/?", "/help"
 					MsgBox(0, "Help and Flags", _
-							"MSEdgeRedirect [/hide]" & @CRLF & _
+							"MSEdgeRedirect" & @CRLF & _
 							@CRLF & _
-							@TAB & "/hide  " & @TAB & "Hides the tray icon" & @CRLF & _
-							@TAB & "/update" & @TAB & "Downloads the latest RELEASE (default) or DEV build" & @CRLF & _
+							@TAB & "/admin    " & @TAB & "Attempts to run MSEdgeRedirect as admin" & @CRLF & _
+							@TAB & "/change   " & @TAB & "Reruns Installer" & @CRLF & _
+							@TAB & "/hide     " & @TAB & "Hides the tray icon" & @CRLF & _
+							@TAB & "/kill     " & @TAB & "Kills other MSEdgeRedirect processes" & @CRLF & _
+							@TAB & "/portable " & @TAB & "Runs MSEdgeRedirect in portable mode" & @CRLF & _
+							@TAB & "/repair   " & @TAB & "Repairs IFEO file copies" & @CRLF & _
+							@TAB & "/settings " & @TAB & "Opens Settings Menu" & @CRLF & _
+							@TAB & "/si       " & @TAB & "Runs a Silent Install" & @CRLF & _
+							@TAB & "/update   " & @TAB & "Downloads the latest RELEASE (default) or DEV build" & @CRLF & _
+							@TAB & "/uninstall" & @TAB & "Uninstalls MSEdgeRedirect" & @CRLF & _
 							@CRLF & _
 							@CRLF)
 					Exit 0
