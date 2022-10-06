@@ -16,6 +16,8 @@
 #include "Includes\_Settings.au3"
 #include "Includes\_Translation.au3"
 
+#include "Includes\TaskScheduler.au3"
+
 Global $sVersion
 Global $bIsPriv = _IsPriviledgedInstall()
 Global Enum $bNoApps, $bNoBing, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoTray, $bNoUpdates, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
@@ -31,22 +33,22 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 	Local $sArgs = ""
 	Local Enum $bManaged = 1, $vMode
 
-	SetOptionsRegistry("NoApps"     , $aSettings[$bNoApps]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoBing"     , $aSettings[$bNoBing]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoImgs"     , $aSettings[$bNoImgs]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoMSN"      , $aSettings[$bNoMSN]      , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoNews"     , $aSettings[$bNoNews]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoPDFs"     , $aSettings[$bNoPDFs]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoTray"     , $aSettings[$bNoTray]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoUpdates"  , $aSettings[$bNoUpdates]  , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("Images"     , $aSettings[$sImages]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("ImagePath"  , $aSettings[$sImagePath]  , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("News"       , $aSettings[$sNews]       , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("PDFApp"     , $aSettings[$sPDFApp]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("Search"     , $aSettings[$sSearch]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("SearchPath" , $aSettings[$sSearchPath] , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("Weather"    , $aSettings[$sWeather]    , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("WeatherPath", $aSettings[$sWeatherPath], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoApps"     , $aSettings[$bNoApps]     , $aConfig)
+	SetOptionsRegistry("NoBing"     , $aSettings[$bNoBing]     , $aConfig)
+	SetOptionsRegistry("NoImgs"     , $aSettings[$bNoImgs]     , $aConfig)
+	SetOptionsRegistry("NoMSN"      , $aSettings[$bNoMSN]      , $aConfig)
+	SetOptionsRegistry("NoNews"     , $aSettings[$bNoNews]     , $aConfig)
+	SetOptionsRegistry("NoPDFs"     , $aSettings[$bNoPDFs]     , $aConfig)
+	SetOptionsRegistry("NoTray"     , $aSettings[$bNoTray]     , $aConfig)
+	SetOptionsRegistry("NoUpdates"  , $aSettings[$bNoUpdates]  , $aConfig)
+	SetOptionsRegistry("Images"     , $aSettings[$sImages]     , $aConfig)
+	SetOptionsRegistry("ImagePath"  , $aSettings[$sImagePath]  , $aConfig)
+	SetOptionsRegistry("News"       , $aSettings[$sNews]       , $aConfig)
+	SetOptionsRegistry("PDFApp"     , $aSettings[$sPDFApp]     , $aConfig)
+	SetOptionsRegistry("Search"     , $aSettings[$sSearch]     , $aConfig)
+	SetOptionsRegistry("SearchPath" , $aSettings[$sSearchPath] , $aConfig)
+	SetOptionsRegistry("Weather"    , $aSettings[$sWeather]    , $aConfig)
+	SetOptionsRegistry("WeatherPath", $aSettings[$sWeatherPath], $aConfig)
 
 	If $aConfig[$vMode] Then
 		If Not FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
@@ -287,7 +289,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		If $bUpdate Then RunRemoval(True)
 		RunInstall($aConfig, $aSettings)
-		SetAppRegistry($aConfig[$vMode])
+		SetAppRegistry($aConfig)
 		SetAppShortcuts($aConfig, $aSettings)
 		If $aConfig[$vMode] Then
 			SetIFEORegistry($aChannels)
@@ -635,7 +637,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 							GUISetState(@SW_HIDE, $hSettings)
 							RunInstall($aConfig, $aSettings)
-							SetAppRegistry($aConfig[$vMode])
+							SetAppRegistry($aConfig)
 							If $aConfig[$vMode] Then
 								For $iLoop = 0 To UBound($aChannels) - 1 Step 1
 									$aChannels[$iLoop] = _IsChecked($hChannels[$iLoop])
@@ -834,12 +836,14 @@ Func RunUpdateCheck($bFull = False)
 	EndSwitch
 EndFunc
 
-Func SetAppRegistry($bAllUsers)
+Func SetAppRegistry(ByRef $aConfig)
+
+	Local Enum $vMode = 2
 
 	Local $sHive = ""
 	Local $sLocation = ""
 
-	If $bAllUsers Then
+	If $aConfig[$vMode] Then
 		$sLocation = "C:\Program Files\MSEdgeRedirect\"
 		$sHive = "HKLM"
 	Else
@@ -938,20 +942,20 @@ Func SetIFEORegistry(ByRef $aChannels)
 	EndIf
 EndFunc
 
-Func SetOptionsRegistry($sName, $vValue, $bAllUsers, $bManaged = False)
+Func SetOptionsRegistry($sName, $vValue, ByRef $aConfig)
 
 	Local Static $sHive = ""
 	Local Static $sPolicy = ""
-	#forceref $sHive
+	Local Enum $bManaged = 1, $vMode
 
 	If $sHive = "" Then
-		If $bAllUsers Then
+		If $aConfig[$vMode] Then
 			$sHive = "HKLM"
 		Else
 			$sHive = "HKCU"
 		EndIf
 
-		If $bManaged Then $sPolicy = "Policies\"
+		If $aConfig[$bManaged] Then $sPolicy = "Policies\"
 	EndIf
 
 	Select
@@ -973,6 +977,8 @@ EndFunc
 
 Func SetScheduledTask(ByRef $aConfig)
 	#forceref $aConfig
+	Local Enum $bManaged = 1, $vMode
+
 EndFunc
 
 Func SetupAppdata()
