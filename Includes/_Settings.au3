@@ -35,9 +35,12 @@ Func _Bool($sString)
 	EndSwitch
 EndFunc
 
-Func _GetSettingValue($sSetting, $bPortable = False)
+Func _GetSettingValue($sSetting)
 
 	Local $vReturn = Null
+	Local Static $bPortable
+
+	If $sSetting = "SetPortable" Then $bPortable = True
 
 	Select
 

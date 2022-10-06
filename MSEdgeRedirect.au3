@@ -194,6 +194,7 @@ Func ProcessCMDLine()
 					Exit
 				Case "/p", "/portable"
 					$bPortable = True
+					_GetSettingValue("SetPortable")
 					_ArrayDelete($CmdLine, 1)
 				Case "/repair"
 					RunRepair()
