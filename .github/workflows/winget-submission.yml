@@ -17,7 +17,7 @@ jobs:
       - uses: vedantmgoyal2009/winget-releaser@v1
         with:
           identifier: rcmaehl.MSEdgeRedirect
-          version: ${{ inputs.tag_name || github.release.tag_name || github.ref_name }}
-          release-tag: ${{ inputs.tag_name || github.release.tag_name || github.ref_name }}
+          version: ${{ inputs.tag_name || github.event.release.tag_name }}
+          release-tag: ${{ inputs.tag_name || github.event.release.tag_name }}
           delete-previous-version: 'true'
           token: ${{ secrets.MSEdgeRedirect_PAT }}
