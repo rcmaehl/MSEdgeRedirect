@@ -55,7 +55,6 @@ ProcessCMDLine()
 Func ActiveMode(ByRef $aCMDLine)
 
 	Local $sCMDLine = ""
-	CheckEdgeIntegrity($aCMDLine[1])
 
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
@@ -79,10 +78,12 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case _ArraySearch($aCMDLine, "--app-id", 2, 0,0, 1) > 0 And Not _GetSettingValue("NoApps")
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
+			CheckEdgeIntegrity($aCMDLine[1])
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			ShellExecute($aCMDLine[1], $sCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
+			CheckEdgeIntegrity($aCMDLine[1])
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
 		Case _ArraySearch($aCMDLine, "localhost:", 2, 0,0, 1) > 0 ; Improve on #162
@@ -487,7 +488,10 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
 				ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
 			Else
-				If _IsPriviledgedInstall() Then $sEdge = StringReplace($sEdge, "msedge.exe", "msedge_no_ifeo.exe")
+				If _IsPriviledgedInstall() Then
+					CheckEdgeIntegrity($aCMDLine[1])
+					$sEdge = StringReplace($sEdge, "msedge.exe", "msedge_no_ifeo.exe")
+				EndIf
 				ShellExecute($sEdge, $sCMDLine)
 				If Not _IsPriviledgedInstall() Then Sleep(1000)
 			EndIf
