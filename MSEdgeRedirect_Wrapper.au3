@@ -16,6 +16,8 @@
 #include "Includes\_Settings.au3"
 #include "Includes\_Translation.au3"
 
+#include "Includes\TaskScheduler.au3"
+
 Global $sVersion
 Global $bIsPriv = _IsPriviledgedInstall()
 Global Enum $bNoApps, $bNoBing, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoTray, $bNoUpdates, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
@@ -31,22 +33,22 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 	Local $sArgs = ""
 	Local Enum $bManaged = 1, $vMode
 
-	SetOptionsRegistry("NoApps"     , $aSettings[$bNoApps]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoBing"     , $aSettings[$bNoBing]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoImgs"     , $aSettings[$bNoImgs]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoMSN"      , $aSettings[$bNoMSN]      , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoNews"     , $aSettings[$bNoNews]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoPDFs"     , $aSettings[$bNoPDFs]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoTray"     , $aSettings[$bNoTray]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("NoUpdates"  , $aSettings[$bNoUpdates]  , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("Images"     , $aSettings[$sImages]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("ImagePath"  , $aSettings[$sImagePath]  , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("News"       , $aSettings[$sNews]       , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("PDFApp"     , $aSettings[$sPDFApp]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("Search"     , $aSettings[$sSearch]     , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("SearchPath" , $aSettings[$sSearchPath] , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("Weather"    , $aSettings[$sWeather]    , $aConfig[$vMode], $aConfig[$bManaged])
-	SetOptionsRegistry("WeatherPath", $aSettings[$sWeatherPath], $aConfig[$vMode], $aConfig[$bManaged])
+	SetOptionsRegistry("NoApps"     , $aSettings[$bNoApps]     , $aConfig)
+	SetOptionsRegistry("NoBing"     , $aSettings[$bNoBing]     , $aConfig)
+	SetOptionsRegistry("NoImgs"     , $aSettings[$bNoImgs]     , $aConfig)
+	SetOptionsRegistry("NoMSN"      , $aSettings[$bNoMSN]      , $aConfig)
+	SetOptionsRegistry("NoNews"     , $aSettings[$bNoNews]     , $aConfig)
+	SetOptionsRegistry("NoPDFs"     , $aSettings[$bNoPDFs]     , $aConfig)
+	SetOptionsRegistry("NoTray"     , $aSettings[$bNoTray]     , $aConfig)
+	SetOptionsRegistry("NoUpdates"  , $aSettings[$bNoUpdates]  , $aConfig)
+	SetOptionsRegistry("Images"     , $aSettings[$sImages]     , $aConfig)
+	SetOptionsRegistry("ImagePath"  , $aSettings[$sImagePath]  , $aConfig)
+	SetOptionsRegistry("News"       , $aSettings[$sNews]       , $aConfig)
+	SetOptionsRegistry("PDFApp"     , $aSettings[$sPDFApp]     , $aConfig)
+	SetOptionsRegistry("Search"     , $aSettings[$sSearch]     , $aConfig)
+	SetOptionsRegistry("SearchPath" , $aSettings[$sSearchPath] , $aConfig)
+	SetOptionsRegistry("Weather"    , $aSettings[$sWeather]    , $aConfig)
+	SetOptionsRegistry("WeatherPath", $aSettings[$sWeatherPath], $aConfig)
 
 	If $aConfig[$vMode] Then
 		If Not FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
@@ -70,6 +72,7 @@ EndFunc
 
 Func RunRemoval($bUpdate = False)
 
+	Local $hTS
 	Local $aPIDs
 	Local $sHive = ""
 	Local $sLocation = ""
@@ -134,6 +137,13 @@ Func RunRemoval($bUpdate = False)
 				FileDelete(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"))
 			EndIf
 		Next
+		$hTS = _TS_Open()
+		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge")
+		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Beta")
+		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Canary")
+		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Dev")
+		_TS_FolderDelete($hTS, "\MSEdgeRedirect")
+		_TS_Close($hTS)
 	EndIf
 
 	If $bUpdate Then
@@ -287,10 +297,11 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		If $bUpdate Then RunRemoval(True)
 		RunInstall($aConfig, $aSettings)
-		SetAppRegistry($aConfig[$vMode])
+		SetAppRegistry($aConfig)
 		SetAppShortcuts($aConfig, $aSettings)
 		If $aConfig[$vMode] Then
 			SetIFEORegistry($aChannels)
+			SetScheduledTask($aChannels)
 		Else
 			If $aSettings[$bNoTray] Then $sArgs = "/hide"
 			ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
@@ -428,7 +439,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 145, 80, 95, 20)
 			$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 240, 80, 95, 20)
 			$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 335, 80, 95, 20)
-			$hChannels[4] = GUICtrlCreateCheckbox("Edge Removed Using AveYo's Edge Remover (Automatically Detected)", 50, 100, 380, 20)
+			$hChannels[4] = GUICtrlCreateCheckbox("Edge Removed Using AveYo's Edge Remover (Auto Detected)", 50, 100, 380, 20)
 			GUICtrlSetState(-1, $GUI_DISABLE)
 
 			Select
@@ -437,7 +448,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUICtrlSetState($hChannels[1], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[2], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[3], $GUI_DISABLE)
-				Case RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger")
+				Case FileExists("C:\ProgramData\ie_to_edge_stub.exe")
+					ContinueCase
+				Case FileExists("C:\Users\Public\ie_to_edge_stub.exe")
 					GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 					ContinueCase
 				Case Else
@@ -633,12 +646,13 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 							GUISetState(@SW_HIDE, $hSettings)
 							RunInstall($aConfig, $aSettings)
-							SetAppRegistry($aConfig[$vMode])
+							SetAppRegistry($aConfig)
 							If $aConfig[$vMode] Then
 								For $iLoop = 0 To UBound($aChannels) - 1 Step 1
 									$aChannels[$iLoop] = _IsChecked($hChannels[$iLoop])
 								Next
 								SetIFEORegistry($aChannels)
+								SetScheduledTask($aChannels)
 							EndIf
 							If $iMode = $hSettings Then Return
 							GUICtrlSetData($hNext, "Finish")
@@ -832,12 +846,14 @@ Func RunUpdateCheck($bFull = False)
 	EndSwitch
 EndFunc
 
-Func SetAppRegistry($bAllUsers)
+Func SetAppRegistry(ByRef $aConfig)
+
+	Local Enum $vMode = 2
 
 	Local $sHive = ""
 	Local $sLocation = ""
 
-	If $bAllUsers Then
+	If $aConfig[$vMode] Then
 		$sLocation = "C:\Program Files\MSEdgeRedirect\"
 		$sHive = "HKLM"
 	Else
@@ -936,20 +952,20 @@ Func SetIFEORegistry(ByRef $aChannels)
 	EndIf
 EndFunc
 
-Func SetOptionsRegistry($sName, $vValue, $bAllUsers, $bManaged = False)
+Func SetOptionsRegistry($sName, $vValue, ByRef $aConfig)
 
 	Local Static $sHive = ""
 	Local Static $sPolicy = ""
-	#forceref $sHive
+	Local Enum $bManaged = 1, $vMode
 
 	If $sHive = "" Then
-		If $bAllUsers Then
+		If $aConfig[$vMode] Then
 			$sHive = "HKLM"
 		Else
 			$sHive = "HKCU"
 		EndIf
 
-		If $bManaged Then $sPolicy = "Policies\"
+		If $aConfig[$bManaged] Then $sPolicy = "Policies\"
 	EndIf
 
 	Select
@@ -969,8 +985,35 @@ Func SetOptionsRegistry($sName, $vValue, $bAllUsers, $bManaged = False)
 
 EndFunc
 
-Func SetScheduledTask(ByRef $aConfig)
-	#forceref $aConfig
+Func SetScheduledTask($aChannels)
+
+	Local $hTS
+	Local $hTO
+	Local Enum $bManaged = 1, $vMode
+
+	Local $aTasks[5] = [4, _
+		"Update Edge.xml", _
+		"Update Edge Beta.xml", _
+		"Update Edge Dev.xml", _
+		"Update Edge Canary.xml"]
+
+	DirCreate("C:\Program Files\MSEdgeRedirect\Assets")
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge.xml" , $FC_OVERWRITE)
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Beta.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge Beta.xml" ,$FC_OVERWRITE)
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Canary.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge Canary.xml" ,$FC_OVERWRITE)
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Dev.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge Dev.xml" ,$FC_OVERWRITE)
+
+	$hTS = _TS_Open()
+	_TS_FolderCreate($hTS, "\MSEdgeRedirect")
+	MsgBox(0, @error, @extended)
+	For $iLoop = 1 To $aTasks[0] Step 1
+		If $aChannels[$iLoop - 1] Then
+			$hTO = _TS_TaskImportXML($hTS, 1, "C:\Program Files\MSEdgeRedirect\Assets\" & $aTasks[$iLoop])
+			_TS_TaskRegister($hTS, "\MSEdgeRedirect", $aTasks[$iLoop], $hTO)
+		EndIf
+	Next
+	_TS_Close($hTS)
+
 EndFunc
 
 Func SetupAppdata()

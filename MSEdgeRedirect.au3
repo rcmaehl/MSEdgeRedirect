@@ -55,7 +55,6 @@ ProcessCMDLine()
 Func ActiveMode(ByRef $aCMDLine)
 
 	Local $sCMDLine = ""
-	CheckEdgeIntegrity($aCMDLine[1])
 
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
@@ -79,10 +78,12 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case _ArraySearch($aCMDLine, "--app-id", 2, 0,0, 1) > 0 And Not _GetSettingValue("NoApps")
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
+			CheckEdgeIntegrity($aCMDLine[1])
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			ShellExecute($aCMDLine[1], $sCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
+			CheckEdgeIntegrity($aCMDLine[1])
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
 		Case _ArraySearch($aCMDLine, "localhost:", 2, 0,0, 1) > 0 ; Improve on #162
@@ -158,10 +159,18 @@ Func ProcessCMDLine()
 			Switch $CmdLine[1]
 				Case "/?", "/help"
 					MsgBox(0, "Help and Flags", _
-							"MSEdgeRedirect [/hide]" & @CRLF & _
+							"MSEdgeRedirect" & @CRLF & _
 							@CRLF & _
-							@TAB & "/hide  " & @TAB & "Hides the tray icon" & @CRLF & _
-							@TAB & "/update" & @TAB & "Downloads the latest RELEASE (default) or DEV build" & @CRLF & _
+							@TAB & "/admin    " & @TAB & "Attempts to run MSEdgeRedirect as admin" & @CRLF & _
+							@TAB & "/change   " & @TAB & "Reruns Installer" & @CRLF & _
+							@TAB & "/hide     " & @TAB & "Hides the tray icon" & @CRLF & _
+							@TAB & "/kill     " & @TAB & "Kills other MSEdgeRedirect processes" & @CRLF & _
+							@TAB & "/portable " & @TAB & "Runs MSEdgeRedirect in portable mode" & @CRLF & _
+							@TAB & "/repair   " & @TAB & "Repairs IFEO file copies" & @CRLF & _
+							@TAB & "/settings " & @TAB & "Opens Settings Menu" & @CRLF & _
+							@TAB & "/si       " & @TAB & "Runs a Silent Install" & @CRLF & _
+							@TAB & "/update   " & @TAB & "Downloads the latest RELEASE (default) or DEV build" & @CRLF & _
+							@TAB & "/uninstall" & @TAB & "Uninstalls MSEdgeRedirect" & @CRLF & _
 							@CRLF & _
 							@CRLF)
 					Exit 0
@@ -186,6 +195,7 @@ Func ProcessCMDLine()
 					Exit
 				Case "/p", "/portable"
 					$bPortable = True
+					_GetSettingValue("SetPortable")
 					_ArrayDelete($CmdLine, 1)
 				Case "/repair"
 					RunRepair()
@@ -478,7 +488,10 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
 				ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
 			Else
-				If _IsPriviledgedInstall() Then $sEdge = StringReplace($sEdge, "msedge.exe", "msedge_no_ifeo.exe")
+				If _IsPriviledgedInstall() Then
+					CheckEdgeIntegrity($aCMDLine[1])
+					$sEdge = StringReplace($sEdge, "msedge.exe", "msedge_no_ifeo.exe")
+				EndIf
 				ShellExecute($sEdge, $sCMDLine)
 				If Not _IsPriviledgedInstall() Then Sleep(1000)
 			EndIf
@@ -517,7 +530,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			If $sURL = "" Then
 				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
 			Else
-				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call from: " & _ArrayToString($aCMDLine) & @CRLF)
+				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 				If _IsSafeURL($sURL) Then
 					$sURL = _ModifyURL($sURL)
 					ShellExecute($sURL)
