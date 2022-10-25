@@ -448,6 +448,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUICtrlSetState($hChannels[1], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[2], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[3], $GUI_DISABLE)
+				Case FileExists("C:\Scripts\ie_to_edge_stub.exe")
+					ContinueCase
 				Case FileExists("C:\ProgramData\ie_to_edge_stub.exe")
 					ContinueCase
 				Case FileExists("C:\Users\Public\ie_to_edge_stub.exe")
