@@ -72,6 +72,7 @@ EndFunc
 
 Func RunRemoval($bUpdate = False)
 
+	Local $hTS
 	Local $aPIDs
 	Local $sHive = ""
 	Local $sLocation = ""
@@ -136,6 +137,13 @@ Func RunRemoval($bUpdate = False)
 				FileDelete(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"))
 			EndIf
 		Next
+		$hTS = _TS_Open()
+		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge")
+		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Beta")
+		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Canary")
+		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Dev")
+		_TS_FolderDelete($hTS, "\MSEdgeRedirect")
+		_TS_Close($hTS)
 	EndIf
 
 	If $bUpdate Then
@@ -293,6 +301,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		SetAppShortcuts($aConfig, $aSettings)
 		If $aConfig[$vMode] Then
 			SetIFEORegistry($aChannels)
+			SetScheduledTask($aChannels)
 		Else
 			If $aSettings[$bNoTray] Then $sArgs = "/hide"
 			ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
@@ -643,6 +652,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 									$aChannels[$iLoop] = _IsChecked($hChannels[$iLoop])
 								Next
 								SetIFEORegistry($aChannels)
+								SetScheduledTask($aChannels)
 							EndIf
 							If $iMode = $hSettings Then Return
 							GUICtrlSetData($hNext, "Finish")
@@ -975,9 +985,34 @@ Func SetOptionsRegistry($sName, $vValue, ByRef $aConfig)
 
 EndFunc
 
-Func SetScheduledTask(ByRef $aConfig)
-	#forceref $aConfig
+Func SetScheduledTask($aChannels)
+
+	Local $hTS
+	Local $hTO
 	Local Enum $bManaged = 1, $vMode
+
+	Local $aTasks[5] = [4, _
+		"Update Edge.xml", _
+		"Update Edge Beta.xml", _
+		"Update Edge Dev.xml", _
+		"Update Edge Canary.xml"]
+
+	DirCreate("C:\Program Files\MSEdgeRedirect\Assets")
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge.xml" , $FC_OVERWRITE)
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Beta.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge Beta.xml" ,$FC_OVERWRITE)
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Canary.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge Canary.xml" ,$FC_OVERWRITE)
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Dev.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge Dev.xml" ,$FC_OVERWRITE)
+
+	$hTS = _TS_Open()
+	_TS_FolderCreate($hTS, "\MSEdgeRedirect")
+	MsgBox(0, @error, @extended)
+	For $iLoop = 1 To $aTasks[0] Step 1
+		If $aChannels[$iLoop - 1] Then
+			$hTO = _TS_TaskImportXML($hTS, 1, "C:\Program Files\MSEdgeRedirect\Assets\" & $aTasks[$iLoop])
+			_TS_TaskRegister($hTS, "\MSEdgeRedirect", $aTasks[$iLoop], $hTO)
+		EndIf
+	Next
+	_TS_Close($hTS)
 
 EndFunc
 
