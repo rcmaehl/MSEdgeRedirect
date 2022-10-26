@@ -138,10 +138,10 @@ Func RunRemoval($bUpdate = False)
 			EndIf
 		Next
 		$hTS = _TS_Open()
-		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge")
-		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Beta")
-		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Canary")
-		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Dev")
+		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge.xml")
+		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Beta.xml")
+		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Canary.xml")
+		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Dev.xml")
 		_TS_FolderDelete($hTS, "\MSEdgeRedirect")
 		_TS_Close($hTS)
 	EndIf
@@ -1007,7 +1007,6 @@ Func SetScheduledTask($aChannels)
 
 	$hTS = _TS_Open()
 	_TS_FolderCreate($hTS, "\MSEdgeRedirect")
-	MsgBox(0, @error, @extended)
 	For $iLoop = 1 To $aTasks[0] Step 1
 		If $aChannels[$iLoop - 1] Then
 			$hTO = _TS_TaskImportXML($hTS, 1, "C:\Program Files\MSEdgeRedirect\Assets\" & $aTasks[$iLoop])
