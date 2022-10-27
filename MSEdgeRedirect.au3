@@ -110,7 +110,7 @@ Func CheckEdgeIntegrity($sLocation)
 	Else
 		Select
 			Case Not FileExists(StringReplace($sLocation, "msedge.exe", FileGetVersion($sLocation)))
-				If WinExists(_Translate($aMUI[1], "Admin File Copy Required")) Then Exit #202
+				If WinExists(_Translate($aMUI[1], "Admin File Copy Required")) Then Exit ; #202
 				If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
 					_Translate($aMUI[1], "Admin File Copy Required"), _
 					_Translate($aMUI[1], "The IFEO exclusion file for MSEdgeRedirect is missing and need to be copied from Edge. Copy Now?"), _
@@ -119,7 +119,7 @@ Func CheckEdgeIntegrity($sLocation)
 					"Copy Failed", _
 					"Unable to copy the IFEO exclusion file without Admin Rights!")
 			Case FileGetVersion($sLocation) <> FileGetVersion(StringReplace($sLocation, "msedge.exe", "msedge_no_ifeo.exe"))
-				If WinExists(_Translate($aMUI[1], "File Update Required")) Then Exit #202
+				If WinExists(_Translate($aMUI[1], "File Update Required")) Then Exit ; #202
 				If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
 					_Translate($aMUI[1], "File Update Required"), _
 					_Translate($aMUI[1], "Microsoft Edge has updated, as such the IFEO exclusion file for MSEdgeRedirect is out of date and needs to be updated. Update Now?"), _
