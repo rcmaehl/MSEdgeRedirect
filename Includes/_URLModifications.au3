@@ -283,7 +283,8 @@ Func _RedirectCMDDecode($sCMDLine)
 	Local $aCMDLine_2D[0][0]
 
 	$sCMDLine = StringReplace($sCMDLine, "--edge-redirect", "Method")
-	If StringInStr($sCMDLine, "https://www.bing.com/search?q=") Then #211
+	#211
+	If StringInStr($sCMDLine, "https://www.bing.com/search?q=") Then
 		$sCMDLine = StringReplace($sCMDLine, "&", "%26")
 		$sCMDLine = StringReplace($sCMDLine, "/", "%2F")
 		$sCMDLine = StringReplace($sCMDLine, "=", "%3D")
@@ -299,7 +300,6 @@ Func _RedirectCMDDecode($sCMDLine)
 		If $aTemp[0] >= 2 Then $aCMDLine_2D[$iLoop][1] = $aTemp[2]
 	Next
 
-	_ArrayDisplay($aCMDLine_2D)
 	Return $aCMDLine_2D
 
 EndFunc
