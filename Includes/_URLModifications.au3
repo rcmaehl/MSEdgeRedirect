@@ -283,8 +283,14 @@ Func _RedirectCMDDecode($sCMDLine)
 	Local $aCMDLine_2D[0][0]
 
 	$sCMDLine = StringReplace($sCMDLine, "--edge-redirect", "Method")
+	If StringInStr($sCMDLine, "https://www.bing.com/search?q=") Then #211
+		$sCMDLine = StringReplace($sCMDLine, "&", "%26")
+		$sCMDLine = StringReplace($sCMDLine, "/", "%2F")
+		$sCMDLine = StringReplace($sCMDLine, "=", "%3D")
+		$sCMDLine = StringReplace($sCMDLine, "Method%3D", "Method=")
+	EndIf
 	$sCMDLine = StringReplace($sCMDLine, "microsoft-edge:?", "&")
-	$sCMDLine = StringRegExpReplace($sCMDLine, "microsoft-edge:[\/]*", "&url=") 
+	$sCMDLine = StringRegExpReplace($sCMDLine, "microsoft-edge:[\/]*", "&url=")
 	$aCMDLine_1D = StringSplit($sCMDLine, "&", $STR_NOCOUNT)
 	Redim $aCMDLine_2D[UBound($aCMDLine_1D)][2]
 	For $iLoop = 0 To UBound($aCMDLine_1D) - 1 Step 1
@@ -293,19 +299,19 @@ Func _RedirectCMDDecode($sCMDLine)
 		If $aTemp[0] >= 2 Then $aCMDLine_2D[$iLoop][1] = $aTemp[2]
 	Next
 
+	_ArrayDisplay($aCMDLine_2D)
 	Return $aCMDLine_2D
 
 EndFunc
-
 
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _UnicodeURLDecode
 ; Description ...: Tranlates a URL-friendly string to a normal string
 ; Syntax ........: _UnicodeURLDecode($toDecode)
-; Parameters ....: $$toDecode           - The URL-friendly string to decode
+; Parameters ....: $toDecode           - The URL-friendly string to decode
 ; Return values .: The URL decoded string
 ; Author ........: nfwu, Dhilip89, rcmaehl
-; Modified ......: 12/19/2021
+; Modified ......: 10/26/2022
 ; Remarks .......: Modified from _URLDecode() that only supported non-unicode.
 ; Related .......:
 ; Link ..........:
