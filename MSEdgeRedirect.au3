@@ -473,6 +473,20 @@ Func RunHTTPCheck($bSilent = False)
 
 EndFunc
 
+Func RunPDFCheck($bSilent = False)
+
+	If StringRegExp(RegRead("HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice", "ProgId"), "(ms|microsoft)edge") Then
+		If Not $bSilent Then
+			MsgBox($MB_ICONERROR+$MB_OK, _
+				"Edge Set As Default PDF Handler", _
+				"You must set a different Default PDF Handler to use this feature!")
+		EndIf
+		Return False
+	EndIf
+	Return True
+
+EndFunc
+
 Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
 	Local $sURL = ""
