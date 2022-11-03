@@ -1,5 +1,3 @@
-<!---[![Build Status](https://img.shields.io/github/workflow/status/rcmaehl/MSEdgeRedirect/mser)](https://github.com/rcmaehl/MSEdgeRedirect/actions?query=workflow%3Amser)
-[![Download](https://img.shields.io/github/v/release/rcmaehl/MSEdgeRedirect)](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/)--->
 [![Latest download count](https://img.shields.io/github/downloads/rcmaehl/MSEdgeRedirect/latest/total)](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/)
 [![Chocolatey download count](https://img.shields.io/chocolatey/dt/msedgeredirect?label=Chocolatey+downloads)](https://chocolatey.org/packages/msedgeredirect)
 [![Ko-fi](https://img.shields.io/badge/Support%20me%20on-Ko--fi-FF5E5B.svg?logo=ko-fi)](https://ko-fi.com/rcmaehl)
