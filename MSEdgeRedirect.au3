@@ -233,6 +233,7 @@ Func ProcessCMDLine()
 								'Invalid file - "' & $CmdLine[2] & @CRLF)
 							Exit 87 ; ERROR_INVALID_PARAMETER
 					EndSelect
+				#cs
 				Case "/u", "/update"
 					Select
 						Case UBound($CmdLine) = 2
@@ -253,6 +254,7 @@ Func ProcessCMDLine()
 								'Invalid release type - "' & $CmdLine[2] & "." & @CRLF)
 							Exit 87 ; ERROR_INVALID_PARAMETER
 					EndSelect
+				#ce
 				Case "/uninstall"
 					RunRemoval()
 					Exit
