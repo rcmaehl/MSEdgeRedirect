@@ -79,12 +79,12 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
 			CheckEdgeIntegrity($aCMDLine[1])
-			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
+			$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			ShellExecute($aCMDLine[1], $sCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
 			CheckEdgeIntegrity($aCMDLine[1])
-			$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_no_ifeo.exe")
+			$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
 		Case _ArraySearch($aCMDLine, "localhost:", 2, 0,0, 1) > 0 ; Improve on #162
 			ContinueCase
@@ -109,7 +109,7 @@ Func CheckEdgeIntegrity($sLocation)
 		;;;
 	Else
 		Select
-			Case Not FileExists(StringReplace($sLocation, "msedge.exe", FileGetVersion($sLocation)))
+			Case Not FileExists(StringReplace($sLocation, "Application\msedge.exe", "IFEO\"))
 				If WinExists(_Translate($aMUI[1], "Admin File Copy Required")) Then Exit ; #202
 				If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
 					_Translate($aMUI[1], "Admin File Copy Required"), _
@@ -118,15 +118,6 @@ Func CheckEdgeIntegrity($sLocation)
 				If @error Then MsgBox($MB_ICONERROR+$MB_OK, _
 					"Copy Failed", _
 					"Unable to copy the IFEO exclusion file without Admin Rights!")
-			Case FileGetVersion($sLocation) <> FileGetVersion(StringReplace($sLocation, "msedge.exe", "msedge_no_ifeo.exe"))
-				If WinExists(_Translate($aMUI[1], "File Update Required")) Then Exit ; #202
-				If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
-					_Translate($aMUI[1], "File Update Required"), _
-					_Translate($aMUI[1], "Microsoft Edge has updated, as such the IFEO exclusion file for MSEdgeRedirect is out of date and needs to be updated. Update Now?"), _
-					0) = $IDYES Then ShellExecuteWait(@ScriptFullPath, "/repair", @ScriptDir, "RunAs")
-				If @error Then MsgBox($MB_ICONERROR+$MB_OK, _
-					"Repair Failed", _
-					"Unable to update the IFEO exclusion file without Admin Rights!")
 			Case Else
 				;;;
 		EndSelect
@@ -168,7 +159,7 @@ Func ProcessCMDLine()
 							@TAB & "/hide     " & @TAB & "Hides the tray icon" & @CRLF & _
 							@TAB & "/kill     " & @TAB & "Kills other MSEdgeRedirect processes" & @CRLF & _
 							@TAB & "/portable " & @TAB & "Runs MSEdgeRedirect in portable mode" & @CRLF & _
-							@TAB & "/repair   " & @TAB & "Repairs IFEO file copies" & @CRLF & _
+							@TAB & "/repair   " & @TAB & "Repairs IFEO directory junctions" & @CRLF & _
 							@TAB & "/settings " & @TAB & "Opens Settings Menu" & @CRLF & _
 							@TAB & "/si       " & @TAB & "Runs a Silent Install" & @CRLF & _
 							@TAB & "/update   " & @TAB & "Downloads the latest RELEASE (default) or DEV build" & @CRLF & _
@@ -508,7 +499,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			Else
 				If _IsPriviledgedInstall() Then
 					CheckEdgeIntegrity($sEdge)
-					$sEdge = StringReplace($sEdge, "msedge.exe", "msedge_no_ifeo.exe")
+					$sEdge = StringReplace($sEdge, "Application\msedge.exe", "IFEO\msedge.exe")
 				EndIf
 				ShellExecute($sEdge, $sCMDLine)
 				If Not _IsPriviledgedInstall() Then Sleep(1000)
