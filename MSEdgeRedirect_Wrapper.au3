@@ -133,11 +133,14 @@ Func RunRemoval($bUpdate = False)
 	If $bIsAdmin Then
 		For $iLoop = 1 To $aEdges[0] Step 1
 			If $iLoop = $aEdges[0] Then ExitLoop ; Skip ie_to_edge_stub
-			If FileExists(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe")) Then
+			If FileExists(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe")) Then ; Pre-0.7.3.0
 				FileDelete(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"))
 			EndIf
+			If FileExists(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\")) Then ; 0.7.3.0+
+				FileDelete(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"))
+			EndIf
 		Next
-		$hTS = _TS_Open()
+		$hTS = _TS_Open() ; 0.7.2.0
 		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge.xml")
 		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Beta.xml")
 		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Canary.xml")
@@ -159,8 +162,15 @@ Func RunRepair()
 
 	If $bIsAdmin Then
 		For $iLoop = 1 To $aEdges[0] Step 1
-			If FileExists(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe")) Then
-				FileCopy($aEdges[$iLoop], StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"), $FC_OVERWRITE)
+			RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "")
+			If @error Then
+				;;;
+			Else
+				If $iLoop = $aEdges[0] Then
+					;;;
+				Else
+					FileCreateNTFSLink(StringReplace($aEdges[$iLoop], "\msedge.exe", ""), StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"), $FC_OVERWRITE)
+				EndIf
 			EndIf
 		Next
 		Exit
@@ -301,7 +311,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		SetAppShortcuts($aConfig, $aSettings)
 		If $aConfig[$vMode] Then
 			SetIFEORegistry($aChannels)
-			SetScheduledTask($aChannels)
 		Else
 			If $aSettings[$bNoTray] Then $sArgs = "/hide"
 			ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
@@ -655,7 +664,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 									$aChannels[$iLoop] = _IsChecked($hChannels[$iLoop])
 								Next
 								SetIFEORegistry($aChannels)
-								SetScheduledTask($aChannels)
 							EndIf
 							If $iMode = $hSettings Then Return
 							GUICtrlSetData($hNext, "Finish")
@@ -939,11 +947,15 @@ Func SetIFEORegistry(ByRef $aChannels)
 	RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe")
 	RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe", "UseFilter", "REG_DWORD", 1)
 	For $iLoop = 1 To $aEdges[0] Step 1
-		If $aChannels[$iLoop - 1] Or $aChannels[4] Then
+		If $aChannels[$iLoop - 1] Then
 			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop)
 			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger", "REG_SZ", "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
-			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "FilterFullPath", "REG_SZ", $aEdges[$iLoop])
-			FileCopy($aEdges[$iLoop], StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"), $FC_OVERWRITE)
+			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "FilterFullPath", "REG_SZ", $aEdges[$iLoop])	
+			If $iLoop = $aEdges[0] Then
+				;;;
+			Else
+				FileCreateNTFSLink(StringReplace($aEdges[$iLoop], "\msedge.exe", ""), StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"), $FC_OVERWRITE)
+			EndIf
 		EndIf
 	Next
 	If $aChannels[4] Then ; IE_TO_EDGE_STUB
@@ -989,7 +1001,7 @@ Func SetOptionsRegistry($sName, $vValue, ByRef $aConfig)
 
 EndFunc
 
-Func SetScheduledTask($aChannels)
+Func SetScheduledTask($aChannels) ; Deprecated
 
 	Local $hTS
 	Local $hTO
