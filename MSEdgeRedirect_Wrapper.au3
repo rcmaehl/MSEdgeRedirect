@@ -3,6 +3,7 @@
 #include <Misc.au3>
 #include <Array.au3>
 #include <String.au3>
+#include <GuiComboBox.au3>
 #include <EditConstants.au3>
 #include <FileConstants.au3>
 #include <FontConstants.au3>
@@ -17,6 +18,8 @@
 #include "Includes\_Translation.au3"
 
 #include "Includes\TaskScheduler.au3"
+
+; TODO: Why have <Setting>PATH values for Custom handlers... Rewrite that.
 
 Global $sVersion
 Global $bIsPriv = _IsPriviledgedInstall()
@@ -67,6 +70,20 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 			EndIf
 		EndIf
 	EndIf
+
+EndFunc
+
+Func RunPDFCheck($bSilent = False)
+
+	If StringRegExp(RegRead("HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice", "ProgId"), "(ms|microsoft)edge") Then
+		If Not $bSilent Then
+			MsgBox($MB_ICONERROR+$MB_OK, _
+				"Edge Set As Default PDF Handler", _
+				"You must set a different Default PDF Handler to use this feature!")
+		EndIf
+		Return False
+	EndIf
+	Return True
 
 EndFunc
 
@@ -452,7 +469,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetState(-1, $GUI_DISABLE)
 
 			Select
-				Case Not $bIsAdmin
+				Case Not $bIsAdmin And @Compiled
 					GUICtrlSetState($hChannels[0], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[1], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[2], $GUI_DISABLE)
@@ -506,7 +523,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetData(-1, "AccuWeather|Custom|DarkSky|Weather.com|Weather.gov|Windy|WUnderground|Ventusky|Yandex", "Weather.com")
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoPDFs = GUICtrlCreateCheckbox("PDF Viewer:", 50, 330, 180, 20)
-			Local $hPDFPath = GUICtrlCreateEdit("", 50, 350, 180, 20, $ES_READONLY+$ES_AUTOHSCROLL)
+			Local $hPDFSrc = GUICtrlCreateCombo("", 50, 350, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			GUICtrlSetData(-1, "Default|Custom", "Default")
+			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoApps = GUICtrlCreateCheckbox("Windows Store 'Apps'", 50, 375, 180, 20)
 
 		If $bUpdate Then
@@ -536,8 +555,13 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			EndIf
 			GUICtrlSetState($hNoPDFs, _GetSettingValue("NoPDFs"))
 			If _IsChecked($hNoPDFs) Then
-				$sHandler = _GetSettingValue("PDFApp")
-				GUICtrlSetData($hPDFPath, " " & $sHandler)
+				GUICtrlSetState($hPDFSrc, $GUI_ENABLE)
+				If StringInStr(_GUICtrlComboBox_GetList($hPDFSrc), _GetSettingValue("PDFApp")) Then
+					GUICtrlSetData($hPDFSrc, _GetSettingValue("PDFApp"))
+				Else
+					GUICtrlSetData($hPDFSrc, "Custom")
+					$sHandler = _GetSettingValue("PDFApp")
+				EndIf
 			EndIf
 		EndIf
 
@@ -787,14 +811,21 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 				Case $hMsg = $hNoPDFs
 					If _IsChecked($hNoPDFs) Then
-						$sHandler = FileOpenDialog("Select a PDF Handler", @ProgramFilesDir, "Executables (*.exe)", $FD_FILEMUSTEXIST)
-						If @error Then
-							GUICtrlSetState($hNoPDFs, $GUI_UNCHECKED)
-						Else
-							GUICtrlSetData($hPDFPath, " " & $sHandler)
-						EndIf
+						GUICtrlSetState($hPDFSrc, $GUI_ENABLE)
 					Else
-						GUICtrlSetData($hPDFPath, "")
+						GUICtrlSetState($hPDFSrc, $GUI_DISABLE)
+					EndIf
+
+				Case $hMsg = $hPDFSrc
+					Switch GUICtrlRead($hPDFSrc)
+						Case "Default"
+							If Not RunPDFCheck($bSilent) Then SetError(1)
+						Case "Custom"
+							$sHandler = FileOpenDialog("Select a PDF Handler", @ProgramFilesDir, "Executables (*.exe)", $FD_FILEMUSTEXIST)
+					EndSwitch
+					If @error Then
+						GUICtrlSetState($hNoPDFs, $GUI_UNCHECKED)
+						GUICtrlSetState($hPDFSrc, $GUI_DISABLE)
 					EndIf
 
 				Case Else

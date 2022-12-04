@@ -111,6 +111,25 @@ Func _IsSafeFlag(ByRef $sCommandLine)
 
 EndFunc
 
+Func _IsSafePDF(ByRef $sPath)
+
+	Local $bSafe = False
+
+	Select
+		Case Not FileExists($sPath)
+			$bSafe = False
+		Case Not (StringRight($sPath, 4) = ".pdf")
+			$bSafe = False
+		Case Else
+			$bSafe = True
+	EndSelect
+
+	If Not $bSafe Then FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe File: " & $sPath & @CRLF)
+
+	Return $bSafe
+
+EndFunc
+
 Func _IsSafeURL(ByRef $sURL)
 
 	Local $aURL

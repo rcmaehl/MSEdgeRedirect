@@ -284,7 +284,7 @@ Func ProcessCMDLine()
 				Select
 					Case StringInStr($aInstall[1], "HKCU") ; Installed, Service Mode
 						RunSetup($aInstall[0], $bSilent, 0, $hFile)
-					Case StringInStr($aInstall[1], "HKLM") And Not $bIsAdmin ; Installed, Active Mode, Not Admin
+					Case StringInStr($aInstall[1], "HKLM") And Not $bIsAdmin And @Compiled; Installed, Active Mode, Not Admin
 						ShellExecute(@ScriptFullPath, $sCMDLine, @ScriptDir, "RunAs")
 						If @error Then
 							If Not $bSilent Then MsgBox($MB_ICONWARNING+$MB_OK, _
@@ -466,20 +466,6 @@ Func RunHTTPCheck($bSilent = False)
 
 EndFunc
 
-Func RunPDFCheck($bSilent = False)
-
-	If StringRegExp(RegRead("HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice", "ProgId"), "(ms|microsoft)edge") Then
-		If Not $bSilent Then
-			MsgBox($MB_ICONERROR+$MB_OK, _
-				"Edge Set As Default PDF Handler", _
-				"You must set a different Default PDF Handler to use this feature!")
-		EndIf
-		Return False
-	EndIf
-	Return True
-
-EndFunc
-
 Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
 	Local $sURL = ""
@@ -495,7 +481,12 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 		Case StringInStr($sCMDLine, ".pdf")
 			If _GetSettingValue("NoPDFs") Then
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
-				ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
+				Switch _GetSettingValue("PDFApp")
+					Case "Default"
+						If _IsSafePDF($sCMDLine) Then ShellExecute($sCMDLine)
+					Case Else
+						ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
+				EndSwitch
 			Else
 				If _IsPriviledgedInstall() Then
 					CheckEdgeIntegrity($sEdge)
