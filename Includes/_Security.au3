@@ -1,9 +1,39 @@
 #include-once
 
+#include <Array.au3>
 #include <WinAPIShPath.au3>
 #include <StringConstants.au3>
 
 #include "_Logging.au3"
+
+Func _ArraySafeDelim($aArray)
+    
+    Local $sChars = _ArrayToString($aArray, "")
+    
+    Select
+        
+        Case Not StringInStr($sChars, "|")
+            Return "|"
+        Case Else
+            For $iLoop = 33 To 191 Step 1
+                Switch $iLoop
+                    Case 48 to 57 ; Skip Numbers
+                        ContinueLoop
+                    Case 65 to 90 ; Skip Upper Case
+                        ContinueLoop
+                    Case 97 to 122 ; Skip Lower Case
+                        ContinueLoop
+                    Case Else
+                        If Not StringInStr($sChars, Chr($iLoop)) Then Return Chr($iLoop)
+                EndSwitch
+            Next
+            
+    EndSelect
+
+    ; If No Char Found, Error
+    Return SetError(1, 0, False)
+
+EndFunc
 
 Func _IsSafeApp(ByRef $sApp)
 

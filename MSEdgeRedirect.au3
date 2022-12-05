@@ -56,6 +56,8 @@ Func ActiveMode(ByRef $aCMDLine)
 
 	Local $sCMDLine = ""
 
+	CheckEdgeIntegrity($aCMDLine[1])
+
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
 			ContinueCase
@@ -73,17 +75,18 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--winrt-background-task-event", 2, 0, 0, 1) > 0 ; #94 & #95, Apps
 			ContinueCase
-		Case _ArraySearch($aCMDLine, "--web-widget-jumplist-launch", 2, 0,0, 1) > 0 ; #123, EdgeBar
+		Case _ArraySearch($aCMDLine, "--web-widget-jumplist-launch", 2, 0, 0, 1) > 0 ; #123, EdgeBar
 			ContinueCase
-		Case _ArraySearch($aCMDLine, "--app-id", 2, 0,0, 1) > 0 And Not _GetSettingValue("NoApps")
+		Case _ArraySearch($aCMDLine, "--notification-launch-id", 2, 0, 0, 1) > 0 ; #225, Web App Notifications
+			ContinueCase
+		Case _ArraySearch($aCMDLine, "--app-id", 2, 0, 0, 1) > 0 And Not _GetSettingValue("NoApps")
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
-			CheckEdgeIntegrity($aCMDLine[1])
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
+			MsgBox(0, "OUTPUT", $sCMDLine)
 			ShellExecute($aCMDLine[1], $sCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
-			CheckEdgeIntegrity($aCMDLine[1])
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
 		Case _ArraySearch($aCMDLine, "localhost:", 2, 0,0, 1) > 0 ; Improve on #162
@@ -409,16 +412,17 @@ EndFunc
 Func RepairCMDLine($aCMDLine)
 
 	Local $sCMDLine
+	Local $sDelim = _ArraySafeDelim($aCMDLine)
 
-	$sCMDLine = _ArrayToString($aCMDLine, "|")
+	$sCMDLine = _ArrayToString($aCMDLine, $sDelim)
 	Select
-		Case StringInStr($sCMDLine, "Program|Files|(x86)")
-			$sCMDLine = StringReplace($sCMDLine, "Program|Files|(x86)", "Program Files (x86)")
+		Case StringInStr($sCMDLine, "Program" & $sDelim & "Files" & $sDelim & "(x86)")
+			$sCMDLine = StringReplace($sCMDLine, "Program" & $sDelim & "Files" & $sDelim & "(x86)", "Program Files (x86)")
 		Case Else
 			;;;
 	EndSelect
 
-	$aCMDLine = StringSplit($sCMDLine, "|", $STR_NOCOUNT)
+	$aCMDLine = StringSplit($sCMDLine, $sDelim, $STR_ENTIRESPLIT+$STR_NOCOUNT)
 	$aCMDLine[0] = UBound($aCMDLine) - 1
 
 	Return $aCMDLine
