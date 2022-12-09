@@ -72,7 +72,7 @@ Run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that 
 
 ### Will searches inside \<app name here\> still use Bing?
 
-MSEdge Redirect only redirects links that attempt to open in MS Edge. It will not affect results generated within other applications.
+MSEdgeRedirect only redirects links that attempt to open in MS Edge. It will not affect results generated within other applications.
 
 ### Can you change Bing results to Google Results?
 
