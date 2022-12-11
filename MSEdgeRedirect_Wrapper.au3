@@ -560,8 +560,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUICtrlSetData($hPDFSrc, _GetSettingValue("PDFApp"))
 				Else
 					GUICtrlSetData($hPDFSrc, "Custom")
-					$sHandler = _GetSettingValue("PDFApp")
 				EndIf
+				$sHandler = _GetSettingValue("PDFApp")
 			EndIf
 		EndIf
 
@@ -820,6 +820,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					Switch GUICtrlRead($hPDFSrc)
 						Case "Default"
 							If Not RunPDFCheck($bSilent) Then SetError(1)
+							$sHandler = "Default"
 						Case "Custom"
 							$sHandler = FileOpenDialog("Select a PDF Handler", @ProgramFilesDir, "Executables (*.exe)", $FD_FILEMUSTEXIST)
 					EndSwitch
