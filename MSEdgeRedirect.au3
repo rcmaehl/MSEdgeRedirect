@@ -145,7 +145,6 @@ Func ProcessCMDLine()
 		$CMDLine = RepairCMDLine($CMDLine)
 
 		If _ArraySearch($aEdges, $CMDLine[1]) > 0 Then ; Image File Execution Options Mode
-			RunHTTPCheck()
 			ActiveMode($CMDLine)
 			If Not _GetSettingValue("NoUpdates") And Random(1, 10, 1) = 1 Then RunUpdateCheck()
 			Exit
