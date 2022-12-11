@@ -89,19 +89,20 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
-		Case _ArraySearch($aCMDLine, "localhost:", 2, 0,0, 1) > 0 ; Improve on #162
+		Case _ArraySearch($aCMDLine, "localhost:", 2, 0, 0, 1) > 0 ; Improve on #162
 			ContinueCase
-		Case _ArraySearch($aCMDLine, "localhost/", 2, 0,0, 1) > 0 ; Improve on #162
+		Case _ArraySearch($aCMDLine, "localhost/", 2, 0, 0, 1) > 0 ; Improve on #162
 			ContinueCase
-		Case _ArraySearch($aCMDLine, @ComputerName & ":", 2, 0,0, 1) > 0 ; Improve on #162
+		Case _ArraySearch($aCMDLine, @ComputerName & ":", 2, 0, 0, 1) > 0 ; Improve on #162
 			ContinueCase
-		Case _ArraySearch($aCMDLine, @ComputerName & "/", 2, 0,0, 1) > 0 ; Improve on #162
+		Case _ArraySearch($aCMDLine, @ComputerName & "/", 2, 0, 0, 1) > 0 ; Improve on #162
 			ContinueCase
-		Case _ArraySearch($aCMDLine, "127.0.0.1", 2, 0,0, 1) > 0 ; #162
+		Case _ArraySearch($aCMDLine, "127.0.0.1", 2, 0, 0, 1) > 0 ; #162
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Localhost URL: " & $sCMDLine & @CRLF)
 		Case Else
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
+			$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
 			_DecodeAndRun($aCMDLine[1], $sCMDLine)
 	EndSelect
 
@@ -491,10 +492,6 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 						ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
 				EndSwitch
 			Else
-				If _IsPriviledgedInstall() Then
-					CheckEdgeIntegrity($sEdge)
-					$sEdge = StringReplace($sEdge, "Application\msedge.exe", "IFEO\msedge.exe")
-				EndIf
 				ShellExecute($sEdge, $sCMDLine)
 				If Not _IsPriviledgedInstall() Then Sleep(1000)
 			EndIf
