@@ -84,7 +84,6 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
-			MsgBox(0, "OUTPUT", $sCMDLine)
 			ShellExecute($aCMDLine[1], $sCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
