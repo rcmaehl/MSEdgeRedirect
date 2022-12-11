@@ -487,6 +487,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
 				Switch _GetSettingValue("PDFApp")
 					Case "Default"
+						RunPDFCheck()
 						If _IsSafePDF($sCMDLine) Then ShellExecute($sCMDLine)
 					Case Else
 						ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
