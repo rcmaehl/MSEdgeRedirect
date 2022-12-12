@@ -31,7 +31,7 @@ Else
 	$sVersion = "x.x.x.x"
 EndIf
 
-Func RunInstall(ByRef $aConfig, ByRef $aSettings)
+Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 
 	Local $sArgs = ""
 	Local Enum $bManaged = 1, $vMode
@@ -56,12 +56,22 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 	If $aConfig[$vMode] Then
 		If Not FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
 			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to 'C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+			If Not $bSilent Then
+				MsgBox($MB_ICONERROR+$MB_OK, _
+					"[CRITICAL]", _
+					"Unable to copy application to 'C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'")
+			EndIf
 			Exit 29 ; ERROR_WRITE_FAULT
 		EndIf
 	Else
 		If $aSettings[$bNoTray] Then $sArgs = "/hide"
 		If Not FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
 			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+			If Not $bSilent Then
+				MsgBox($MB_ICONERROR+$MB_OK, _
+					"[CRITICAL]", _
+					"Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'")
+			EndIf
 			Exit 29 ; ERROR_WRITE_FAULT
 		EndIf
 		If $aSettings[$bStartup] Then
@@ -323,7 +333,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		EndIf
 
 		If $bUpdate Then RunRemoval(True)
-		RunInstall($aConfig, $aSettings)
+		RunInstall($aConfig, $aSettings, $bSilent)
 		SetAppRegistry($aConfig)
 		SetAppShortcuts($aConfig, $aSettings)
 		If $aConfig[$vMode] Then
