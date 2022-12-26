@@ -22,7 +22,17 @@ Else
 		"C:\Program Files\Microsoft\Edge Dev\Application\msedge.exe", _
 		@LocalAppDataDir & "\Microsoft\Edge SXS\Application\msedge.exe"]
 EndIf
-$aEdges[5] = "C:\Scripts\ie_to_edge_stub.exe"
+
+Select
+	Case FileExists("C:\Scripts\ie_to_edge_stub.exe")
+		$aEdges[5] = "C:\Scripts\ie_to_edge_stub.exe"
+	Case FileExists("C:\ProgramData\ie_to_edge_stub.exe")
+		$aEdges[5] = "C:\ProgramData\ie_to_edge_stub.exe"
+	Case FileExists("C:\Users\Public\ie_to_edge_stub.exe")
+		$aEdges[5] = "C:\Users\Public\ie_to_edge_stub.exe"
+	Case Else
+		$aEdges[5] = "C:\Scripts\ie_to_edge_stub.exe"
+EndSelect
 
 Func _Bool($sString)
 	Switch $sString
