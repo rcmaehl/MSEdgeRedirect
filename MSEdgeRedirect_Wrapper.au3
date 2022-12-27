@@ -54,12 +54,12 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	SetOptionsRegistry("WeatherPath", $aSettings[$sWeatherPath], $aConfig)
 
 	If $aConfig[$vMode] Then
-		If Not FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
-			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to 'C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+		If Not FileCopy(@ScriptFullPath, $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
+			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
 			If Not $bSilent Then
 				MsgBox($MB_ICONERROR+$MB_OK, _
 					"[CRITICAL]", _
-					"Unable to copy application to 'C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'")
+					"Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'")
 			EndIf
 			Exit 29 ; ERROR_WRITE_FAULT
 		EndIf
@@ -120,7 +120,7 @@ Func RunRemoval($bUpdate = False)
 	EndIf
 
 	If $sHive = "HKLM" Then
-		$sLocation = "C:\Program Files\MSEdgeRedirect\"
+		$sLocation = $sDrive & "\Program Files\MSEdgeRedirect\"
 	ElseIf $sHive = "HKCU" THen
 		$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
 	Else
@@ -904,7 +904,7 @@ Func SetAppRegistry(ByRef $aConfig)
 	Local $sLocation = ""
 
 	If $aConfig[$vMode] Then
-		$sLocation = "C:\Program Files\MSEdgeRedirect\"
+		$sLocation = $sDrive & "\Program Files\MSEdgeRedirect\"
 		$sHive = "HKLM"
 	Else
 		$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
@@ -962,7 +962,7 @@ Func SetAppShortcuts(ByRef $aConfig, ByRef $aSettings)
 		Case "Full"
 			If $aConfig[$vMode] Then
 				DirCreate(@ProgramsCommonDir & "\MSEdgeRedirect")
-				FileCreateShortcut("C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", @ProgramsCommonDir & "\MSEdgeRedirect\MSER Settings.lnk", "C:\Program Files\MSEdgeRedirect\", "/settings")
+				FileCreateShortcut($sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", @ProgramsCommonDir & "\MSEdgeRedirect\MSER Settings.lnk", $sDrive & "\Program Files\MSEdgeRedirect\", "/settings")
 			Else
 				DirCreate(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect")
 				FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\MSER Settings.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", "/settings")
@@ -987,7 +987,7 @@ Func SetIFEORegistry(ByRef $aChannels)
 	For $iLoop = 1 To $aEdges[0] Step 1
 		If $aChannels[$iLoop - 1] Then
 			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop)
-			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger", "REG_SZ", "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
+			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger", "REG_SZ", $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
 			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "FilterFullPath", "REG_SZ", $aEdges[$iLoop])	
 			If $iLoop = $aEdges[0] Then
 				;;;
@@ -1001,7 +1001,7 @@ Func SetIFEORegistry(ByRef $aChannels)
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe")
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe", "UseFilter", "REG_DWORD", 1)
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0")
-		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger", "REG_SZ", "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
+		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger", "REG_SZ", $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "FilterFullPath", "REG_SZ", $aEdges[5])
 	EndIf
 EndFunc
@@ -1051,17 +1051,17 @@ Func SetScheduledTask($aChannels) ; Deprecated
 		"Update Edge Dev.xml", _
 		"Update Edge Canary.xml"]
 
-	DirCreate("C:\Program Files\MSEdgeRedirect\Assets")
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge.xml" , $FC_OVERWRITE)
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Beta.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge Beta.xml" ,$FC_OVERWRITE)
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Canary.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge Canary.xml" ,$FC_OVERWRITE)
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Dev.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge Dev.xml" ,$FC_OVERWRITE)
+	DirCreate($sDrive & "\Program Files\MSEdgeRedirect\Assets")
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge.xml" , $FC_OVERWRITE)
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Beta.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge Beta.xml" ,$FC_OVERWRITE)
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Canary.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge Canary.xml" ,$FC_OVERWRITE)
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Dev.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge Dev.xml" ,$FC_OVERWRITE)
 
 	$hTS = _TS_Open()
 	_TS_FolderCreate($hTS, "\MSEdgeRedirect")
 	For $iLoop = 1 To $aTasks[0] Step 1
 		If $aChannels[$iLoop - 1] Then
-			$hTO = _TS_TaskImportXML($hTS, 1, "C:\Program Files\MSEdgeRedirect\Assets\" & $aTasks[$iLoop])
+			$hTO = _TS_TaskImportXML($hTS, 1, $sDrive & "\Program Files\MSEdgeRedirect\Assets\" & $aTasks[$iLoop])
 			_TS_TaskRegister($hTS, "\MSEdgeRedirect", $aTasks[$iLoop], $hTO)
 		EndIf
 	Next
@@ -1149,7 +1149,7 @@ Func _IsPriviledgedInstall()
 
 	Local $hTestFile
 
-	If @ScriptDir = "C:\Program Files\MSEdgeRedirect" Then
+	If @ScriptDir = $sDrive & "\Program Files\MSEdgeRedirect" Then
 		Return True
 	ElseIf @LocalAppDataDir & "\MSEdgeRedirect" Then
 		Return False
