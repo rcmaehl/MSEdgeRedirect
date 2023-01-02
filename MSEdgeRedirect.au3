@@ -359,9 +359,9 @@ Func ReactiveMode($bHide = False)
 	Local $sCommandline
 
 	If _GetSettingValue("NoApps") Then
-		$sRegex = ".*(microsoft\-edge|app\-id).*"
+		$sRegex = "(?i).*(microsoft\-edge|app\-id).*"
 	Else
-		$sRegex = ".*(microsoft\-edge).*"
+		$sRegex = "(?i).*(microsoft\-edge).*"
 	EndIf
 
 	While True
@@ -498,8 +498,8 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 		Case StringInStr($sCMDLine, "--app-id")
 			Select
 				Case StringInStr($sCMDLine, "--app-fallback-url=") And _GetSettingValue("NoApps"); Windows Store "Apps"
-					$sCMDLine = StringRegExpReplace($sCMDLine, "(.*)(--app-fallback-url=)", "")
-					$sCMDLine = StringRegExpReplace($sCMDLine, "(?= --)(.*)", "")
+					$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*)(--app-fallback-url=)", "")
+					$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(?= --)(.*)", "")
 					If _IsSafeURL($sCMDLine) Then
 						ShellExecute($sCMDLine)
 					Else
@@ -537,7 +537,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				EndIf
 			EndIf
 		Case Else
-			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
+			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
 			$sCMDLine = StringReplace($sCMDLine, "?url=", "")
 			If StringInStr($sCMDLine, "%2F") Then $sCMDLine = _UnicodeURLDecode($sCMDLine)
 			If _IsSafeURL($sCMDLine) Then

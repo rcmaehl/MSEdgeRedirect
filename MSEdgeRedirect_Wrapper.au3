@@ -85,7 +85,7 @@ EndFunc
 
 Func RunPDFCheck($bSilent = False)
 
-	If StringRegExp(RegRead("HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice", "ProgId"), "(ms|microsoft)edge.*") Then
+	If StringRegExp(RegRead("HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice", "ProgId"), "(?i)(ms|microsoft)edge.*") Then
 		If Not $bSilent Then
 			MsgBox($MB_ICONERROR+$MB_OK, _
 				"Edge Set As Default PDF Handler", _

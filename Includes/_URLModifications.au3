@@ -8,8 +8,8 @@
 Func _ChangeImageProvider($sURL)
 
 	If StringInStr($sURL, "bing.com/images/search?q=") Then
-		$sURL = StringRegExpReplace($sURL, "(.*)(q=)", "")
-		$sURL = StringRegExpReplace($sURL, "(?=&id=)(.*)", "")
+		$sURL = StringRegExpReplace($sURL, "(?i)(.*)(q=)", "")
+		$sURL = StringRegExpReplace($sURL, "(?i)(?=&id=)(.*)", "")
 		$sURL = StringReplace($sURL, " ", "+")
 		Switch _GetSettingValue("Images")
 
@@ -54,7 +54,7 @@ Func _ChangeNewsProvider($sURL)
 
 	Local $sOriginal = $sURL
 
-	Local $sRegex = ".*\/(" & _
+	Local $sRegex = "(?i).*\/(" & _
 		"autos(\/enthusiasts)?" & _
 		"|comics" & _
 		"|companies" & _
@@ -68,7 +68,7 @@ Func _ChangeNewsProvider($sURL)
 
 	If StringInStr($sURL, "msn.com/") And StringRegExp($sURL, $sRegex) Then
 		$sURL = StringRegExpReplace($sURL, $sRegex, "")
-		$sURL = StringRegExpReplace($sURL, "(?=)\/.*", "")
+		$sURL = StringRegExpReplace($sURL, "(?i)(?=)\/.*", "")
 
 		Switch _GetSettingValue("News")
 
@@ -94,8 +94,8 @@ EndFunc
 Func _ChangeSearchEngine($sURL)
 
 	If StringInStr($sURL, "bing.com/search?q=") Then
-		$sURL = StringRegExpReplace($sURL, "(.*)((\?|&)q=)", "")
-		If StringInStr($sURL, "&form") Then $sURL = StringRegExpReplace($sURL, "(?=&form)(.*)", "")
+		$sURL = StringRegExpReplace($sURL, "(?i)(.*)((\?|&)q=)", "")
+		If StringInStr($sURL, "&form") Then $sURL = StringRegExpReplace($sURL, "(?i)(?=&form)(.*)", "")
 
 		Switch _GetSettingValue("Search")
 
@@ -163,25 +163,25 @@ Func _ChangeWeatherProvider($sURL)
 				Select
 
 					Case StringInStr($sURL, "/ct") ; Old Style Weather URL
-						$vCoords = StringRegExpReplace($sURL, "(.*)(\/ct)", "")
-						$vCoords = StringRegExpReplace($vCoords, "(?=\?weadegreetype=)(.*)", "")
+						$vCoords = StringRegExpReplace($sURL, "(?i)(.*)(\/ct)", "")
+						$vCoords = StringRegExpReplace($vCoords, "(?i)(?=\?weadegreetype=)(.*)", "")
 						$vCoords = StringSplit($vCoords, ",")
 						If $vCoords[0] = 2 Then
 							$fLat = $vCoords[1]
 							$fLong = $vCoords[2]
-							$sSign = StringRegExpReplace($sURL, "(.*)(weadegreetype=)", "")
-							$sSign = StringRegExpReplace($sSign, "(?=&weaext0=)(.*)", "")
+							$sSign = StringRegExpReplace($sURL, "(?i)(.*)(weadegreetype=)", "")
+							$sSign = StringRegExpReplace($sSign, "(?i)(?=&weaext0=)(.*)", "")
 						Else
 							$sURL = $sOriginal
 						EndIf
 
 					Case StringInStr($sURL, "loc=") ; New Style Weather URL
-						$vCoords = StringRegExpReplace($sURL, "(.*)(\?loc=)", "")
-						$vCoords = StringRegExpReplace($vCoords, "(?=\&weadegreetype=)(.*)", "")
+						$vCoords = StringRegExpReplace($sURL, "(?i)(.*)(\?loc=)", "")
+						$vCoords = StringRegExpReplace($vCoords, "(?i)(?=\&weadegreetype=)(.*)", "")
 						$vCoords = _UnicodeURLDecode($vCoords)
 						$vCoords = _Base64Decode($vCoords)
 						$vCoords = BinaryToString($vCoords)
-						$vCoords = StringRegExpReplace($vCoords, "{|}", "")
+						$vCoords = StringRegExpReplace($vCoords, "(?i){|}", "")
 						$aData = StringSplit($vCoords, ",")
 						For $iLoop = 1 To $aData[0] Step 1
 							Switch StringLeft($aData[$iLoop], 3)
@@ -205,8 +205,8 @@ Func _ChangeWeatherProvider($sURL)
 								Case Else
 									FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Unexpected Weather Entry: " & $aData[$iLoop] & " of " & _ArrayToString($aData) & @CRLF)
 							EndSwitch
-							$sSign = StringRegExpReplace($sURL, "(.*)(weadegreetype=)", "")
-							$sSign = StringRegExpReplace($sSign, "(?=&weaext0=)(.*)", "")
+							$sSign = StringRegExpReplace($sURL, "(?i)(.*)(weadegreetype=)", "")
+							$sSign = StringRegExpReplace($sSign, "(?i)(?=&weaext0=)(.*)", "")
 						Next
 
 					Case Else
@@ -290,7 +290,7 @@ Func _RedirectCMDDecode($sCMDLine)
 		$sCMDLine = StringReplace($sCMDLine, "Method%3D", "Method=")
 	EndIf
 	$sCMDLine = StringReplace($sCMDLine, "microsoft-edge:?", "&")
-	$sCMDLine = StringRegExpReplace($sCMDLine, "microsoft-edge:[\/]*", "&url=")
+	$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)microsoft-edge:[\/]*", "&url=")
 	$aCMDLine_1D = StringSplit($sCMDLine, "&", $STR_NOCOUNT)
 	Redim $aCMDLine_2D[UBound($aCMDLine_1D)][2]
 	For $iLoop = 0 To UBound($aCMDLine_1D) - 1 Step 1
