@@ -60,9 +60,12 @@ Func _ChangeNewsProvider($sURL)
 		"|companies" & _
 		"|medical" & _
 		"|news(\/crime|\/other|\/politics|\/us)?" & _
+		"|newsscienceandtechnology" & _
 		"|research" & _
 		"|retirement" & _
+		"|scienceandtech" & _
 		"|sports" & _
+		"|techandscience" & _
 		"|topstories" & _
 		")\/"
 
