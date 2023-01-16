@@ -56,6 +56,8 @@ Func ActiveMode(ByRef $aCMDLine)
 
 	Local $sCMDLine = ""
 
+	CheckEdgeIntegrity($aCMDLine[1])
+
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
 			ContinueCase
@@ -73,32 +75,33 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--winrt-background-task-event", 2, 0, 0, 1) > 0 ; #94 & #95, Apps
 			ContinueCase
-		Case _ArraySearch($aCMDLine, "--web-widget-jumplist-launch", 2, 0,0, 1) > 0 ; #123, EdgeBar
+		Case _ArraySearch($aCMDLine, "--web-widget-jumplist-launch", 2, 0, 0, 1) > 0 ; #123, EdgeBar
 			ContinueCase
-		Case _ArraySearch($aCMDLine, "--app-id", 2, 0,0, 1) > 0 And Not _GetSettingValue("NoApps")
+		Case _ArraySearch($aCMDLine, "--notification-launch-id", 2, 0, 0, 1) > 0 ; #225, Web App Notifications
+			ContinueCase
+		Case _ArraySearch($aCMDLine, "--app-id", 2, 0, 0, 1) > 0 And Not _GetSettingValue("NoApps")
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
-			CheckEdgeIntegrity($aCMDLine[1])
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			ShellExecute($aCMDLine[1], $sCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
-			CheckEdgeIntegrity($aCMDLine[1])
 			$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
 			ShellExecute($aCMDLine[1], $aCMDLine[2])
-		Case _ArraySearch($aCMDLine, "localhost:", 2, 0,0, 1) > 0 ; Improve on #162
+		Case _ArraySearch($aCMDLine, "localhost:", 2, 0, 0, 1) > 0 ; Improve on #162
 			ContinueCase
-		Case _ArraySearch($aCMDLine, "localhost/", 2, 0,0, 1) > 0 ; Improve on #162
+		Case _ArraySearch($aCMDLine, "localhost/", 2, 0, 0, 1) > 0 ; Improve on #162
 			ContinueCase
-		Case _ArraySearch($aCMDLine, @ComputerName & ":", 2, 0,0, 1) > 0 ; Improve on #162
+		Case _ArraySearch($aCMDLine, @ComputerName & ":", 2, 0, 0, 1) > 0 ; Improve on #162
 			ContinueCase
-		Case _ArraySearch($aCMDLine, @ComputerName & "/", 2, 0,0, 1) > 0 ; Improve on #162
+		Case _ArraySearch($aCMDLine, @ComputerName & "/", 2, 0, 0, 1) > 0 ; Improve on #162
 			ContinueCase
-		Case _ArraySearch($aCMDLine, "127.0.0.1", 2, 0,0, 1) > 0 ; #162
+		Case _ArraySearch($aCMDLine, "127.0.0.1", 2, 0, 0, 1) > 0 ; #162
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Localhost URL: " & $sCMDLine & @CRLF)
 		Case Else
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
+			$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
 			_DecodeAndRun($aCMDLine[1], $sCMDLine)
 	EndSelect
 
@@ -284,7 +287,7 @@ Func ProcessCMDLine()
 				Select
 					Case StringInStr($aInstall[1], "HKCU") ; Installed, Service Mode
 						RunSetup($aInstall[0], $bSilent, 0, $hFile)
-					Case StringInStr($aInstall[1], "HKLM") And Not $bIsAdmin ; Installed, Active Mode, Not Admin
+					Case StringInStr($aInstall[1], "HKLM") And Not $bIsAdmin And @Compiled; Installed, Active Mode, Not Admin
 						ShellExecute(@ScriptFullPath, $sCMDLine, @ScriptDir, "RunAs")
 						If @error Then
 							If Not $bSilent Then MsgBox($MB_ICONWARNING+$MB_OK, _
@@ -356,9 +359,9 @@ Func ReactiveMode($bHide = False)
 	Local $sCommandline
 
 	If _GetSettingValue("NoApps") Then
-		$sRegex = ".*(microsoft\-edge|app\-id).*"
+		$sRegex = "(?i).*(microsoft\-edge|app\-id).*"
 	Else
-		$sRegex = ".*(microsoft\-edge).*"
+		$sRegex = "(?i).*(microsoft\-edge).*"
 	EndIf
 
 	While True
@@ -409,16 +412,17 @@ EndFunc
 Func RepairCMDLine($aCMDLine)
 
 	Local $sCMDLine
+	Local $sDelim = _ArraySafeDelim($aCMDLine)
 
-	$sCMDLine = _ArrayToString($aCMDLine, "|")
+	$sCMDLine = _ArrayToString($aCMDLine, $sDelim)
 	Select
-		Case StringInStr($sCMDLine, "Program|Files|(x86)")
-			$sCMDLine = StringReplace($sCMDLine, "Program|Files|(x86)", "Program Files (x86)")
+		Case StringInStr($sCMDLine, "Program" & $sDelim & "Files" & $sDelim & "(x86)")
+			$sCMDLine = StringReplace($sCMDLine, "Program" & $sDelim & "Files" & $sDelim & "(x86)", "Program Files (x86)")
 		Case Else
 			;;;
 	EndSelect
 
-	$aCMDLine = StringSplit($sCMDLine, "|", $STR_NOCOUNT)
+	$aCMDLine = StringSplit($sCMDLine, $sDelim, $STR_ENTIRESPLIT+$STR_NOCOUNT)
 	$aCMDLine[0] = UBound($aCMDLine) - 1
 
 	Return $aCMDLine
@@ -466,20 +470,6 @@ Func RunHTTPCheck($bSilent = False)
 
 EndFunc
 
-Func RunPDFCheck($bSilent = False)
-
-	If StringRegExp(RegRead("HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice", "ProgId"), "(ms|microsoft)edge") Then
-		If Not $bSilent Then
-			MsgBox($MB_ICONERROR+$MB_OK, _
-				"Edge Set As Default PDF Handler", _
-				"You must set a different Default PDF Handler to use this feature!")
-		EndIf
-		Return False
-	EndIf
-	Return True
-
-EndFunc
-
 Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
 	Local $sURL = ""
@@ -495,20 +485,21 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 		Case StringInStr($sCMDLine, ".pdf")
 			If _GetSettingValue("NoPDFs") Then
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
-				ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
+				Switch _GetSettingValue("PDFApp")
+					Case "Default"
+						If RunPDFCheck() And _IsSafePDF($sCMDLine) Then ShellExecute($sCMDLine)
+					Case Else
+						ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
+				EndSwitch
 			Else
-				If _IsPriviledgedInstall() Then
-					CheckEdgeIntegrity($sEdge)
-					$sEdge = StringReplace($sEdge, "Application\msedge.exe", "IFEO\msedge.exe")
-				EndIf
 				ShellExecute($sEdge, $sCMDLine)
 				If Not _IsPriviledgedInstall() Then Sleep(1000)
 			EndIf
 		Case StringInStr($sCMDLine, "--app-id")
 			Select
 				Case StringInStr($sCMDLine, "--app-fallback-url=") And _GetSettingValue("NoApps"); Windows Store "Apps"
-					$sCMDLine = StringRegExpReplace($sCMDLine, "(.*)(--app-fallback-url=)", "")
-					$sCMDLine = StringRegExpReplace($sCMDLine, "(?= --)(.*)", "")
+					$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*)(--app-fallback-url=)", "")
+					$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(?= --)(.*)", "")
 					If _IsSafeURL($sCMDLine) Then
 						ShellExecute($sCMDLine)
 					Else
@@ -546,7 +537,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				EndIf
 			EndIf
 		Case Else
-			$sCMDLine = StringRegExpReplace($sCMDLine, "(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
+			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
 			$sCMDLine = StringReplace($sCMDLine, "?url=", "")
 			If StringInStr($sCMDLine, "%2F") Then $sCMDLine = _UnicodeURLDecode($sCMDLine)
 			If _IsSafeURL($sCMDLine) Then

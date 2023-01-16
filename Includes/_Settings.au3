@@ -9,20 +9,32 @@ Global $bIsAdmin = IsAdmin()
 Global $bIsWOW64 = _WinAPI_IsWow64Process()
 Global $bIs64Bit = @AutoItX64
 
+Global $sDrive = StringLeft(@WindowsDir, 2)
+
 If $bIs64Bit Then
 	Global $aEdges[6] = [5, _
-		"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", _
-		"C:\Program Files (x86)\Microsoft\Edge Beta\Application\msedge.exe", _
-		"C:\Program Files (x86)\Microsoft\Edge Dev\Application\msedge.exe", _
+		$sDrive & "\Program Files (x86)\Microsoft\Edge\Application\msedge.exe", _
+		$sDrive & "\Program Files (x86)\Microsoft\Edge Beta\Application\msedge.exe", _
+		$sDrive & "\Program Files (x86)\Microsoft\Edge Dev\Application\msedge.exe", _
 		@LocalAppDataDir & "\Microsoft\Edge SXS\Application\msedge.exe"]
 Else
 	Global $aEdges[6] = [5, _
-		"C:\Program Files\Microsoft\Edge\Application\msedge.exe", _
-		"C:\Program Files\Microsoft\Edge Beta\Application\msedge.exe", _
-		"C:\Program Files\Microsoft\Edge Dev\Application\msedge.exe", _
+		$sDrive & "\Program Files\Microsoft\Edge\Application\msedge.exe", _
+		$sDrive & "\Program Files\Microsoft\Edge Beta\Application\msedge.exe", _
+		$sDrive & "\Program Files\Microsoft\Edge Dev\Application\msedge.exe", _
 		@LocalAppDataDir & "\Microsoft\Edge SXS\Application\msedge.exe"]
 EndIf
-$aEdges[5] = "C:\Scripts\ie_to_edge_stub.exe"
+
+Select
+	Case FileExists($sDrive & "\Scripts\ie_to_edge_stub.exe")
+		$aEdges[5] = $sDrive & "\Scripts\ie_to_edge_stub.exe"
+	Case FileExists($sDrive & "\ProgramData\ie_to_edge_stub.exe")
+		$aEdges[5] = $sDrive & "\ProgramData\ie_to_edge_stub.exe"
+	Case FileExists($sDrive & "\Users\Public\ie_to_edge_stub.exe")
+		$aEdges[5] = $sDrive & "\Users\Public\ie_to_edge_stub.exe"
+	Case Else
+		$aEdges[5] = $sDrive & "\Scripts\ie_to_edge_stub.exe"
+EndSelect
 
 Func _Bool($sString)
 	Switch $sString

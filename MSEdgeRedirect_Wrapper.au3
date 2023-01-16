@@ -3,6 +3,7 @@
 #include <Misc.au3>
 #include <Array.au3>
 #include <String.au3>
+#include <GuiComboBox.au3>
 #include <EditConstants.au3>
 #include <FileConstants.au3>
 #include <FontConstants.au3>
@@ -18,6 +19,8 @@
 
 #include "Includes\TaskScheduler.au3"
 
+; TODO: Why have <Setting>PATH values for Custom handlers... Rewrite that.
+
 Global $sVersion
 Global $bIsPriv = _IsPriviledgedInstall()
 Global Enum $bNoApps, $bNoBing, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoTray, $bNoUpdates, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
@@ -28,7 +31,7 @@ Else
 	$sVersion = "x.x.x.x"
 EndIf
 
-Func RunInstall(ByRef $aConfig, ByRef $aSettings)
+Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 
 	Local $sArgs = ""
 	Local Enum $bManaged = 1, $vMode
@@ -51,14 +54,24 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 	SetOptionsRegistry("WeatherPath", $aSettings[$sWeatherPath], $aConfig)
 
 	If $aConfig[$vMode] Then
-		If Not FileCopy(@ScriptFullPath, "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
-			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to 'C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+		If Not FileCopy(@ScriptFullPath, $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
+			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+			If Not $bSilent Then
+				MsgBox($MB_ICONERROR+$MB_OK, _
+					"[CRITICAL]", _
+					"Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'")
+			EndIf
 			Exit 29 ; ERROR_WRITE_FAULT
 		EndIf
 	Else
 		If $aSettings[$bNoTray] Then $sArgs = "/hide"
 		If Not FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
 			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+			If Not $bSilent Then
+				MsgBox($MB_ICONERROR+$MB_OK, _
+					"[CRITICAL]", _
+					"Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'")
+			EndIf
 			Exit 29 ; ERROR_WRITE_FAULT
 		EndIf
 		If $aSettings[$bStartup] Then
@@ -67,6 +80,20 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings)
 			EndIf
 		EndIf
 	EndIf
+
+EndFunc
+
+Func RunPDFCheck($bSilent = False)
+
+	If StringRegExp(RegRead("HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice", "ProgId"), "(?i)(ms|microsoft)edge.*") Then
+		If Not $bSilent Then
+			MsgBox($MB_ICONERROR+$MB_OK, _
+				"Edge Set As Default PDF Handler", _
+				"You must set a different Default PDF Handler to use this feature!")
+		EndIf
+		Return False
+	EndIf
+	Return True
 
 EndFunc
 
@@ -93,7 +120,7 @@ Func RunRemoval($bUpdate = False)
 	EndIf
 
 	If $sHive = "HKLM" Then
-		$sLocation = "C:\Program Files\MSEdgeRedirect\"
+		$sLocation = $sDrive & "\Program Files\MSEdgeRedirect\"
 	ElseIf $sHive = "HKCU" THen
 		$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
 	Else
@@ -306,7 +333,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		EndIf
 
 		If $bUpdate Then RunRemoval(True)
-		RunInstall($aConfig, $aSettings)
+		RunInstall($aConfig, $aSettings, $bSilent)
 		SetAppRegistry($aConfig)
 		SetAppShortcuts($aConfig, $aSettings)
 		If $aConfig[$vMode] Then
@@ -452,16 +479,12 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetState(-1, $GUI_DISABLE)
 
 			Select
-				Case Not $bIsAdmin
+				Case Not $bIsAdmin And @Compiled
 					GUICtrlSetState($hChannels[0], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[1], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[2], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[3], $GUI_DISABLE)
-				Case FileExists("C:\Scripts\ie_to_edge_stub.exe")
-					ContinueCase
-				Case FileExists("C:\ProgramData\ie_to_edge_stub.exe")
-					ContinueCase
-				Case FileExists("C:\Users\Public\ie_to_edge_stub.exe")
+				Case FileExists($aEdges[5])
 					GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 					ContinueCase
 				Case Else
@@ -506,7 +529,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetData(-1, "AccuWeather|Custom|DarkSky|Weather.com|Weather.gov|Windy|WUnderground|Ventusky|Yandex", "Weather.com")
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoPDFs = GUICtrlCreateCheckbox("PDF Viewer:", 50, 330, 180, 20)
-			Local $hPDFPath = GUICtrlCreateEdit("", 50, 350, 180, 20, $ES_READONLY+$ES_AUTOHSCROLL)
+			Local $hPDFSrc = GUICtrlCreateCombo("", 50, 350, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			GUICtrlSetData(-1, "Default|Custom", "Default")
+			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoApps = GUICtrlCreateCheckbox("Windows Store 'Apps'", 50, 375, 180, 20)
 
 		If $bUpdate Then
@@ -536,8 +561,13 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			EndIf
 			GUICtrlSetState($hNoPDFs, _GetSettingValue("NoPDFs"))
 			If _IsChecked($hNoPDFs) Then
+				GUICtrlSetState($hPDFSrc, $GUI_ENABLE)
+				If StringInStr(_GUICtrlComboBox_GetList($hPDFSrc), _GetSettingValue("PDFApp")) Then
+					GUICtrlSetData($hPDFSrc, _GetSettingValue("PDFApp"))
+				Else
+					GUICtrlSetData($hPDFSrc, "Custom")
+				EndIf
 				$sHandler = _GetSettingValue("PDFApp")
-				GUICtrlSetData($hPDFPath, " " & $sHandler)
 			EndIf
 		EndIf
 
@@ -787,14 +817,22 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 				Case $hMsg = $hNoPDFs
 					If _IsChecked($hNoPDFs) Then
-						$sHandler = FileOpenDialog("Select a PDF Handler", @ProgramFilesDir, "Executables (*.exe)", $FD_FILEMUSTEXIST)
-						If @error Then
-							GUICtrlSetState($hNoPDFs, $GUI_UNCHECKED)
-						Else
-							GUICtrlSetData($hPDFPath, " " & $sHandler)
-						EndIf
+						GUICtrlSetState($hPDFSrc, $GUI_ENABLE)
 					Else
-						GUICtrlSetData($hPDFPath, "")
+						GUICtrlSetState($hPDFSrc, $GUI_DISABLE)
+					EndIf
+
+				Case $hMsg = $hPDFSrc
+					Switch GUICtrlRead($hPDFSrc)
+						Case "Default"
+							If Not RunPDFCheck($bSilent) Then SetError(1)
+							$sHandler = "Default"
+						Case "Custom"
+							$sHandler = FileOpenDialog("Select a PDF Handler", @ProgramFilesDir, "Executables (*.exe)", $FD_FILEMUSTEXIST)
+					EndSwitch
+					If @error Then
+						GUICtrlSetState($hNoPDFs, $GUI_UNCHECKED)
+						GUICtrlSetState($hPDFSrc, $GUI_DISABLE)
 					EndIf
 
 				Case Else
@@ -866,7 +904,7 @@ Func SetAppRegistry(ByRef $aConfig)
 	Local $sLocation = ""
 
 	If $aConfig[$vMode] Then
-		$sLocation = "C:\Program Files\MSEdgeRedirect\"
+		$sLocation = $sDrive & "\Program Files\MSEdgeRedirect\"
 		$sHive = "HKLM"
 	Else
 		$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
@@ -924,7 +962,7 @@ Func SetAppShortcuts(ByRef $aConfig, ByRef $aSettings)
 		Case "Full"
 			If $aConfig[$vMode] Then
 				DirCreate(@ProgramsCommonDir & "\MSEdgeRedirect")
-				FileCreateShortcut("C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", @ProgramsCommonDir & "\MSEdgeRedirect\MSER Settings.lnk", "C:\Program Files\MSEdgeRedirect\", "/settings")
+				FileCreateShortcut($sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", @ProgramsCommonDir & "\MSEdgeRedirect\MSER Settings.lnk", $sDrive & "\Program Files\MSEdgeRedirect\", "/settings")
 			Else
 				DirCreate(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect")
 				FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\MSER Settings.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", "/settings")
@@ -949,7 +987,7 @@ Func SetIFEORegistry(ByRef $aChannels)
 	For $iLoop = 1 To $aEdges[0] Step 1
 		If $aChannels[$iLoop - 1] Then
 			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop)
-			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger", "REG_SZ", "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
+			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger", "REG_SZ", $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
 			RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "FilterFullPath", "REG_SZ", $aEdges[$iLoop])	
 			If $iLoop = $aEdges[0] Then
 				;;;
@@ -963,7 +1001,7 @@ Func SetIFEORegistry(ByRef $aChannels)
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe")
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe", "UseFilter", "REG_DWORD", 1)
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0")
-		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger", "REG_SZ", "C:\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
+		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger", "REG_SZ", $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "FilterFullPath", "REG_SZ", $aEdges[5])
 	EndIf
 EndFunc
@@ -1013,17 +1051,17 @@ Func SetScheduledTask($aChannels) ; Deprecated
 		"Update Edge Dev.xml", _
 		"Update Edge Canary.xml"]
 
-	DirCreate("C:\Program Files\MSEdgeRedirect\Assets")
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge.xml" , $FC_OVERWRITE)
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Beta.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge Beta.xml" ,$FC_OVERWRITE)
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Canary.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge Canary.xml" ,$FC_OVERWRITE)
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Dev.xml", "C:\Program Files\MSEdgeRedirect\Assets\Update Edge Dev.xml" ,$FC_OVERWRITE)
+	DirCreate($sDrive & "\Program Files\MSEdgeRedirect\Assets")
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge.xml" , $FC_OVERWRITE)
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Beta.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge Beta.xml" ,$FC_OVERWRITE)
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Canary.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge Canary.xml" ,$FC_OVERWRITE)
+	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Dev.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge Dev.xml" ,$FC_OVERWRITE)
 
 	$hTS = _TS_Open()
 	_TS_FolderCreate($hTS, "\MSEdgeRedirect")
 	For $iLoop = 1 To $aTasks[0] Step 1
 		If $aChannels[$iLoop - 1] Then
-			$hTO = _TS_TaskImportXML($hTS, 1, "C:\Program Files\MSEdgeRedirect\Assets\" & $aTasks[$iLoop])
+			$hTO = _TS_TaskImportXML($hTS, 1, $sDrive & "\Program Files\MSEdgeRedirect\Assets\" & $aTasks[$iLoop])
 			_TS_TaskRegister($hTS, "\MSEdgeRedirect", $aTasks[$iLoop], $hTO)
 		EndIf
 	Next
@@ -1111,7 +1149,7 @@ Func _IsPriviledgedInstall()
 
 	Local $hTestFile
 
-	If @ScriptDir = "C:\Program Files\MSEdgeRedirect" Then
+	If @ScriptDir = $sDrive & "\Program Files\MSEdgeRedirect" Then
 		Return True
 	ElseIf @LocalAppDataDir & "\MSEdgeRedirect" Then
 		Return False
