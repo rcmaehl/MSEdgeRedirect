@@ -164,7 +164,7 @@ Func RunRemoval($bUpdate = False)
 				FileDelete(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"))
 			EndIf
 			If FileExists(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\")) Then ; 0.7.3.0+
-				FileDelete(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"))
+				DirRemove(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"))
 			EndIf
 		Next
 		$hTS = _TS_Open() ; 0.7.2.0
