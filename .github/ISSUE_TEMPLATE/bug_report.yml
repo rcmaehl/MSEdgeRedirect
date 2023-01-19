@@ -12,11 +12,8 @@ body:
   attributes:
     label: Preflight Checklist
     options:
-      - label: Microsoft Edge is still installed (see issue 26)
-        required: true
       - label: Running microsoft-edge:https://google.com redirects successfully
-        required: true
-      - label: Microsoft Edge is selected in any "How do you want to open this?" box (if applicable)
+      - label: Microsoft Edge is selected in any "How do you want to open this?" box
 
 - type: dropdown
   attributes:
