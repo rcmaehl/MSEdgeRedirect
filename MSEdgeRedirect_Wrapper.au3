@@ -189,7 +189,7 @@ Func RunRepair()
 
 	If $bIsAdmin Then
 		For $iLoop = 1 To $aEdges[0] Step 1
-			RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "")
+			RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger")
 			If @error Then
 				;;;
 			Else
