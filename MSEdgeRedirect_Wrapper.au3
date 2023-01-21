@@ -53,6 +53,11 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	SetOptionsRegistry("Weather"    , $aSettings[$sWeather]    , $aConfig)
 	SetOptionsRegistry("WeatherPath", $aSettings[$sWeatherPath], $aConfig)
 
+	$aPIDs = ProcessList("msedgeredirect.exe")
+	For $iLoop = 1 To $aPIDs[0][0] Step 1
+		If $aPIDs[$iLoop][1] <> @AutoItPID Then ProcessClose($aPIDs[$iLoop][1])
+	Next
+
 	If $aConfig[$vMode] Then
 		If Not FileCopy(@ScriptFullPath, $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
 			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
