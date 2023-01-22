@@ -130,7 +130,7 @@ Func LaunchEdgeIFEO($sPath, $sCMDLine)
 	Local $sUpdater = ""
 
 	$sPath = StringReplace($sPath, "Application\msedge.exe", "IFEO\msedge.exe")
-	$sUpdater = StringReplace($sPath, "Edge\IEFO\msedge.exe", "EdgeUpdate\MicrosoftEdgeUpdate.exe")
+	$sUpdater = StringReplace($sPath, "Edge\IFEO\msedge.exe", "EdgeUpdate\MicrosoftEdgeUpdate.exe")
 
 	ShellExecute($sPath, $sCMDLine)
 	ShellExecute($sUpdater, "/c")
