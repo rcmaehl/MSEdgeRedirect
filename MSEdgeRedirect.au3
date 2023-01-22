@@ -82,12 +82,10 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case _ArraySearch($aCMDLine, "--app-id", 2, 0, 0, 1) > 0 And Not _GetSettingValue("NoApps")
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
-			$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
-			ShellExecute($aCMDLine[1], $sCMDLine)
+			LaunchEdgeIFEO($aCMDLine[1], $sCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
-			$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
-			ShellExecute($aCMDLine[1], $aCMDLine[2])
+			LaunchEdgeIFEO($aCMDLine[1], $aCMDLine[2])
 		Case _ArraySearch($aCMDLine, "localhost:", 2, 0, 0, 1) > 0 ; Improve on #162
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "localhost/", 2, 0, 0, 1) > 0 ; Improve on #162
@@ -115,16 +113,29 @@ Func CheckEdgeIntegrity($sLocation)
 			Case Not FileExists(StringReplace($sLocation, "Application\msedge.exe", "IFEO\"))
 				If WinExists(_Translate($aMUI[1], "Admin File Copy Required")) Then Exit ; #202
 				If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
-					_Translate($aMUI[1], "Admin File Copy Required"), _
-					_Translate($aMUI[1], "The IFEO exclusion file for MSEdgeRedirect is missing and need to be copied from Edge. Copy Now?"), _
+					_Translate($aMUI[1], "Admin Rights Required"), _
+					_Translate($aMUI[1], "The IFEO junctions for MSEdgeRedirect are missing and need to be created. Create Now?"), _
 					0) = $IDYES Then ShellExecuteWait(@ScriptFullPath, "/repair", @ScriptDir, "RunAs")
 				If @error Then MsgBox($MB_ICONERROR+$MB_OK, _
 					"Copy Failed", _
-					"Unable to copy the IFEO exclusion file without Admin Rights!")
+					"Unable to create the IFEO junctionwithout Admin Rights!")
 			Case Else
 				;;;
 		EndSelect
 	EndIf
+EndFunc
+
+Func LaunchEdgeIFEO($sPath, $sCMDLine)
+
+	Local $sUpdater = ""
+
+	$sPath = StringReplace($sPath, "Application\msedge.exe", "IFEO\msedge.exe")
+	$sUpdater = StringReplace($sPath, "Edge\IEFO\msedge.exe", "EdgeUpdate\MicrosoftEdgeUpdate.exe")
+
+	ShellExecute($sPath, $sCMDLine)
+	ShellExecute($sUpdater, "/c")
+	ShellExecute($sUpdater, "/ua /installsource scheduler")
+
 EndFunc
 
 Func ProcessCMDLine()
