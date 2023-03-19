@@ -171,6 +171,9 @@ Func RunRemoval($bUpdate = False)
 			If FileExists(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\")) Then ; 0.7.3.0+
 				DirRemove(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"))
 			EndIf
+			If FileExists(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe.lnk")) Then ; 0.8.0.0+
+				FileDelete(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe.lnk"))
+			EndIf
 		Next
 		$hTS = _TS_Open() ; 0.7.2.0
 		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge.xml")
@@ -201,7 +204,7 @@ Func RunRepair()
 				If $iLoop = $aEdges[0] Then
 					;;;
 				Else
-					FileCreateNTFSLink(StringReplace($aEdges[$iLoop], "\msedge.exe", ""), StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"), $FC_OVERWRITE)
+					FileCreateShortcut($aEdges[$iLoop], StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"))
 				EndIf
 			EndIf
 		Next
@@ -997,7 +1000,7 @@ Func SetIFEORegistry(ByRef $aChannels)
 			If $iLoop = $aEdges[0] Then
 				;;;
 			Else
-				FileCreateNTFSLink(StringReplace($aEdges[$iLoop], "\msedge.exe", ""), StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"), $FC_OVERWRITE)
+				FileCreateShortcut($aEdges[$iLoop], StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"))
 			EndIf
 		EndIf
 	Next
