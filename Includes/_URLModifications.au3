@@ -108,6 +108,9 @@ Func _ChangeSearchEngine($sURL)
 			Case "Baidu"
 				$sURL = "https://www.baidu.com/s?wd=" & $sURL
 
+			Case "Brave"
+				$sURL = "https://search.brave.com/search?q=" & $sURL
+
 			Case "Custom"
 				$sURL = _GetSettingValue("SearchPath") & $sURL
 
