@@ -110,7 +110,7 @@ Func CheckEdgeIntegrity($sLocation)
 		;;;
 	Else
 		Select
-			Case Not FileExists(StringReplace($sLocation, "\msedge.exe", "\msedge_IFEO.exe.lnk"))
+			Case Not FileExists(StringReplace($sLocation, "\msedge.exe", "\msedge_IFEO.exe"))
 				If WinExists(_Translate($aMUI[1], "Admin File Copy Required")) Then Exit ; #202
 				If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
 					_Translate($aMUI[1], "Admin Rights Required"), _
@@ -128,7 +128,7 @@ EndFunc
 Func LaunchEdgeIFEO($sPath, $sCMDLine)
 
 	$sPath = StringReplace($sPath, "\msedge.exe", "\msedge_IFEO.exe")
-	ShellExecute($sPath, $sCMDLine)
+	Run($sPath & " " & $sCMDLine)
 
 EndFunc
 

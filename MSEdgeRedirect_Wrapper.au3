@@ -4,6 +4,7 @@
 #include <Array.au3>
 #include <String.au3>
 #include <GuiComboBox.au3>
+#include <WinAPIFiles.au3>
 #include <EditConstants.au3>
 #include <FileConstants.au3>
 #include <FontConstants.au3>
@@ -171,8 +172,8 @@ Func RunRemoval($bUpdate = False)
 			If FileExists(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\")) Then ; 0.7.3.0+
 				DirRemove(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"))
 			EndIf
-			If FileExists(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe.lnk")) Then ; 0.8.0.0+
-				FileDelete(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe.lnk"))
+			If FileExists(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe")) Then ; 0.8.0.0+
+				FileDelete(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"))
 			EndIf
 		Next
 		$hTS = _TS_Open() ; 0.7.2.0
@@ -204,7 +205,7 @@ Func RunRepair()
 				If $iLoop = $aEdges[0] Then
 					;;;
 				Else
-					FileCreateShortcut($aEdges[$iLoop], StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"))
+					_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"), $aEdges[$iLoop])
 				EndIf
 			EndIf
 		Next
@@ -1000,7 +1001,7 @@ Func SetIFEORegistry(ByRef $aChannels)
 			If $iLoop = $aEdges[0] Then
 				;;;
 			Else
-				FileCreateShortcut($aEdges[$iLoop], StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"))
+				_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"), $aEdges[$iLoop])
 			EndIf
 		EndIf
 	Next
