@@ -1,6 +1,7 @@
 #include-once
 
 #include <Array.au3>
+#include <WinAPIProc.au3>
 #include <WinAPIShPath.au3>
 #include <StringConstants.au3>
 
@@ -189,5 +190,21 @@ Func _IsSafeURL(ByRef $sURL)
 	If Not $bSafe Then FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe URL: " & $sURL & @CRLF)
 
 	Return $bSafe
+
+EndFunc
+
+Func _SafeRun($sPath, $sCMDLine = "")
+
+	Local $tProcess = DllStructCreate($tagPROCESS_INFORMATION)
+	Local $tStartup = DllStructCreate($tagSTARTUPINFO)	
+
+	MsgBox(0, $sPath, $sCMDLine)
+	ClipPut($sCMDLine)
+
+	If $sCMDLine = "" Then
+		_WinAPI_CreateProcess('', $sPath, 0, 0, 0, $CREATE_NEW_PROCESS_GROUP, 0, 0, $tStartup, $tProcess)
+	Else
+		_WinAPI_CreateProcess($sPath, "--MSEdgeRedirect " & $sCMDLine, 0, 0, 0, $CREATE_NEW_PROCESS_GROUP, 0, 0, $tStartup, $tProcess)
+	EndIf
 
 EndFunc

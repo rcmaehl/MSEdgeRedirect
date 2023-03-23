@@ -57,6 +57,7 @@ Func ActiveMode(ByRef $aCMDLine)
 	Local $sCMDLine = ""
 
 	CheckEdgeIntegrity($aCMDLine[1])
+	$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_IFEO.exe")
 
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
@@ -83,9 +84,9 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
-			LaunchEdgeIFEO($aCMDLine[1], $sCMDLine)
+			_SafeRun($aCMDLine[1], $sCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
-			LaunchEdgeIFEO($aCMDLine[1], $aCMDLine[2])
+			_SafeRun($aCMDLine[1], $aCMDLine[2])
 		Case _ArraySearch($aCMDLine, "localhost:", 2, 0, 0, 1) > 0 ; Improve on #162
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "localhost/", 2, 0, 0, 1) > 0 ; Improve on #162
@@ -99,7 +100,6 @@ Func ActiveMode(ByRef $aCMDLine)
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Localhost URL: " & $sCMDLine & @CRLF)
 		Case Else
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
-			$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
 			_DecodeAndRun($aCMDLine[1], $sCMDLine)
 	EndSelect
 
@@ -123,13 +123,6 @@ Func CheckEdgeIntegrity($sLocation)
 				;;;
 		EndSelect
 	EndIf
-EndFunc
-
-Func LaunchEdgeIFEO($sPath, $sCMDLine)
-
-	$sPath = StringReplace($sPath, "\msedge.exe", "\msedge_IFEO.exe")
-	Run($sPath & " " & $sCMDLine)
-
 EndFunc
 
 Func ProcessCMDLine()
@@ -482,7 +475,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
 	Select
 		Case StringLeft($sCMDLine, 2) = "--" And _GetSettingValue("RunUnsafe")
-			ShellExecute($sEdge, $sCMDLine)
+			_SafeRun($sEdge, $sCMDLine)
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Settings URL: " & $sCMDLine & @CRLF)
 		Case StringInStr($sCMDLine, "profiles_settings")
@@ -497,7 +490,8 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 						ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
 				EndSwitch
 			Else
-				ShellExecute($sEdge, $sCMDLine)
+				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
+				_SafeRun($sEdge, $sCMDLine)
 				If Not _IsPriviledgedInstall() Then Sleep(1000)
 			EndIf
 		Case StringInStr($sCMDLine, "--app-id")
@@ -512,7 +506,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 					EndIf
 				Case StringInStr($sCMDLine, "--ip-aumid=") ; Edge "Apps"
 					If _IsSafeApp($sCMDLine) Then
-						ShellExecute($sEdge, $sCMDLine)
+						_SafeRun($sEdge, $sCMDLine)
 					Else
 						FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
 					EndIf
