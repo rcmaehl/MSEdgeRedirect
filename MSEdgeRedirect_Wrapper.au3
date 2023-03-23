@@ -527,7 +527,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoImgs = GUICtrlCreateCheckbox("Bing Images:", 240, 240, 180, 20)
 			Local $hImgSRC = GUICtrlCreateCombo("", 240, 260, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
-			GUICtrlSetData(-1, "Baidu|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
+			GUICtrlSetData(-1, "Baidu|Brave|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (ALPHA)", 50, 285, 180, 20)
 			Local $hNewSRC = GUICtrlCreateCombo("", 50, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)

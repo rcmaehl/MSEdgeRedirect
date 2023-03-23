@@ -16,6 +16,9 @@ Func _ChangeImageProvider($sURL)
 			Case "Baidu"
 				$sURL = "https://image.baidu.com/search/index?tn=baiduimage&word=" & $sURL
 
+			Case "Brave"
+				$sURL = "https://search.brave.com/?ia=images&iax=images&q=" & $sURL
+
 			Case "Custom"
 				$sURL = _GetSettingValue("ImagePath") & $sURL
 
