@@ -187,7 +187,7 @@ Func _ChangeWeatherProvider($sURL)
 					Case StringInStr($sURL, "loc=") ; New Style Weather URL
 						$vCoords = StringRegExpReplace($sURL, "(?i)(.*)(\?loc=)", "")
 						$vCoords = StringRegExpReplace($vCoords, "(?i)(?=\&weadegreetype=)(.*)", "")
-						$vCoords = _UnicodeURLDecode($vCoords)
+						$vCoords = _WinAPI_UrlUnescape($vCoords)
 						$vCoords = _Base64Decode($vCoords)
 						$vCoords = BinaryToString($vCoords)
 						$vCoords = StringRegExpReplace($vCoords, "(?i){|}", "")
@@ -312,34 +312,42 @@ Func _RedirectCMDDecode($sCMDLine)
 
 EndFunc
 
+
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _UnicodeURLDecode
 ; Description ...: Tranlates a URL-friendly string to a normal string
-; Syntax ........: _UnicodeURLDecode($toDecode)
-; Parameters ....: $toDecode           - The URL-friendly string to decode
+; Syntax ........: _UnicodeURLDecode($sData)
+; Parameters ....: $sData           - The URL-friendly string to decode
 ; Return values .: The URL decoded string
 ; Author ........: nfwu, Dhilip89, rcmaehl
 ; Modified ......: 10/26/2022
-; Remarks .......: Modified from _URLDecode() that only supported non-unicode.
+; Remarks .......: 
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _UnicodeURLDecode($toDecode)
-    Local $strChar = "", $iOne, $iTwo
-    Local $aryHex = StringSplit($toDecode, "")
-    For $i = 1 To $aryHex[0]
-        If $aryHex[$i] = "%" Then
-            $i += 1
-            $iOne = $aryHex[$i]
-            $i += 1
-            $iTwo = $aryHex[$i]
-            $strChar = $strChar & Chr(Dec($iOne & $iTwo))
-        Else
-            $strChar = $strChar & $aryHex[$i]
-        EndIf
+Func _UnicodeURLDecode($sData)
+    Local $aData = StringSplit(StringReplace($sData,"+"," ",0,1),"%")
+    $sData = ""
+    For $i = 2 To $aData[0]
+        $aData[1] &= Chr(Dec(StringLeft($aData[$i],2))) & StringTrimLeft($aData[$i],2)
     Next
-    Local $Process = StringToBinary(StringReplace($strChar, "+", " "))
-    Local $DecodedString = BinaryToString($Process, 4)
-    Return $DecodedString
-EndFunc   ;==>_UnicodeURLDecode
+    Return BinaryToString(StringToBinary($aData[1],1),4)
+EndFunc
+
+Func _WinAPI_UrlUnescape($sUrl, $dFlags = 0x00040000)
+
+    ; https://learn.microsoft.com/en-us/windows/win32/api/shlwapi/nf-shlwapi-urlunescapew
+    Local $aUrlUnescape = DllCall("Shlwapi.dll", "long", "UrlUnescapeW", _
+            "wstr", $sUrl, _ ; PWSTR pszUrl - A pointer to a null-terminated string with the URL
+            "wstr", "decodedUrl", _ ; PWSTR pszUnescaped - A pointer to a buffer that will receive a null-terminated string that contains the unescaped version of pszURL
+            "dword*", 1024, _ ; DWORD *pcchUnescaped - The number of characters in the buffer pointed to by pszUnescaped
+            "dword", $dFlags) ; DWORD dwFlags
+    If @error Then
+        ; ConsoleWrite('UrlUnescape error: ' & @error & ', LastErr: ' & _WinAPI_GetLastError() & ', LastMsg: ' & _WinAPI_GetLastErrorMessage() & @CRLF)
+        Return SetError(@error, @extended, 0)
+    EndIf
+
+    If IsArray($aUrlUnescape) Then Return $aUrlUnescape[2]
+    
+EndFunc   ;==>_WinAPI_UrlUnescape

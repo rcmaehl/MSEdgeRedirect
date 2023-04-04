@@ -521,7 +521,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			For $iLoop = 0 To Ubound($aCMDLine) - 1 Step 1
 				If $aCMDLine[$iLoop][0] = "url" Then
 					$sURL = $aCMDLine[$iLoop][1]
-					If StringInStr($sURL, "%2F") Then $sURL = _UnicodeURLDecode($sURL)
+					If StringInStr($sURL, "%2F") Then $sURL = _WinAPI_UrlUnescape($sURL)
 					ExitLoop
 				EndIf
 			Next
@@ -538,7 +538,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 		Case Else
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
 			$sCMDLine = StringReplace($sCMDLine, "?url=", "")
-			If StringInStr($sCMDLine, "%2F") Then $sCMDLine = _UnicodeURLDecode($sCMDLine)
+			If StringInStr($sCMDLine, "%2F") Then $sCMDLine = _WinAPI_UrlUnescape($sCMDLine)
 			If _IsSafeURL($sCMDLine) Then
 				$sCMDLine = _ModifyURL($sCMDLine)
 				ShellExecute($sCMDLine)

@@ -198,9 +198,6 @@ Func _SafeRun($sPath, $sCMDLine = "")
 	Local $tProcess = DllStructCreate($tagPROCESS_INFORMATION)
 	Local $tStartup = DllStructCreate($tagSTARTUPINFO)	
 
-	MsgBox(0, $sPath, $sCMDLine)
-	ClipPut($sCMDLine)
-
 	If $sCMDLine = "" Then
 		_WinAPI_CreateProcess('', $sPath, 0, 0, 0, $CREATE_NEW_PROCESS_GROUP, 0, 0, $tStartup, $tProcess)
 	Else
