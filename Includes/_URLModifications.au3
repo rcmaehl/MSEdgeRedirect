@@ -335,6 +335,23 @@ Func _UnicodeURLDecode($sData)
     Return BinaryToString(StringToBinary($aData[1],1),4)
 EndFunc
 
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _WinAPI_UrlUnescape
+; Description ...: Tranlates a URL-friendly string to a normal string
+; Syntax ........: _WinAPI_UrlUnescape($sData[, $dFlag])
+; Parameters ....: $sURL            - The URL-friendly string to decode
+;                  $dFlag           - [Optional] WinAPI Function parameters
+; Return values .: The URL unescaped string
+; Author ........: mistersquirrle, rcmaehl
+; Modified ......: 3/27/2023
+; Remarks .......: URL_DONT_UNESCAPE_EXTRA_INFO = 0x02000000
+;                  URL_UNESCAPE_AS_UTF8         = 0x00040000 (Win 8+)                
+;                  URL_UNESCAPE_INPLACE         = 0x00100000
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+
 Func _WinAPI_UrlUnescape($sUrl, $dFlags = 0x00040000)
 
     ; https://learn.microsoft.com/en-us/windows/win32/api/shlwapi/nf-shlwapi-urlunescapew
