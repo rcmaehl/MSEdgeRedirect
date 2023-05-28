@@ -132,17 +132,21 @@ Func FixTreeIntegrity()
 
 	If _WinAPI_GetProcessName($iParent) = "MSEdge.exe" Then
 
-		FileWrite($hLogs[$AppGeneral], _NowCalc() & " - " & "Caught MSEdge Parent Process, Launched by " & _WinAPI_GetProcessName(_WinAPI_GetParentProcess($iParent)) & ", Grabbing Parameters." & @CRLF)
+		If Not _WinAPI_GetParentProcess($iParent) = @AutoItPID Then
 
-		Local $aAdjust
+			FileWrite($hLogs[$AppGeneral], _NowCalc() & " - " & "Caught MSEdge Parent Process, Launched by " & _WinAPI_GetProcessName(_WinAPI_GetParentProcess($iParent)) & ", Grabbing Parameters." & @CRLF)
 
-		; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
-		Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
+			Local $aAdjust
 
-		_WinAPI_AdjustTokenPrivileges($hToken, $SE_DEBUG_NAME, $SE_PRIVILEGE_ENABLED, $aAdjust)
+			; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
+			Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
 
-		ProcessClose($iParent)
-		_DecodeAndRun(Default, _WinAPI_GetProcessCommandLine($iParent))
+			_WinAPI_AdjustTokenPrivileges($hToken, $SE_DEBUG_NAME, $SE_PRIVILEGE_ENABLED, $aAdjust)
+
+			ProcessClose($iParent)
+			_DecodeAndRun(Default, _WinAPI_GetProcessCommandLine($iParent))
+
+		EndIf
 
 	EndIf
 
