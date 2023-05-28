@@ -456,8 +456,10 @@ Func RepairCMDLine($aCMDLine)
 	Select
 		Case StringInStr($sCMDLine, "Program" & $sDelim & "Files" & $sDelim & "(x86)")
 			$sCMDLine = StringReplace($sCMDLine, "Program" & $sDelim & "Files" & $sDelim & "(x86)", "Program Files (x86)")
+		Case StringInStr($sCMDLine, $sDelim & "--" & $sDelim)
+			$sCMDLine = StringReplace($sCMDLine, "--" & $sDelim, "")
 		Case Else
-			;;;
+		;;;
 	EndSelect
 
 	$aCMDLine = StringSplit($sCMDLine, $sDelim, $STR_ENTIRESPLIT+$STR_NOCOUNT)
