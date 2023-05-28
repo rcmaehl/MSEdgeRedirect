@@ -34,6 +34,7 @@ EndIf
 
 Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 
+	Local $aPIDs
 	Local $sArgs = ""
 	Local Enum $bManaged = 1, $vMode
 
