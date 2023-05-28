@@ -86,6 +86,8 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			_SafeRun($aCMDLine[1], $sCMDLine)
+		Case _WinAPI_GetProcessName(_WinAPI_GetParentProcess()) = "Hurl.exe"
+			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
 			_SafeRun($aCMDLine[1], $aCMDLine[2])
 		Case _ArraySearch($aCMDLine, "localhost:", 2, 0, 0, 1) > 0 ; Improve on #162
@@ -109,6 +111,8 @@ EndFunc
 Func CheckEdgeIntegrity($sLocation)
 	If StringInStr($sLocation, "ie_to_edge_stub") Then
 		;;;
+	ElseIf $sLocation = "" Then
+		Exit
 	Else
 		Select
 			Case Not FileExists(StringReplace($sLocation, "\msedge.exe", "\msedge_IFEO.exe"))
@@ -173,6 +177,8 @@ Func ProcessCMDLine()
 	If DriveGetType(@ScriptDir) = "Removable" Then $bPortable = True
 
 	If $iParams > 0 Then
+
+		_ArrayDisplay($CMDLine)
 
 		$CMDLine = RepairCMDLine($CMDLine)
 
@@ -547,6 +553,8 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				Case Else
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
 			EndSelect
+		Case StringInStr($sCMDLine, "bing.com/chat") ; Fix BingAI
+			If _GetSettingValue("NoPDFs") Then _SafeRun($sEdge, $sCMDLine)
 		Case StringInStr($sCMDLine, "&url=") ; Fix Windows 11 Widgets
 			ContinueCase
 		Case StringInStr($sCMDLine, "--edge-redirect")
