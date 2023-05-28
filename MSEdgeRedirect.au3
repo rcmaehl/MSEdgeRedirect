@@ -56,6 +56,7 @@ Func ActiveMode(ByRef $aCMDLine)
 
 	Local $sCMDLine = ""
 
+	FixTreeIntegrity()
 	CheckEdgeIntegrity($aCMDLine[1])
 	$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_IFEO.exe")
 
@@ -124,6 +125,30 @@ Func CheckEdgeIntegrity($sLocation)
 		EndSelect
 	EndIf
 EndFunc
+
+Func FixTreeIntegrity()
+
+	Local $iParent = _WinAPI_GetParentProcess()
+
+	If _WinAPI_GetProcessName($iParent) = "MSEdge.exe" Then
+
+		FileWrite($hLogs[$AppGeneral], _NowCalc() & " - " & "Caught MSEdge Parent Process, Launched by " & _WinAPI_GetProcessName(_WinAPI_GetParentProcess($iParent)) & ", Grabbing Parameters." & @CRLF)
+
+		Local $aAdjust
+
+		; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
+		Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
+
+		_WinAPI_AdjustTokenPrivileges($hToken, $SE_DEBUG_NAME, $SE_PRIVILEGE_ENABLED, $aAdjust)
+
+		ProcessClose($iParent)
+		_DecodeAndRun(Default, _WinAPI_GetProcessCommandLine($iParent))
+
+	EndIf
+
+EndFunc
+
+
 
 Func ProcessCMDLine()
 
