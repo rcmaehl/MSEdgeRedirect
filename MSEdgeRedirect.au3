@@ -55,6 +55,8 @@ ProcessCMDLine()
 Func ActiveMode(ByRef $aCMDLine)
 
 	Local $sCMDLine = ""
+	Local $sParent = _WinAPI_GetProcessName(_WinAPI_GetParentProcess())
+
 
 	$aCMDLine = FixTreeIntegrity($aCMDLine)
 	CheckEdgeIntegrity($aCMDLine[1])
@@ -86,7 +88,11 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			_SafeRun($aCMDLine[1], $sCMDLine)
-		Case _WinAPI_GetProcessName(_WinAPI_GetParentProcess()) = "Hurl.exe"
+		Case $sParent = "BrowserSelect.exe"
+			ContinueCase
+		Case $sParent = "BrowserSelector.exe"
+			ContinueCase			
+		Case $sParent = "Hurl.exe"
 			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
 			_SafeRun($aCMDLine[1], $aCMDLine[2])
