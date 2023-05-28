@@ -119,7 +119,7 @@ Func CheckEdgeIntegrity($sLocation)
 					0) = $IDYES Then ShellExecuteWait(@ScriptFullPath, "/repair", @ScriptDir, "RunAs")
 				If @error Then MsgBox($MB_ICONERROR+$MB_OK, _
 					"Copy Failed", _
-					"Unable to create the IFEO junctionwithout Admin Rights!")
+					"Unable to create the IFEO junction without Admin Rights!")
 			Case Else
 				;;;
 		EndSelect
@@ -132,7 +132,7 @@ Func FixTreeIntegrity()
 
 	If _WinAPI_GetProcessName($iParent) = "MSEdge.exe" Then
 
-		If Not _WinAPI_GetParentProcess($iParent) = @AutoItPID Then
+		If Not _WinAPI_GetProcessName(_WinAPI_GetParentProcess($iParent)) = @ScriptName Then
 
 			FileWrite($hLogs[$AppGeneral], _NowCalc() & " - " & "Caught MSEdge Parent Process, Launched by " & _WinAPI_GetProcessName(_WinAPI_GetParentProcess($iParent)) & ", Grabbing Parameters." & @CRLF)
 
