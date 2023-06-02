@@ -1049,36 +1049,6 @@ Func SetOptionsRegistry($sName, $vValue, ByRef $aConfig)
 
 EndFunc
 
-Func SetScheduledTask($aChannels) ; Deprecated
-
-	Local $hTS
-	Local $hTO
-	Local Enum $bManaged = 1, $vMode
-
-	Local $aTasks[5] = [4, _
-		"Update Edge.xml", _
-		"Update Edge Beta.xml", _
-		"Update Edge Dev.xml", _
-		"Update Edge Canary.xml"]
-
-	DirCreate($sDrive & "\Program Files\MSEdgeRedirect\Assets")
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge.xml" , $FC_OVERWRITE)
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Beta.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge Beta.xml" ,$FC_OVERWRITE)
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Canary.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge Canary.xml" ,$FC_OVERWRITE)
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Dev.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge Dev.xml" ,$FC_OVERWRITE)
-
-	$hTS = _TS_Open()
-	_TS_FolderCreate($hTS, "\MSEdgeRedirect")
-	For $iLoop = 1 To $aTasks[0] Step 1
-		If $aChannels[$iLoop - 1] Then
-			$hTO = _TS_TaskImportXML($hTS, 1, $sDrive & "\Program Files\MSEdgeRedirect\Assets\" & $aTasks[$iLoop])
-			_TS_TaskRegister($hTS, "\MSEdgeRedirect", $aTasks[$iLoop], $hTO)
-		EndIf
-	Next
-	_TS_Close($hTS)
-
-EndFunc
-
 Func SetupAppdata()
 	Select
 		Case Not FileExists(@LocalAppDataDir & "\MSEdgeRedirect\")
