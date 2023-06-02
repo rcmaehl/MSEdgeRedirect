@@ -203,7 +203,7 @@ Func RunRepair()
 			If @error Then
 				;;;
 			Else
-				If $iLoop = $aEdges[0] Then
+				If $iLoop = $aEdges[0] Then ; Skip IEtoEdgeStub
 					;;;
 				Else
 					_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"), $aEdges[$iLoop])
@@ -271,7 +271,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$aConfig[$bManaged] = _Bool(IniRead($aConfig[$hFile], "Config", "Managed", False))
 			$aConfig[$vMode] = IniRead($aConfig[$hFile], "Config", "Mode", "Service")
 
-			If $aConfig[$vMode] = "active" Then
+			If $aConfig[$vMode] = "Active" Then
 				$aConfig[$vMode] = True
 			Else
 				$aConfig[$vMode] = False
@@ -494,7 +494,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUICtrlSetState($hChannels[1], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[2], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[3], $GUI_DISABLE)
-				Case FileExists($aEdges[5])
+				Case FileExists($aEdges[5]) ; IEtoEdgeStub
 					GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 					ContinueCase
 				Case Else
@@ -757,7 +757,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							GUICtrlSetState($hChannels[3], $GUI_DISABLE)
 							GUICtrlSetState($hChannels[4], $GUI_DISABLE)
 							GUICtrlSetState($hChannels[4], $GUI_CHECKED)
-						 Else
+						Else
 							If $bUpdate Or $iMode = $hSettings Then
 								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER1", "Debugger") Then GUICtrlSetState($hChannels[0], $GUI_CHECKED)
 								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER2", "Debugger") Then GUICtrlSetState($hChannels[1], $GUI_CHECKED)
@@ -1155,6 +1155,7 @@ Func _IsInstalled()
 
 EndFunc
 
+; TODO: Rename. Detects if script install directory requires admin rights
 Func _IsPriviledgedInstall()
 
 	Local $hTestFile
