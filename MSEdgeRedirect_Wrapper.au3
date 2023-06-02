@@ -373,7 +373,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		EndIf
 
 		; Disable Scaling
-		If @OSVersion = 'WIN_10' Then DllCall(@SystemDir & "\User32.dll", "bool", "SetProcessDpiAwarenessContext", "HWND", "DPI_AWARENESS_CONTEXT" - 1)
+		If @OSVersion = 'WIN_10' or 'WIN_11' Then DllCall(@SystemDir & "\User32.dll", "bool", "SetProcessDpiAwarenessContext", "HWND", "DPI_AWARENESS_CONTEXT" - 1)
 
 		Local $hInstallGUI = GUICreate("MSEdgeRedirect " & $sVersion & " Setup", 640, 480)
 
