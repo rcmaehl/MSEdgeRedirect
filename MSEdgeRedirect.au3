@@ -85,6 +85,8 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--app-id", 2, 0, 0, 1) > 0 And Not _GetSettingValue("NoApps")
 			ContinueCase
+		Case _ArraySearch($aCMDLine, "--remote-debugging-port=", 2, 0, 0, 1) > 0 ; #271, Debugging Apps
+			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			_SafeRun($aCMDLine[1], $sCMDLine)
@@ -409,19 +411,14 @@ Func ReactiveMode($bHide = False)
 	While True
 		$hMsg = TrayGetMsg()
 
-		If TimerDiff($hTimer) >= 100 Then
-			$aProcessList = ProcessList("msedge.exe")
-			For $iLoop = 1 To $aProcessList[0][0] - 1
-				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
-				If StringRegExp($sCommandline, $sRegex) Then
-					ProcessClose($aProcessList[$iLoop][1])
-					If _ArraySearch($aEdges, _WinAPI_GetProcessFileName($aProcessList[$iLoop][1]), 1, $aEdges[0]) > 0 Then
-						_DecodeAndRun(Default, $sCommandline)
-					EndIf
-				EndIf
-			Next
-			$hTimer = TimerInit()
-		EndIf
+		$aProcessList = ProcessList("msedge.exe")
+		For $iLoop = 1 To $aProcessList[0][0] - 1
+			$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
+			If StringRegExp($sCommandline, $sRegex) Then
+				ProcessClose($aProcessList[$iLoop][1])
+				_DecodeAndRun(Default, $sCommandline)
+			EndIf
+		Next
 
 		Switch $hMsg
 
@@ -587,6 +584,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
 			$sCMDLine = StringReplace($sCMDLine, "?url=", "")
 			If StringInStr($sCMDLine, "%2F") Then $sCMDLine = _WinAPI_UrlUnescape($sCMDLine)
+			FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Legacy Edge Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 			If _IsSafeURL($sCMDLine) Then
 				$sCMDLine = _ModifyURL($sCMDLine)
 				ShellExecute($sCMDLine)
