@@ -5,6 +5,7 @@
 
 #include ".\_Logging.au3"
 
+Global $bDebug = False
 Global $bIsAdmin = IsAdmin()
 Global $bIsWOW64 = _WinAPI_IsWow64Process()
 Global $bIs64Bit = @AutoItX64
