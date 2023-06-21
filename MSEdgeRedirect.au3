@@ -377,7 +377,6 @@ EndFunc
 
 Func ReactiveMode($bHide = False)
 
-	Local $hTimer = TimerInit()
 	Local $aAdjust
 
 	Local $hMsg
