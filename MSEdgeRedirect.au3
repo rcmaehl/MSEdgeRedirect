@@ -399,6 +399,7 @@ Func ReactiveMode($bHide = False)
 	If $bHide Then TraySetState($TRAY_ICONSTATE_HIDE)
 
 	Local $sRegex
+	Local $iSIHost = ProcessExists("sihost.exe")
 	Local $aProcessList
 	Local $sCommandline
 
@@ -411,6 +412,18 @@ Func ReactiveMode($bHide = False)
 	While True
 		$hMsg = TrayGetMsg()
 
+		$aProcessList = _WinAPI_EnumChildProcess($iSIHost)
+		If @error Then 
+			;;;
+		Else
+			ProcessClose($aProcessList[1][0])
+			$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[1][0])
+			If StringRegExp($sCommandline, $sRegex) Then
+				_DecodeAndRun(Default, $sCommandline)
+			EndIf
+		EndIf
+
+#cs
 		$aProcessList = ProcessList("msedge.exe")
 		For $iLoop = 1 To $aProcessList[0][0] - 1
 			$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
@@ -419,6 +432,7 @@ Func ReactiveMode($bHide = False)
 				_DecodeAndRun(Default, $sCommandline)
 			EndIf
 		Next
+#ce
 
 		Switch $hMsg
 
@@ -574,7 +588,27 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			If $sURL = "" Then
 				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
 			Else
-				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Edge Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
+				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected 'Edge-Redirect' Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
+				If _IsSafeURL($sURL) Then
+					$sURL = _ModifyURL($sURL)
+					ShellExecute($sURL)
+				EndIf
+			EndIf
+		Case StringInStr($sCMDLine, "microsoft-edge:")
+			$aCMDLine = _RedirectCMDDecode($sCMDLine)
+
+			For $iLoop = 0 To Ubound($aCMDLine) - 1 Step 1
+				If $aCMDLine[$iLoop][0] = "url" Then
+					$sURL = $aCMDLine[$iLoop][1]
+					If StringInStr($sURL, "%2F") Then $sURL = _WinAPI_UrlUnescape($sURL)
+					ExitLoop
+				EndIf
+			Next
+
+			If $sURL = "" Then
+				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
+			Else
+				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected 'Microsoft-Edge' Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 				If _IsSafeURL($sURL) Then
 					$sURL = _ModifyURL($sURL)
 					ShellExecute($sURL)
@@ -584,7 +618,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
 			$sCMDLine = StringReplace($sCMDLine, "?url=", "")
 			If StringInStr($sCMDLine, "%2F") Then $sCMDLine = _WinAPI_UrlUnescape($sCMDLine)
-			FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Legacy Edge Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
+			FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Redirected Legacy Edge Call:" & @CRLF & $sCMDLine & @CRLF)
 			If _IsSafeURL($sCMDLine) Then
 				$sCMDLine = _ModifyURL($sCMDLine)
 				ShellExecute($sCMDLine)
