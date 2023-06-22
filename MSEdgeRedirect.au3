@@ -413,7 +413,14 @@ Func ReactiveMode($bHide = False)
 
 		$aProcessList = _WinAPI_EnumChildProcess($iSIHost)
 		If @error Then 
-			;;;
+			$aProcessList = ProcessList("msedge.exe")
+			For $iLoop = 1 To $aProcessList[0][0] - 1
+				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
+				If StringRegExp($sCommandline, $sRegex) Then
+					ProcessClose($aProcessList[$iLoop][1])
+					_DecodeAndRun(Default, $sCommandline)
+				EndIf
+			Next
 		Else
 			ProcessClose($aProcessList[1][0])
 			$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[1][0])
@@ -421,17 +428,6 @@ Func ReactiveMode($bHide = False)
 				_DecodeAndRun(Default, $sCommandline)
 			EndIf
 		EndIf
-
-#cs
-		$aProcessList = ProcessList("msedge.exe")
-		For $iLoop = 1 To $aProcessList[0][0] - 1
-			$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
-			If StringRegExp($sCommandline, $sRegex) Then
-				ProcessClose($aProcessList[$iLoop][1])
-				_DecodeAndRun(Default, $sCommandline)
-			EndIf
-		Next
-#ce
 
 		Switch $hMsg
 
