@@ -615,7 +615,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
 			$sCMDLine = StringReplace($sCMDLine, "?url=", "")
 			If StringInStr($sCMDLine, "%2F") Then $sCMDLine = _WinAPI_UrlUnescape($sCMDLine)
-			FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Caught Legacy Edge Call:" & @CRLF & $sCMDLine & @CRLF)
+			FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Caught Other Edge Call:" & @CRLF & $sCMDLine & @CRLF)
 			If _IsSafeURL($sCMDLine) Then
 				$sCMDLine = _ModifyURL($sCMDLine)
 				ShellExecute($sCMDLine)
