@@ -292,10 +292,11 @@ Func _RedirectCMDDecode($sCMDLine)
 	Local $aCMDLine_2D[0][0]
 
 	$sCMDLine = StringReplace($sCMDLine, "--edge-redirect", "Method")
-	If StringInStr($sCMDLine, "https://www.bing.com/search?q=") Then ; #211
+	If StringInStr($sCMDLine, "://") Then ; #211
 		$sCMDLine = StringReplace($sCMDLine, "&", "%26")
 		$sCMDLine = StringReplace($sCMDLine, "/", "%2F")
 		$sCMDLine = StringReplace($sCMDLine, "=", "%3D")
+		$sCMDLine = StringReplace($sCMDLine, "URL%3D", "URL=")
 		$sCMDLine = StringReplace($sCMDLine, "Method%3D", "Method=")
 	EndIf
 	$sCMDLine = StringReplace($sCMDLine, "microsoft-edge:?", "&")

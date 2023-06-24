@@ -186,6 +186,8 @@ Func ProcessCMDLine()
 
 	If $iParams > 0 Then
 
+		_ArrayDisplay($CMDLine)
+
 		$CMDLine = RepairCMDLine($CMDLine)
 
 		If _ArraySearch($aEdges, $CMDLine[1]) > 0 Then ; Image File Execution Options Mode
@@ -592,6 +594,8 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				EndIf
 			EndIf
 		Case StringInStr($sCMDLine, "microsoft-edge:")
+			If Not StringInStr($sCMDLine, "url=") Then $sCMDLine = StringRegExpReplace($sCMDLine, "microsoft-edge:[\/]*", "microsoft-edge:?url=")
+
 			$aCMDLine = _RedirectCMDDecode($sCMDLine)
 
 			For $iLoop = 0 To Ubound($aCMDLine) - 1 Step 1
@@ -609,6 +613,8 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				If _IsSafeURL($sURL) Then
 					$sURL = _ModifyURL($sURL)
 					ShellExecute($sURL)
+				Else
+					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
 				EndIf
 			EndIf
 		Case Else
