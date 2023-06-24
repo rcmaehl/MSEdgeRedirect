@@ -186,8 +186,6 @@ Func ProcessCMDLine()
 
 	If $iParams > 0 Then
 
-		_ArrayDisplay($CMDLine)
-
 		$CMDLine = RepairCMDLine($CMDLine)
 
 		If _ArraySearch($aEdges, $CMDLine[1]) > 0 Then ; Image File Execution Options Mode
