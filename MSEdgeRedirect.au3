@@ -500,8 +500,11 @@ Func RunHTTPCheck($bSilent = False)
 	Local Enum $hHTTP, $hHTTPS, $hMSEdge
 
 	$aDefaults[$hHTTP] = RegRead("HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice", "ProgId")
+	If @error Then Return
 	$aDefaults[$hHTTPS] = RegRead("HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgId")
+	If @error Then Return
 	$aDefaults[$hMSEdge] = RegRead("HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\microsoft-edge\UserChoice", "ProgId")
+	If @error Then Return
 
 	If StringInStr($aDefaults[$hMSEdge], "MSEdge") Then
 		If $aDefaults[$hHTTP] = $aDefaults[$hMSEdge] Or $aDefaults[$hHTTPS] = $aDefaults[$hMSEdge] Then
