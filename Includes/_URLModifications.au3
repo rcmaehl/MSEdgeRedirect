@@ -129,6 +129,9 @@ Func _ChangeSearchEngine($sURL)
 			Case "Sogou"
 				$sURL = "https://www.sogou.com/web?query=" & $sURL
 
+			Case "Startpage"
+				$sURL = "https://www.startpage.com/search?q=" & $sURL
+
 			Case "Yahoo"
 				$sURL = "https://search.yahoo.com/search?p=" & $sURL
 
