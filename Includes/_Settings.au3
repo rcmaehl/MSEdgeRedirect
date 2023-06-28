@@ -5,6 +5,7 @@
 
 #include ".\_Logging.au3"
 
+Global $bDebug = False
 Global $bIsAdmin = IsAdmin()
 Global $bIsWOW64 = _WinAPI_IsWow64Process()
 Global $bIs64Bit = @AutoItX64
@@ -61,7 +62,7 @@ Func _GetSettingValue($sSetting)
 				Case $REG_SZ Or $REG_EXPAND_SZ
 					$vReturn = RegRead("HKLM\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting)
 				Case $REG_DWORD Or $REG_QWORD
-					$vReturn =  Number(RegRead("HKLM\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting))
+					$vReturn = Number(RegRead("HKLM\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting))
 				Case Else
 					FileWrite($hLogs[$AppFailures], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
 			EndSwitch
@@ -93,7 +94,7 @@ Func _GetSettingValue($sSetting)
 			$vReturn = _Bool(IniRead(@ScriptDir & "\MSEdgeRedirect\Settings.ini", "Settings", $sSetting, False))
 
 		Case Else
-			;;;
+			$vReturn = False
 
 	EndSelect
 

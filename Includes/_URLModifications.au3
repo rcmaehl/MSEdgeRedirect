@@ -16,6 +16,9 @@ Func _ChangeImageProvider($sURL)
 			Case "Baidu"
 				$sURL = "https://image.baidu.com/search/index?tn=baiduimage&word=" & $sURL
 
+			Case "Brave"
+				$sURL = "https://search.brave.com/?ia=images&iax=images&q=" & $sURL
+
 			Case "Custom"
 				$sURL = _GetSettingValue("ImagePath") & $sURL
 
@@ -60,9 +63,12 @@ Func _ChangeNewsProvider($sURL)
 		"|companies" & _
 		"|medical" & _
 		"|news(\/crime|\/other|\/politics|\/us)?" & _
+		"|newsscienceandtechnology" & _
 		"|research" & _
 		"|retirement" & _
+		"|scienceandtech" & _
 		"|sports" & _
+		"|techandscience" & _
 		"|topstories" & _
 		")\/"
 
@@ -105,6 +111,9 @@ Func _ChangeSearchEngine($sURL)
 			Case "Baidu"
 				$sURL = "https://www.baidu.com/s?wd=" & $sURL
 
+			Case "Brave"
+				$sURL = "https://search.brave.com/search?q=" & $sURL
+
 			Case "Custom"
 				$sURL = _GetSettingValue("SearchPath") & $sURL
 
@@ -119,6 +128,9 @@ Func _ChangeSearchEngine($sURL)
 
 			Case "Sogou"
 				$sURL = "https://www.sogou.com/web?query=" & $sURL
+
+			Case "Startpage"
+				$sURL = "https://www.startpage.com/search?q=" & $sURL
 
 			Case "Yahoo"
 				$sURL = "https://search.yahoo.com/search?p=" & $sURL
@@ -178,7 +190,7 @@ Func _ChangeWeatherProvider($sURL)
 					Case StringInStr($sURL, "loc=") ; New Style Weather URL
 						$vCoords = StringRegExpReplace($sURL, "(?i)(.*)(\?loc=)", "")
 						$vCoords = StringRegExpReplace($vCoords, "(?i)(?=\&weadegreetype=)(.*)", "")
-						$vCoords = _UnicodeURLDecode($vCoords)
+						$vCoords = _WinAPI_UrlUnescape($vCoords)
 						$vCoords = _Base64Decode($vCoords)
 						$vCoords = BinaryToString($vCoords)
 						$vCoords = StringRegExpReplace($vCoords, "(?i){|}", "")
@@ -283,10 +295,11 @@ Func _RedirectCMDDecode($sCMDLine)
 	Local $aCMDLine_2D[0][0]
 
 	$sCMDLine = StringReplace($sCMDLine, "--edge-redirect", "Method")
-	If StringInStr($sCMDLine, "https://www.bing.com/search?q=") Then ; #211
+	If StringInStr($sCMDLine, "://") Then ; #211
 		$sCMDLine = StringReplace($sCMDLine, "&", "%26")
 		$sCMDLine = StringReplace($sCMDLine, "/", "%2F")
 		$sCMDLine = StringReplace($sCMDLine, "=", "%3D")
+		$sCMDLine = StringReplace($sCMDLine, "URL%3D", "URL=")
 		$sCMDLine = StringReplace($sCMDLine, "Method%3D", "Method=")
 	EndIf
 	$sCMDLine = StringReplace($sCMDLine, "microsoft-edge:?", "&")
@@ -303,34 +316,59 @@ Func _RedirectCMDDecode($sCMDLine)
 
 EndFunc
 
+
 ; #FUNCTION# ====================================================================================================================
 ; Name ..........: _UnicodeURLDecode
 ; Description ...: Tranlates a URL-friendly string to a normal string
-; Syntax ........: _UnicodeURLDecode($toDecode)
-; Parameters ....: $toDecode           - The URL-friendly string to decode
+; Syntax ........: _UnicodeURLDecode($sData)
+; Parameters ....: $sData           - The URL-friendly string to decode
 ; Return values .: The URL decoded string
 ; Author ........: nfwu, Dhilip89, rcmaehl
 ; Modified ......: 10/26/2022
-; Remarks .......: Modified from _URLDecode() that only supported non-unicode.
+; Remarks .......: 
 ; Related .......:
 ; Link ..........:
 ; Example .......: No
 ; ===============================================================================================================================
-Func _UnicodeURLDecode($toDecode)
-    Local $strChar = "", $iOne, $iTwo
-    Local $aryHex = StringSplit($toDecode, "")
-    For $i = 1 To $aryHex[0]
-        If $aryHex[$i] = "%" Then
-            $i += 1
-            $iOne = $aryHex[$i]
-            $i += 1
-            $iTwo = $aryHex[$i]
-            $strChar = $strChar & Chr(Dec($iOne & $iTwo))
-        Else
-            $strChar = $strChar & $aryHex[$i]
-        EndIf
+Func _UnicodeURLDecode($sData)
+    Local $aData = StringSplit(StringReplace($sData,"+"," ",0,1),"%")
+    $sData = ""
+    For $i = 2 To $aData[0]
+        $aData[1] &= Chr(Dec(StringLeft($aData[$i],2))) & StringTrimLeft($aData[$i],2)
     Next
-    Local $Process = StringToBinary(StringReplace($strChar, "+", " "))
-    Local $DecodedString = BinaryToString($Process, 4)
-    Return $DecodedString
-EndFunc   ;==>_UnicodeURLDecode
+    Return BinaryToString(StringToBinary($aData[1],1),4)
+EndFunc
+
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _WinAPI_UrlUnescape
+; Description ...: Tranlates a URL-friendly string to a normal string
+; Syntax ........: _WinAPI_UrlUnescape($sData[, $dFlag])
+; Parameters ....: $sURL            - The URL-friendly string to decode
+;                  $dFlag           - [Optional] WinAPI Function parameters
+; Return values .: The URL unescaped string
+; Author ........: mistersquirrle, rcmaehl
+; Modified ......: 3/27/2023
+; Remarks .......: URL_DONT_UNESCAPE_EXTRA_INFO = 0x02000000
+;                  URL_UNESCAPE_AS_UTF8         = 0x00040000 (Win 8+)                
+;                  URL_UNESCAPE_INPLACE         = 0x00100000
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
+
+Func _WinAPI_UrlUnescape($sUrl, $dFlags = 0x00040000)
+
+    ; https://learn.microsoft.com/en-us/windows/win32/api/shlwapi/nf-shlwapi-urlunescapew
+    Local $aUrlUnescape = DllCall("Shlwapi.dll", "long", "UrlUnescapeW", _
+            "wstr", $sUrl, _ ; PWSTR pszUrl - A pointer to a null-terminated string with the URL
+            "wstr", "decodedUrl", _ ; PWSTR pszUnescaped - A pointer to a buffer that will receive a null-terminated string that contains the unescaped version of pszURL
+            "dword*", 1024, _ ; DWORD *pcchUnescaped - The number of characters in the buffer pointed to by pszUnescaped
+            "dword", $dFlags) ; DWORD dwFlags
+    If @error Then
+        ; ConsoleWrite('UrlUnescape error: ' & @error & ', LastErr: ' & _WinAPI_GetLastError() & ', LastMsg: ' & _WinAPI_GetLastErrorMessage() & @CRLF)
+        Return SetError(@error, @extended, 0)
+    EndIf
+
+    If IsArray($aUrlUnescape) Then Return $aUrlUnescape[2]
+    
+EndFunc   ;==>_WinAPI_UrlUnescape

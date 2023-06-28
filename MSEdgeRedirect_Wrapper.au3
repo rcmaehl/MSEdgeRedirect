@@ -4,6 +4,7 @@
 #include <Array.au3>
 #include <String.au3>
 #include <GuiComboBox.au3>
+#include <WinAPIFiles.au3>
 #include <EditConstants.au3>
 #include <FileConstants.au3>
 #include <FontConstants.au3>
@@ -33,6 +34,7 @@ EndIf
 
 Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 
+	Local $aPIDs
 	Local $sArgs = ""
 	Local Enum $bManaged = 1, $vMode
 
@@ -52,6 +54,11 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	SetOptionsRegistry("SearchPath" , $aSettings[$sSearchPath] , $aConfig)
 	SetOptionsRegistry("Weather"    , $aSettings[$sWeather]    , $aConfig)
 	SetOptionsRegistry("WeatherPath", $aSettings[$sWeatherPath], $aConfig)
+
+	$aPIDs = ProcessList("msedgeredirect.exe")
+	For $iLoop = 1 To $aPIDs[0][0] Step 1
+		If $aPIDs[$iLoop][1] <> @AutoItPID Then ProcessClose($aPIDs[$iLoop][1])
+	Next
 
 	If $aConfig[$vMode] Then
 		If Not FileCopy(@ScriptFullPath, $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
@@ -164,7 +171,10 @@ Func RunRemoval($bUpdate = False)
 				FileDelete(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"))
 			EndIf
 			If FileExists(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\")) Then ; 0.7.3.0+
-				FileDelete(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"))
+				DirRemove(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"))
+			EndIf
+			If FileExists(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe")) Then ; 0.8.0.0+
+				FileDelete(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"))
 			EndIf
 		Next
 		$hTS = _TS_Open() ; 0.7.2.0
@@ -189,14 +199,14 @@ Func RunRepair()
 
 	If $bIsAdmin Then
 		For $iLoop = 1 To $aEdges[0] Step 1
-			RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "")
+			RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger")
 			If @error Then
 				;;;
 			Else
-				If $iLoop = $aEdges[0] Then
+				If $iLoop = $aEdges[0] Then ; Skip IEtoEdgeStub
 					;;;
 				Else
-					FileCreateNTFSLink(StringReplace($aEdges[$iLoop], "\msedge.exe", ""), StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"), $FC_OVERWRITE)
+					_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"), $aEdges[$iLoop])
 				EndIf
 			EndIf
 		Next
@@ -261,7 +271,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$aConfig[$bManaged] = _Bool(IniRead($aConfig[$hFile], "Config", "Managed", False))
 			$aConfig[$vMode] = IniRead($aConfig[$hFile], "Config", "Mode", "Service")
 
-			If $aConfig[$vMode] = "active" Then
+			If $aConfig[$vMode] = "Active" Then
 				$aConfig[$vMode] = True
 			Else
 				$aConfig[$vMode] = False
@@ -363,7 +373,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		EndIf
 
 		; Disable Scaling
-		If @OSVersion = 'WIN_10' Then DllCall(@SystemDir & "\User32.dll", "bool", "SetProcessDpiAwarenessContext", "HWND", "DPI_AWARENESS_CONTEXT" - 1)
+		If @OSVersion = 'WIN_10' or 'WIN_11' Then DllCall(@SystemDir & "\User32.dll", "bool", "SetProcessDpiAwarenessContext", "HWND", "DPI_AWARENESS_CONTEXT" - 1)
 
 		Local $hInstallGUI = GUICreate("MSEdgeRedirect " & $sVersion & " Setup", 640, 480)
 
@@ -484,7 +494,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUICtrlSetState($hChannels[1], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[2], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[3], $GUI_DISABLE)
-				Case FileExists($aEdges[5])
+				Case FileExists($aEdges[5]) ; IEtoEdgeStub
 					GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 					ContinueCase
 				Case Else
@@ -514,11 +524,11 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		GUICtrlCreateGroup("Additional Redirections", 20, 220, 420, 190)
 			Local $hSearch = GUICtrlCreateCheckbox("Bing Search:", 50, 240, 180, 20)
 			Local $hEngine = GUICtrlCreateCombo("", 50, 260, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
-			GUICtrlSetData(-1, "Ask|Baidu|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
+			GUICtrlSetData(-1, "Ask|Baidu|Brave|Custom|DuckDuckGo|Ecosia|Google|Sogou|StartPage|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoImgs = GUICtrlCreateCheckbox("Bing Images:", 240, 240, 180, 20)
 			Local $hImgSRC = GUICtrlCreateCombo("", 240, 260, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
-			GUICtrlSetData(-1, "Baidu|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
+			GUICtrlSetData(-1, "Baidu|Brave|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (ALPHA)", 50, 285, 180, 20)
 			Local $hNewSRC = GUICtrlCreateCombo("", 50, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
@@ -747,7 +757,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							GUICtrlSetState($hChannels[3], $GUI_DISABLE)
 							GUICtrlSetState($hChannels[4], $GUI_DISABLE)
 							GUICtrlSetState($hChannels[4], $GUI_CHECKED)
-						 Else
+						Else
 							If $bUpdate Or $iMode = $hSettings Then
 								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER1", "Debugger") Then GUICtrlSetState($hChannels[0], $GUI_CHECKED)
 								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER2", "Debugger") Then GUICtrlSetState($hChannels[1], $GUI_CHECKED)
@@ -992,7 +1002,7 @@ Func SetIFEORegistry(ByRef $aChannels)
 			If $iLoop = $aEdges[0] Then
 				;;;
 			Else
-				FileCreateNTFSLink(StringReplace($aEdges[$iLoop], "\msedge.exe", ""), StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"), $FC_OVERWRITE)
+				_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"), $aEdges[$iLoop])
 			EndIf
 		EndIf
 	Next
@@ -1036,36 +1046,6 @@ Func SetOptionsRegistry($sName, $vValue, ByRef $aConfig)
 			If @error Then FileWrite($hLogs[$AppFailures], _NowCalc() & " - [WARNING!] Unable to write REG_SZ Registry Key '" & $sName & "' - with value '" & $vValue & "'" & @CRLF)
 
 	EndSelect
-
-EndFunc
-
-Func SetScheduledTask($aChannels) ; Deprecated
-
-	Local $hTS
-	Local $hTO
-	Local Enum $bManaged = 1, $vMode
-
-	Local $aTasks[5] = [4, _
-		"Update Edge.xml", _
-		"Update Edge Beta.xml", _
-		"Update Edge Dev.xml", _
-		"Update Edge Canary.xml"]
-
-	DirCreate($sDrive & "\Program Files\MSEdgeRedirect\Assets")
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge.xml" , $FC_OVERWRITE)
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Beta.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge Beta.xml" ,$FC_OVERWRITE)
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Canary.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge Canary.xml" ,$FC_OVERWRITE)
-	FileInstall(".\Assets\Task Scheduler Tasks\Update Edge Dev.xml", $sDrive & "\Program Files\MSEdgeRedirect\Assets\Update Edge Dev.xml" ,$FC_OVERWRITE)
-
-	$hTS = _TS_Open()
-	_TS_FolderCreate($hTS, "\MSEdgeRedirect")
-	For $iLoop = 1 To $aTasks[0] Step 1
-		If $aChannels[$iLoop - 1] Then
-			$hTO = _TS_TaskImportXML($hTS, 1, $sDrive & "\Program Files\MSEdgeRedirect\Assets\" & $aTasks[$iLoop])
-			_TS_TaskRegister($hTS, "\MSEdgeRedirect", $aTasks[$iLoop], $hTO)
-		EndIf
-	Next
-	_TS_Close($hTS)
 
 EndFunc
 
@@ -1145,6 +1125,7 @@ Func _IsInstalled()
 
 EndFunc
 
+; TODO: Rename. Detects if script install directory requires admin rights
 Func _IsPriviledgedInstall()
 
 	Local $hTestFile

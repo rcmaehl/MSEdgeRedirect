@@ -10,6 +10,7 @@
 #include <StaticConstants.au3>
 #include <WinAPIMisc.au3>
 #include <WinAPIRes.au3>
+#include <WinAPISysWin.au3>
 #include <WindowsConstants.au3>
 
 ; Call once the script has ended to tidy up the used resources
