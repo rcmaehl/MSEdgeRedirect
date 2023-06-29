@@ -176,6 +176,7 @@ Func ProcessCMDLine()
 	Local $aPIDs
 	Local $bHide = _GetSettingValue("NoTray")
 	Local $hFile = @ScriptDir & ".\Setup.ini"
+	Local $bForce = False
 	Local $iParams = $CmdLine[0]
 	Local $sCMDLine = _ArrayToString($CmdLine, " ", 1)
 	Local $bSilent = False
@@ -204,6 +205,7 @@ Func ProcessCMDLine()
 							@TAB & "/admin    " & @TAB & "Attempts to run MSEdgeRedirect as admin" & @CRLF & _
 							@TAB & "/change   " & @TAB & "Reruns Installer" & @CRLF & _
 							@TAB & "/hide     " & @TAB & "Hides the tray icon" & @CRLF & _
+							@TAB & "/force    " & @TAB & "Skips Safety Checks" & @CRLF & _
 							@TAB & "/kill     " & @TAB & "Kills other MSEdgeRedirect processes" & @CRLF & _
 							@TAB & "/portable " & @TAB & "Runs MSEdgeRedirect in portable mode" & @CRLF & _
 							@TAB & "/repair   " & @TAB & "Repairs IFEO directory junctions" & @CRLF & _
@@ -224,6 +226,9 @@ Func ProcessCMDLine()
 				Case "/change"
 					RunSetup(True, $bSilent, 1)
 					Exit
+				Case "/f", "/force"
+					$bForce = True
+					_ArrayDelete($CmdLine, 1)
 				Case "/h", "/hide"
 					$bHide = True
 					_ArrayDelete($CmdLine, 1)
@@ -316,9 +321,11 @@ Func ProcessCMDLine()
 
 	If $hFile = "WINGET" Then
 		;;;
-	Else
+	ElseIf Not $bForce Then
 		RunArchCheck($bSilent)
 		RunHTTPCheck($bSilent)
+	Else
+		;;;
 	EndIf
 
 	If Not $bPortable Then
