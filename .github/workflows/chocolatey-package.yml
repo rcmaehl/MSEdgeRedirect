@@ -33,7 +33,7 @@ jobs:
       - name: Set Version
         id: version
         run: |
-          version=0.7.4.0
+          version=${{ steps.latesttag.outputs.tag }}
           echo "nuget=$version" >> $GITHUB_OUTPUT
           sed -i "s/{VERSION}/${version}/g" "Assets/Choco/MSEdgeRedirect/msedgeredirect.nuspec"
       - name: Choco Downgrade
@@ -49,6 +49,6 @@ jobs:
         with:
           args: upgrade chocolatey
       - name: Upload Release
-        uses: crazy-max/ghaction-chocolatey@v2.2.0
+        uses: crazy-max/ghaction-chocolatey@v2
         with:
           args: push Assets/Choco/MSEdgeRedirect/msedgeredirect.${{ steps.version.outputs.nuget }}.nupkg -s https://push.chocolatey.org/ -k ${{ secrets.CHOCO_KEY }}
