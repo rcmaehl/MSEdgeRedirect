@@ -12,7 +12,7 @@ body:
   attributes:
     label: Preflight Checklist
     options:
-      - label: Running microsoft-edge:https://google.com redirects successfully
+      - label: Running `microsoft-edge:https://google.com` redirects successfully
       - label: Microsoft Edge is selected in any "How do you want to open this?" box
 
 - type: dropdown
