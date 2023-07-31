@@ -1,0 +1,69 @@
+name: "⁉ Help Request"
+description: It's just not working
+labels: 
+body:
+- type: markdown
+  attributes:
+    value: |
+      Please make sure to [search for existing issues](https://github.com/rcmaehl/MSEdgeRedirect/issues) before filing a new one!
+
+- type: checkboxes
+  attributes:
+    label: Preflight Checklist
+    options:
+      - label: Microsoft Edge is selected in any "How do you want to open this?" box
+      - label: I've ran the [Cleanup tool](https://raw.githubusercontent.com/rcmaehl/MSEdgeRedirect/main/Assets/Cleanup%20Tool.ps1) and tried another install
+
+- type: dropdown
+  attributes:
+    label: Install Type
+    description: How was MSEdgeRedirect Installed / Updated
+    multiple: false
+    options:
+      - New Install
+      - Manual Update
+      - New Deployment (Chocolatey, Winget, Etc)
+      - Managed Update (Chocolatey, Winget, Etc)
+  validations:
+    required: true
+
+- type: dropdown
+  attributes:
+    label: Install Mode
+    description: Which Mode is selected during install?
+    multiple: false
+    options:
+      - Active Mode
+      - Service Mode
+      - Unsure
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: ℹ Behavior
+    description: We highly suggest including screenshots and logs (%localappdata%\MSEdgeRedirect\logs).
+    placeholder: What isn't working?
+  validations:
+    required: false
+
+- type: input
+  attributes:
+    label: Microsoft Windows version
+    placeholder: |
+      "20H2 Build 19042"
+    description: |
+      Run Winver from Run (Win+R) or Start Menu
+  validations:
+    required: true
+
+- type: textarea
+  attributes:
+    label: Other Software
+    description: If you're reporting a bug about our interaction with other software, what software? What versions?
+    placeholder: |
+      vim 8.2 (inside WSL)
+      OpenSSH_for_Windows_8.1p1
+      My Cool Application v0.3 (include a code snippet if it would help!)
+  validations:
+    required: false
