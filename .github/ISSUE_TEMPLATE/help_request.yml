@@ -1,6 +1,7 @@
 name: "⁉ Help Request"
 description: It's just not working
 labels: 
+- troubleshooting
 body:
 - type: markdown
   attributes:
