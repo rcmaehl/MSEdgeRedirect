@@ -587,7 +587,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 					$sURL = $aCMDLine[$iLoop][1]				
 					ExitLoop
 				EndIf
-			Next	
+			Next
 
 			If $sURL = "" Then
 				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
