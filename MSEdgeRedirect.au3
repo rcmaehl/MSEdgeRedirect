@@ -579,45 +579,20 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			If _GetSettingValue("NoPDFs") Then _SafeRun($sEdge, $sCMDLine)
 		Case StringInStr($sCMDLine, "&url=") ; Fix Windows 11 Widgets
 			ContinueCase
-		Case StringInStr($sCMDLine, "--edge-redirect")
-			$aCMDLine = _RedirectCMDDecode($sCMDLine)
-
-			For $iLoop = 0 To Ubound($aCMDLine) - 1 Step 1
-				If $aCMDLine[$iLoop][0] = "url" Then
-					$sURL = $aCMDLine[$iLoop][1]
-					If StringInStr($sURL, "%2F") Then $sURL = _WinAPI_UrlUnescape($sURL)
-					ExitLoop
-				EndIf
-			Next
-
-			If $sURL = "" Then
-				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
-			Else
-				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Caught 'Edge-Redirect' Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
-				If _IsSafeURL($sURL) Then
-					$sURL = _ModifyURL($sURL)
-					ShellExecute($sURL)
-				Else
-					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
-				EndIf
-			EndIf
 		Case StringInStr($sCMDLine, "microsoft-edge:")
-			If Not StringInStr($sCMDLine, "url=") Then $sCMDLine = StringRegExpReplace($sCMDLine, "microsoft-edge:[\/]*", "microsoft-edge:?url=")
-
-			$aCMDLine = _RedirectCMDDecode($sCMDLine)
+			$aCMDLine = _CMDLineDecode($sCMDLine)
 
 			For $iLoop = 0 To Ubound($aCMDLine) - 1 Step 1
 				If $aCMDLine[$iLoop][0] = "url" Then
-					$sURL = $aCMDLine[$iLoop][1]
-					If StringInStr($sURL, "%2F") Then $sURL = _WinAPI_UrlUnescape($sURL)
+					$sURL = $aCMDLine[$iLoop][1]				
 					ExitLoop
 				EndIf
-			Next
+			Next	
 
 			If $sURL = "" Then
 				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
 			Else
-				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Caught 'Microsoft-Edge' Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
+				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Caught Valid URI Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 				If _IsSafeURL($sURL) Then
 					$sURL = _ModifyURL($sURL)
 					ShellExecute($sURL)

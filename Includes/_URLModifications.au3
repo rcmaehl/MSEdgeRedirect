@@ -291,28 +291,44 @@ Func _ModifyURL($sURL)
 
 EndFunc
 
-Func _RedirectCMDDecode($sCMDLine)
+Func _CMDLineDecode($sCMDLine)
 
 	Local $aTemp
+	Local $aUrlMeta
 	Local $aCMDLine_1D
 	Local $aCMDLine_2D[0][0]
 
+	$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "Method=Undefined")
 	$sCMDLine = StringReplace($sCMDLine, "--edge-redirect", "Method")
-	If StringInStr($sCMDLine, "://") Then ; #211
-		$sCMDLine = StringReplace($sCMDLine, "&", "%26")
-		$sCMDLine = StringReplace($sCMDLine, "/", "%2F")
-		$sCMDLine = StringReplace($sCMDLine, "=", "%3D")
-		$sCMDLine = StringReplace($sCMDLine, "URL%3D", "URL=")
-		$sCMDLine = StringReplace($sCMDLine, "Method%3D", "Method=")
+
+	If StringInStr($sCMDLine, "?url=") Then
+		$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)microsoft-edge:[\/]*", "&")
+	Else
+		$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)microsoft-edge:[\/]*", "&url=")
 	EndIf
-	$sCMDLine = StringReplace($sCMDLine, "microsoft-edge:?", "&")
-	$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)microsoft-edge:[\/]*", "&url=")
+	If StringInStr($sCMDLine, "?url=") Then $sCMDLine = StringReplace($sCMDLine, "?url", "url")
+
+	;TODO: Add url=<url> somehow if "url=" doesn't exist. Method=<whatver> screws this up. 
+
 	$aCMDLine_1D = StringSplit($sCMDLine, "&", $STR_NOCOUNT)
 	Redim $aCMDLine_2D[UBound($aCMDLine_1D)][2]
 	For $iLoop = 0 To UBound($aCMDLine_1D) - 1 Step 1
 		$aTemp = StringSplit($aCMDLine_1D[$iLoop], "=")
 		$aCMDLine_2D[$iLoop][0] = $aTemp[1]
-		If $aTemp[0] >= 2 Then $aCMDLine_2D[$iLoop][1] = $aTemp[2]
+		If $aTemp[0] >= 2 Then
+			Switch $aTemp[1]
+				Case "hubappsubpath"
+					$aTemp[2] = _WinAPI_UrlUnescape($aTemp[2])
+				Case "upn"
+					$aTemp[2] = _WinAPI_UrlUnescape($aTemp[2])
+				Case "url"
+					If StringInStr($aTemp[2], "%2F") Then $aTemp[2] = _WinAPI_UrlUnescape($aTemp[2])
+					If $aTemp[0] >= 3 Then $aTemp[2] = _ArrayToString($aTemp, "=", 2)
+				Case Else
+					;;;
+			EndSwitch
+			$aCMDLine_2D[$iLoop][1] = $aTemp[2]
+		EndIf
 	Next
 
 	Return $aCMDLine_2D
