@@ -142,29 +142,34 @@ Func FixTreeIntegrity($aCMDLine)
 
 	Local $iParent = _WinAPI_GetParentProcess()
 
-	If _WinAPI_GetProcessName($iParent) = "MSEdge.exe" Then
+	Switch _WinAPI_GetProcessName($iParent)
+		
+		Case "MSEdge.exe"
 
-		FileWrite($hLogs[$AppGeneral], _NowCalc() & " - " & "Caught MSEdge Parent Process, Launched by " & _WinAPI_GetProcessName(_WinAPI_GetParentProcess($iParent)) & ", Grabbing Parameters." & @CRLF)
+			FileWrite($hLogs[$AppGeneral], _NowCalc() & " - " & "Caught MSEdge Parent Process, Launched by " & _WinAPI_GetProcessName(_WinAPI_GetParentProcess($iParent)) & ", Grabbing Parameters." & @CRLF)
 
-		Local $aAdjust
+			Local $aAdjust
 
-		; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
-		Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
+			; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
+			Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
 
-		_WinAPI_AdjustTokenPrivileges($hToken, $SE_DEBUG_NAME, $SE_PRIVILEGE_ENABLED, $aAdjust)
+			_WinAPI_AdjustTokenPrivileges($hToken, $SE_DEBUG_NAME, $SE_PRIVILEGE_ENABLED, $aAdjust)
 
-		Redim $aCMDLine[2]
-		$aCMDLine[0] = 0
-		$aCMDLine[1] = _WinAPI_GetProcessFileName($iParent)
+			Redim $aCMDLine[2]
+			$aCMDLine[0] = 0
+			$aCMDLine[1] = _WinAPI_GetProcessFileName($iParent)
 
-		_ArrayConcatenate($aCMDLine, StringSplit(_WinAPI_GetProcessCommandLine($iParent), " ", $STR_NOCOUNT))
+			_ArrayConcatenate($aCMDLine, StringSplit(_WinAPI_GetProcessCommandLine($iParent), " ", $STR_NOCOUNT))
 
-		$aCMDLine[0] = UBound($aCMDLine) - 1
+			$aCMDLine[0] = UBound($aCMDLine) - 1
 
-		ProcessClose($iParent)
+			ProcessClose($iParent)
 
-	EndIf
+		Case "MSEdgeRedirect.exe"
 
+			;;;
+
+	EndSwitch
 	Return $aCMDLine
 
 EndFunc
@@ -190,7 +195,6 @@ Func ProcessCMDLine()
 		$CMDLine = RepairCMDLine($CMDLine)
 
 		If _ArraySearch($aEdges, $CMDLine[1]) > 0 Then ; Image File Execution Options Mode
-			RunHTTPCheck()
 			ActiveMode($CMDLine)
 			If Not _GetSettingValue("NoUpdates") And Random(1, 10, 1) = 1 Then RunUpdateCheck()
 			Exit
@@ -323,7 +327,6 @@ Func ProcessCMDLine()
 		;;;
 	ElseIf Not $bForce Then
 		RunArchCheck($bSilent)
-		RunHTTPCheck($bSilent)
 	Else
 		;;;
 	EndIf
@@ -378,6 +381,7 @@ Func ProcessCMDLine()
 				RunSetup(True, $bSilent, 0, $hFile)
 		EndSelect
 	EndIf
+	RunHTTPCheck()
 	ReactiveMode($bHide)
 
 EndFunc
