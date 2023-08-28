@@ -299,15 +299,17 @@ Func _CMDLineDecode($sCMDLine)
 	Local $aCMDLine_1D
 	Local $aCMDLine_2D[0][0]
 
-	$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "Method=Undefined")
+	$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "Method=Undefined&")
 	$sCMDLine = StringReplace($sCMDLine, "--edge-redirect", "Method")
 
 	If StringInStr($sCMDLine, "?url=") Or StringInStr($sCMDLine, "&url=") Then
-		$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)microsoft-edge:[\/]*", "&")
+		$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)microsoft-edge:\??[\/]*", "&")
 	Else
-		$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)microsoft-edge:[\/]*", "&url=")
+		$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)microsoft-edge:\??[\/]*", "&url=")
 	EndIf
 	If StringInStr($sCMDLine, "?url=") Then $sCMDLine = StringReplace($sCMDLine, "?url", "url")
+	
+	$sCMDLine = StringReplace($sCMDLine, "&&", "&")
 
 	;TODO: Add url=<url> somehow if "url=" doesn't exist. Method=<whatver> screws this up. 
 
