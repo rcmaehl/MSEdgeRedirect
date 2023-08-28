@@ -61,6 +61,7 @@ Func _ChangeNewsProvider($sURL)
 		"autos(\/enthusiasts)?" & _
 		"|comics" & _
 		"|companies" & _
+		"|health(\/other)" & _
 		"|medical" & _
 		"|news(\/crime|\/other|\/politics|\/us)?" & _
 		"|newsscienceandtechnology" & _
@@ -301,7 +302,7 @@ Func _CMDLineDecode($sCMDLine)
 	$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "Method=Undefined")
 	$sCMDLine = StringReplace($sCMDLine, "--edge-redirect", "Method")
 
-	If StringInStr($sCMDLine, "?url=") Then
+	If StringInStr($sCMDLine, "?url=") Or StringInStr($sCMDLine, "&url=") Then
 		$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)microsoft-edge:[\/]*", "&")
 	Else
 		$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)microsoft-edge:[\/]*", "&url=")
