@@ -167,7 +167,7 @@ Func FixTreeIntegrity($aCMDLine)
 
 		Case "MSEdgeRedirect.exe"
 
-			;;;
+			_SafeRun(StringReplace($aEdges[1], "msedge.exe", "msedge_IFEO.exe"), $aCMDLine[3])
 
 	EndSwitch
 	Return $aCMDLine
