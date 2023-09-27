@@ -579,8 +579,18 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				Case Else
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
 			EndSelect
-		Case StringInStr($sCMDLine, "bing.com/chat") ; Fix BingAI
-			If _GetSettingValue("NoPDFs") Then _SafeRun($sEdge, $sCMDLine)
+		Case StringInStr($sCMDLine, "bing.com/chat") Or StringInStr($sCMDLine, "bing.com%2Fchat") ; Fix BingAI
+			If _GetSettingValue("NoChat") Then 
+				;;;
+			Else
+				_SafeRun($sEdge, $sCMDLine)
+			EndIf
+		Case StringInStr($sCMDLine, "ux=copilot")
+			If _GetSettingValue("NoPilot") Then
+				ShellExecute("ms-settings:")
+			Else
+				_SafeRun($sEdge, $sCMDLine)
+			EndIf
 		Case StringInStr($sCMDLine, "&url=") ; Fix Windows 11 Widgets
 			ContinueCase
 		Case StringInStr($sCMDLine, "microsoft-edge:")
