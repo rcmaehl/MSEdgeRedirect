@@ -437,6 +437,12 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		EndIf
 
 		GUICtrlCreateGroup("Mode", 20, 60, 420, 340)
+			Local $hEurope = GUICtrlCreateRadio("Europe Mode" & @CRLF & _
+				@CRLF & _
+				"MSEdgeRedirect changes specific system settings to take advantage of Europeans not having this issue anymore.", _
+				50, 80, 380, 60, $BS_TOP+$BS_MULTILINE)
+			GUICtrlSetState(-1, $GUI_HIDE)
+
 			Local $hService = GUICtrlCreateRadio("Service Mode" & @CRLF & _
 				@CRLF & _
 				"* Single User Install" & @CRLF & _
