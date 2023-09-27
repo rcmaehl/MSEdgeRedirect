@@ -527,9 +527,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					EndIf
 			EndSelect
 
-		GUICtrlCreateGroup("Service Mode Options", 20, 140, 420, 70)
-			Local $hNoIcon = GUICtrlCreateCheckbox("Hide Service Mode from Tray", 50, 160, 380, 20)
-			Local $hStartup = GUICtrlCreateCheckbox("Start Service Mode With Windows", 50, 180, 380, 20)
+		GUICtrlCreateGroup("Service Mode Options", 20, 140, 420, 50)
+			Local $hNoIcon = GUICtrlCreateCheckbox("Hide Service Mode from Tray", 50, 160, 180, 20)
+			Local $hStartup = GUICtrlCreateCheckbox("Start Service Mode With Windows", 240, 160, 180, 20)
 
 			If $bIsAdmin Then
 				GUICtrlSetState($hStartup, $GUI_DISABLE)
@@ -539,28 +539,32 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				GUICtrlSetState($hNoIcon, _GetSettingValue("NoApps"))
 			EndIf
 
-		GUICtrlCreateGroup("Additional Redirections", 20, 220, 420, 190)
-			Local $hSearch = GUICtrlCreateCheckbox("Bing Search:", 50, 240, 180, 20)
-			Local $hEngine = GUICtrlCreateCombo("", 50, 260, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
-			GUICtrlSetData(-1, "Ask|Baidu|Brave|Custom|DuckDuckGo|Ecosia|Google|Lemmy|Sogou|StartPage|Yahoo|Yandex", "Google")
-			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoImgs = GUICtrlCreateCheckbox("Bing Images:", 240, 240, 180, 20)
-			Local $hImgSRC = GUICtrlCreateCombo("", 240, 260, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+		GUICtrlCreateGroup("Additional Redirections", 20, 200, 420, 210)
+			Local $hNoImgs = GUICtrlCreateCheckbox("Bing Images:", 50, 220, 180, 20)
+			Local $hImgSRC = GUICtrlCreateCombo("", 50, 240, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Baidu|Brave|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (ALPHA)", 50, 285, 180, 20)
-			Local $hNewSRC = GUICtrlCreateCombo("", 50, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			Local $hSearch = GUICtrlCreateCheckbox("Bing Search:", 50, 265, 180, 20)
+			Local $hEngine = GUICtrlCreateCombo("", 50, 285, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			GUICtrlSetData(-1, "Ask|Baidu|Brave|Custom|DuckDuckGo|Ecosia|Google|Lemmy|Sogou|StartPage|Yahoo|Yandex", "Google")
+			GUICtrlSetState(-1, $GUI_DISABLE)
+			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (ALPHA)", 50, 310, 180, 20)
+			Local $hNewSRC = GUICtrlCreateCombo("", 50, 330, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "DuckDuckGo|Google", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoMSN = GUICtrlCreateCheckbox("MSN Weather:", 240, 285, 180, 20)
-			Local $hWeather = GUICtrlCreateCombo("", 240, 305, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			Local $hNoMSN = GUICtrlCreateCheckbox("MSN Weather:", 50, 355, 180, 20)
+			Local $hWeather = GUICtrlCreateCombo("", 50, 375, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "AccuWeather|Custom|DarkSky|Weather.com|Weather.gov|Windy|WUnderground|Ventusky|Yandex", "Weather.com")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoPDFs = GUICtrlCreateCheckbox("PDF Viewer:", 50, 330, 180, 20)
-			Local $hPDFSrc = GUICtrlCreateCombo("", 50, 350, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			Local $hNoPDFs = GUICtrlCreateCheckbox("PDF Viewer:", 240, 220, 180, 20)
+			Local $hPDFSrc = GUICtrlCreateCombo("", 240, 240, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Default|Custom", "Default")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoApps = GUICtrlCreateCheckbox("Windows Store 'Apps'", 50, 375, 180, 20)
+			Local $hNoChat = GUICtrlCreateCheckbox("Disable Bing Chat", 240, 265, 180, 20)
+			If @OSVersion <> "WIN_11" Then GUICtrlSetState(-1, $GUI_DISABLE)
+			Local $hNoPilot = GUICtrlCreateCheckbox("Disable Windows CoPilot", 240, 285, 180, 20)
+			If @OSVersion <> "WIN_11" Then GUICtrlSetState(-1, $GUI_DISABLE)
+			Local $hNoApps = GUICtrlCreateCheckbox("Redirect Windows Store 'Apps'", 240, 305, 180, 20)
 
 		If $bUpdate Then
 			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
@@ -570,6 +574,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				GUICtrlSetData($hEngine, _GetSettingValue("Search"))
 				$sEngine = _GetSettingValue("SearchPath")
 			EndIf
+			GUICtrlSetState($hNoChat, _GetSettingValue("NoChat"))
 			GUICtrlSetState($hNoImgs, _GetSettingValue("NoImgs"))
 			If _IsChecked($hNoImgs) Then
 				GUICtrlSetState($hImgSRC, $GUI_ENABLE)
@@ -597,6 +602,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				EndIf
 				$sHandler = _GetSettingValue("PDFApp")
 			EndIf
+			GUICtrlSetState($hNoPilot, _GetSettingValue("NoPilot"))
 		EndIf
 
 		GUISwitch($hInstallGUI)
@@ -703,12 +709,12 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 							$aSettings[$bNoApps] = _IsChecked($hNoApps)
 							$aSettings[$bNoBing] = _IsChecked($hSearch)
-							;$aSettings[$bNoChat] = _IsChecked($hNoChat)
+							$aSettings[$bNoChat] = _IsChecked($hNoChat)
 							$aSettings[$bNoImgs] = _IsChecked($hNoImgs)
 							$aSettings[$bNoMSN] = _IsChecked($hNoMSN)
 							$aSettings[$bNoNews] = _IsChecked($hNoNews)
 							$aSettings[$bNoPDFs] = _IsChecked($hNoPDFs)
-							;$aSettings[$bNoPilot] = _IsChecked($bNoPilot)
+							$aSettings[$bNoPilot] = _IsChecked($hNoPilot)
 							$aSettings[$bNoTray] = _IsChecked($hNoIcon)
 							$aSettings[$sImages] = GUICtrlRead($hImgSRC)
 							$aSettings[$sImagePath] = $sImgEng
