@@ -7,9 +7,9 @@
 #AutoIt3Wrapper_Res_Comment=https://www.msedgeredirect.com
 #AutoIt3Wrapper_Res_CompanyName=Robert Maehl Software
 #AutoIt3Wrapper_Res_Description=MSEdgeRedirect
-#AutoIt3Wrapper_Res_Fileversion=0.7.4.0
+#AutoIt3Wrapper_Res_Fileversion=0.7.5.0
 #AutoIt3Wrapper_Res_ProductName=MSEdgeRedirect App & Service
-#AutoIt3Wrapper_Res_ProductVersion=0.7.4.0
+#AutoIt3Wrapper_Res_ProductVersion=0.7.5.0
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
@@ -142,29 +142,34 @@ Func FixTreeIntegrity($aCMDLine)
 
 	Local $iParent = _WinAPI_GetParentProcess()
 
-	If _WinAPI_GetProcessName($iParent) = "MSEdge.exe" Then
+	Switch _WinAPI_GetProcessName($iParent)
+		
+		Case "MSEdge.exe"
 
-		FileWrite($hLogs[$AppGeneral], _NowCalc() & " - " & "Caught MSEdge Parent Process, Launched by " & _WinAPI_GetProcessName(_WinAPI_GetParentProcess($iParent)) & ", Grabbing Parameters." & @CRLF)
+			FileWrite($hLogs[$AppGeneral], _NowCalc() & " - " & "Caught MSEdge Parent Process, Launched by " & _WinAPI_GetProcessName(_WinAPI_GetParentProcess($iParent)) & ", Grabbing Parameters." & @CRLF)
 
-		Local $aAdjust
+			Local $aAdjust
 
-		; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
-		Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
+			; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
+			Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
 
-		_WinAPI_AdjustTokenPrivileges($hToken, $SE_DEBUG_NAME, $SE_PRIVILEGE_ENABLED, $aAdjust)
+			_WinAPI_AdjustTokenPrivileges($hToken, $SE_DEBUG_NAME, $SE_PRIVILEGE_ENABLED, $aAdjust)
 
-		Redim $aCMDLine[2]
-		$aCMDLine[0] = 0
-		$aCMDLine[1] = _WinAPI_GetProcessFileName($iParent)
+			Redim $aCMDLine[2]
+			$aCMDLine[0] = 0
+			$aCMDLine[1] = _WinAPI_GetProcessFileName($iParent)
 
-		_ArrayConcatenate($aCMDLine, StringSplit(_WinAPI_GetProcessCommandLine($iParent), " ", $STR_NOCOUNT))
+			_ArrayConcatenate($aCMDLine, StringSplit(_WinAPI_GetProcessCommandLine($iParent), " ", $STR_NOCOUNT))
 
-		$aCMDLine[0] = UBound($aCMDLine) - 1
+			$aCMDLine[0] = UBound($aCMDLine) - 1
 
-		ProcessClose($iParent)
+			ProcessClose($iParent)
 
-	EndIf
+		Case "MSEdgeRedirect.exe"
 
+			_SafeRun(StringReplace($aEdges[1], "msedge.exe", "msedge_IFEO.exe"), $aCMDLine[3])
+
+	EndSwitch
 	Return $aCMDLine
 
 EndFunc
@@ -176,6 +181,7 @@ Func ProcessCMDLine()
 	Local $aPIDs
 	Local $bHide = _GetSettingValue("NoTray")
 	Local $hFile = @ScriptDir & ".\Setup.ini"
+	Local $bForce = False
 	Local $iParams = $CmdLine[0]
 	Local $sCMDLine = _ArrayToString($CmdLine, " ", 1)
 	Local $bSilent = False
@@ -189,7 +195,6 @@ Func ProcessCMDLine()
 		$CMDLine = RepairCMDLine($CMDLine)
 
 		If _ArraySearch($aEdges, $CMDLine[1]) > 0 Then ; Image File Execution Options Mode
-			RunHTTPCheck()
 			ActiveMode($CMDLine)
 			If Not _GetSettingValue("NoUpdates") And Random(1, 10, 1) = 1 Then RunUpdateCheck()
 			Exit
@@ -204,6 +209,7 @@ Func ProcessCMDLine()
 							@TAB & "/admin    " & @TAB & "Attempts to run MSEdgeRedirect as admin" & @CRLF & _
 							@TAB & "/change   " & @TAB & "Reruns Installer" & @CRLF & _
 							@TAB & "/hide     " & @TAB & "Hides the tray icon" & @CRLF & _
+							@TAB & "/force    " & @TAB & "Skips Safety Checks" & @CRLF & _
 							@TAB & "/kill     " & @TAB & "Kills other MSEdgeRedirect processes" & @CRLF & _
 							@TAB & "/portable " & @TAB & "Runs MSEdgeRedirect in portable mode" & @CRLF & _
 							@TAB & "/repair   " & @TAB & "Repairs IFEO directory junctions" & @CRLF & _
@@ -224,6 +230,9 @@ Func ProcessCMDLine()
 				Case "/change"
 					RunSetup(True, $bSilent, 1)
 					Exit
+				Case "/f", "/force"
+					$bForce = True
+					_ArrayDelete($CmdLine, 1)
 				Case "/h", "/hide"
 					$bHide = True
 					_ArrayDelete($CmdLine, 1)
@@ -316,9 +325,10 @@ Func ProcessCMDLine()
 
 	If $hFile = "WINGET" Then
 		;;;
-	Else
+	ElseIf Not $bForce Then
 		RunArchCheck($bSilent)
-		RunHTTPCheck($bSilent)
+	Else
+		;;;
 	EndIf
 
 	If Not $bPortable Then
@@ -371,6 +381,7 @@ Func ProcessCMDLine()
 				RunSetup(True, $bSilent, 0, $hFile)
 		EndSelect
 	EndIf
+	RunHTTPCheck()
 	ReactiveMode($bHide)
 
 EndFunc
@@ -540,7 +551,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
 				Switch _GetSettingValue("PDFApp")
 					Case "Default"
-						If RunPDFCheck() And _IsSafePDF($sCMDLine) Then ShellExecute($sCMDLine)
+						If RunPDFCheck() And _IsSafePDF($sCMDLine) Then ShellExecute('"' & $sCMDLine & '"')
 					Case Else
 						ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
 				EndSwitch
@@ -568,41 +579,26 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				Case Else
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
 			EndSelect
-		Case StringInStr($sCMDLine, "bing.com/chat") ; Fix BingAI
-			If _GetSettingValue("NoPDFs") Then _SafeRun($sEdge, $sCMDLine)
+		Case StringInStr($sCMDLine, "bing.com/chat") Or StringInStr($sCMDLine, "bing.com%2Fchat") ; Fix BingAI
+			If _GetSettingValue("NoChat") Then 
+				;;;
+			Else
+				_SafeRun($sEdge, $sCMDLine)
+			EndIf
+		Case StringInStr($sCMDLine, "ux=copilot")
+			If _GetSettingValue("NoPilot") Then
+				ShellExecute("ms-settings:")
+			Else
+				_SafeRun($sEdge, $sCMDLine)
+			EndIf
 		Case StringInStr($sCMDLine, "&url=") ; Fix Windows 11 Widgets
 			ContinueCase
-		Case StringInStr($sCMDLine, "--edge-redirect")
-			$aCMDLine = _RedirectCMDDecode($sCMDLine)
-
-			For $iLoop = 0 To Ubound($aCMDLine) - 1 Step 1
-				If $aCMDLine[$iLoop][0] = "url" Then
-					$sURL = $aCMDLine[$iLoop][1]
-					If StringInStr($sURL, "%2F") Then $sURL = _WinAPI_UrlUnescape($sURL)
-					ExitLoop
-				EndIf
-			Next
-
-			If $sURL = "" Then
-				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
-			Else
-				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Caught 'Edge-Redirect' Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
-				If _IsSafeURL($sURL) Then
-					$sURL = _ModifyURL($sURL)
-					ShellExecute($sURL)
-				Else
-					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
-				EndIf
-			EndIf
 		Case StringInStr($sCMDLine, "microsoft-edge:")
-			If Not StringInStr($sCMDLine, "url=") Then $sCMDLine = StringRegExpReplace($sCMDLine, "microsoft-edge:[\/]*", "microsoft-edge:?url=")
-
-			$aCMDLine = _RedirectCMDDecode($sCMDLine)
+			$aCMDLine = _CMDLineDecode($sCMDLine)
 
 			For $iLoop = 0 To Ubound($aCMDLine) - 1 Step 1
 				If $aCMDLine[$iLoop][0] = "url" Then
-					$sURL = $aCMDLine[$iLoop][1]
-					If StringInStr($sURL, "%2F") Then $sURL = _WinAPI_UrlUnescape($sURL)
+					$sURL = $aCMDLine[$iLoop][1]				
 					ExitLoop
 				EndIf
 			Next
@@ -610,7 +606,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			If $sURL = "" Then
 				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
 			Else
-				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Caught 'Microsoft-Edge' Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
+				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Caught Valid URI Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 				If _IsSafeURL($sURL) Then
 					$sURL = _ModifyURL($sURL)
 					ShellExecute($sURL)
