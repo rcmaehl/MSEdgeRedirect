@@ -24,7 +24,7 @@
 
 Global $sVersion
 Global $bIsPriv = _IsPriviledgedInstall()
-Global Enum $bNoApps, $bNoBing, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoTray, $bNoUpdates, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
+Global Enum $bNoApps, $bNoBing, $bNoChat, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoPilot, $bNoTray, $bNoUpdates, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
 
 If @Compiled Then
 	$sVersion = FileGetVersion(@ScriptFullPath)
@@ -40,10 +40,12 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 
 	SetOptionsRegistry("NoApps"     , $aSettings[$bNoApps]     , $aConfig)
 	SetOptionsRegistry("NoBing"     , $aSettings[$bNoBing]     , $aConfig)
+	SetOptionsRegistry("NoChat"     , $aSettings[$bNoChat]     , $aConfig)
 	SetOptionsRegistry("NoImgs"     , $aSettings[$bNoImgs]     , $aConfig)
 	SetOptionsRegistry("NoMSN"      , $aSettings[$bNoMSN]      , $aConfig)
 	SetOptionsRegistry("NoNews"     , $aSettings[$bNoNews]     , $aConfig)
 	SetOptionsRegistry("NoPDFs"     , $aSettings[$bNoPDFs]     , $aConfig)
+	SetOptionsRegistry("NoPilot"    , $aSettings[$bNoPilot]    , $aConfig)
 	SetOptionsRegistry("NoTray"     , $aSettings[$bNoTray]     , $aConfig)
 	SetOptionsRegistry("NoUpdates"  , $aSettings[$bNoUpdates]  , $aConfig)
 	SetOptionsRegistry("Images"     , $aSettings[$sImages]     , $aConfig)
@@ -233,17 +235,19 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $aConfig[3] = [$hSetupFile, False, "Service"] ; Default Setup.ini Values
 	Local Enum $hFile, $bManaged, $vMode
 
-	Local $aSettings[18] = [False, False, False, False, False, False, False, False, "", "", "", "", "", "", "Full", True, "", ""]
+	Local $aSettings[20] = [False, False, False, False, False, False, False, False, False, False, "", "", "", "", "", "", "Full", True, "", ""]
 
 	If $bSilent Then
 
 		If $bUpdate Then
 			$aSettings[$bNoApps] = _Bool(_GetSettingValue("NoApps"))
 			$aSettings[$bNoBing] = _Bool(_GetSettingValue("NoBing"))
+			$aSettings[$bNoChat] = _Bool(_GetSettingValue("NoChat"))
 			$aSettings[$bNoImgs] = _Bool(_GetSettingValue("NoImgs"))
 			$aSettings[$bNoMSN] = _Bool(_GetSettingValue("NoMSN"))
 			$aSettings[$bNoNews] = _Bool(_GetSettingValue("NoNews"))
 			$aSettings[$bNoPDFs] = _Bool(_GetSettingValue("NoPDFs"))
+			$aSettings[$bNoPilot] = _Bool(_GetSettingValue("NoPilot"))
 			$aSettings[$bNoTray] = _Bool(_GetSettingValue("NoTray"))
 			$aSettings[$bNoUpdates] = _Bool(_GetSettingValue("NoUpdates"))
 			If $aSettings[$bNoBing] Then
@@ -280,10 +284,12 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			; TODO: Merge with _GetSettingValue(Value, Forced Location)
 			$aSettings[$bNoApps] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoApps", $aSettings[$bNoApps]))
 			$aSettings[$bNoBing] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoBing", $aSettings[$bNoBing]))
+			$aSettings[$bNoChat] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoChat", $aSettings[$bNoChat]))
 			$aSettings[$bNoImgs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoImgs", $aSettings[$bNoImgs]))
 			$aSettings[$bNoMSN] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoMSN", $aSettings[$bNoMSN]))
 			$aSettings[$bNoNews] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoNews", $aSettings[$bNoNews]))
 			$aSettings[$bNoPDFs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoPDFs", $aSettings[$bNoPDFs]))
+			$aSettings[$bNoPilot] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoPilot", $aSettings[$bNoPilot]))
 			$aSettings[$bNoTray] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoTray", $aSettings[$bNoTray]))
 			$aSettings[$bNoUpdates] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoUpdates", $aSettings[$bNoUpdates]))
 			$aSettings[$sImages] = _Bool(IniRead($aConfig[$hFile], "Settings", "Images", $aSettings[$sImages]))
@@ -437,35 +443,41 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		EndIf
 
 		GUICtrlCreateGroup("Mode", 20, 60, 420, 340)
-			Local $hEurope = GUICtrlCreateRadio("Europe Mode" & @CRLF & _
+			GUICtrlCreateIcon("imageres.dll", 78, 30, 80, 16, 16)
+			GUICtrlSetState(-1, $GUI_DISABLE)
+			Local $hEurope = GUICtrlCreateRadio("Europe Mode - COMING SOON" & @CRLF & _
 				@CRLF & _
-				"MSEdgeRedirect changes specific system settings to take advantage of Europeans not having this issue anymore.", _
-				50, 80, 380, 60, $BS_TOP+$BS_MULTILINE)
-			GUICtrlSetState(-1, $GUI_HIDE)
+				"System Wide Change using a Native Windows Feature" & @CRLF & _
+				@CRLF & _
+				"MSEdgeRedirect DOES NOT INSTALL. Locale and Settings changes are made to set Windows 'in EU' and respect the default browser. Coming Soon, if Daniel Aleksandersen doesn't beat me to it.", _
+				50, 80, 380, 100, $BS_TOP+$BS_MULTILINE)
+			GUICtrlSetState(-1, $GUI_DISABLE)
+
+			GUICtrlCreateLabel("", 50, 175, 380, 1, $SS_SUNKEN)
 
 			Local $hService = GUICtrlCreateRadio("Service Mode" & @CRLF & _
 				@CRLF & _
-				"* Single User Install" & @CRLF & _
-				"* Less System Intrusive" & @CRLF & _
-				"* Less AV false positives" & @CRLF & _
-				"* Doesn't require Admin Rights" & @CRLF & _
+				"Adminless, Less Intrustive, Single User Install" & @CRLF & _
 				@CRLF & _
-				"MSEdgeRedirect stays running in the background. Detected Edge data is redirected to your default browser.", _
-				50, 80, 380, 130, $BS_TOP+$BS_MULTILINE)
+				"MSEdgeRedirect stays running in the background. Detected Edge data is redirected to your default browser. Uses 1-10% CPU depending on System.", _
+				50, 180, 380, 80, $BS_TOP+$BS_MULTILINE)
 			If Not $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
 
-			GUICtrlCreateIcon("imageres.dll", 78, 30, 230, 16, 16)
+			GUICtrlCreateLabel("", 50, 265, 380, 1, $SS_SUNKEN)
+
+			GUICtrlCreateIcon("imageres.dll", 78, 30, 270, 16, 16)
 			Local $hActive = GUICtrlCreateRadio("Active Mode - RECOMMENDED" & @CRLF & _
 				@CRLF & _
-				"* Better Performance" & @CRLF & _
-				"* System Wide Install" & @CRLF & _
-				"* Finer Redirection Control" & @CRLF & _
-				"* No Startup or Tray Icon Needed" & @CRLF & _
-				"* Supports AveYo's Edge Remover Tool" & @CRLF & _
+				"Best Performing, System Wide, Customizable, and Compatible Install" & @CRLF & _
 				@CRLF & _
-				"MSEdgeRedirect only runs when a selected Edge is launched, similary to the old EdgeDeflector app.", _
-				50, 230, 380, 130, $BS_TOP+$BS_MULTILINE)
+				"MSEdgeRedirect is ran instead of Edge, similary to the old EdgeDeflector app. Does not run in background. Compatible with AveYo's Edge Removal Tool.", _
+				50, 270, 380, 80, $BS_TOP+$BS_MULTILINE)
 			If $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
+
+			GUICtrlCreateLabel("", 50, 355, 380, 1, $SS_SUNKEN)
+
+			Local $hOthers = GUICtrlCreateRadio("Show Me MSEdgeRedirect Alternatives", _
+				50, 365, 380, 20, $BS_TOP)
 
 		GUISwitch($hInstallGUI)
 		#EndRegion
@@ -662,6 +674,10 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					$iPage -= 1
 
 				Case $hMsg = $hNext
+					If _IsChecked($hOthers) Then
+						ShellExecute("https://github.com/rcmaehl/MSEdgeRedirect/wiki/Alternative-Apps-Comparison-Chart")
+						Exit
+					EndIf
 					Switch $iPage + 1
 						Case $hMode
 							GUICtrlSetState($hBack, $GUI_ENABLE)
@@ -687,10 +703,12 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 							$aSettings[$bNoApps] = _IsChecked($hNoApps)
 							$aSettings[$bNoBing] = _IsChecked($hSearch)
+							;$aSettings[$bNoChat] = _IsChecked($hNoChat)
 							$aSettings[$bNoImgs] = _IsChecked($hNoImgs)
 							$aSettings[$bNoMSN] = _IsChecked($hNoMSN)
 							$aSettings[$bNoNews] = _IsChecked($hNoNews)
 							$aSettings[$bNoPDFs] = _IsChecked($hNoPDFs)
+							;$aSettings[$bNoPilot] = _IsChecked($bNoPilot)
 							$aSettings[$bNoTray] = _IsChecked($hNoIcon)
 							$aSettings[$sImages] = GUICtrlRead($hImgSRC)
 							$aSettings[$sImagePath] = $sImgEng
