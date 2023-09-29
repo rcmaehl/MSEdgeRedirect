@@ -96,6 +96,8 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase			
 		Case $sParent = "Hurl.exe"
 			ContinueCase
+		Case $sParent = "MSEdgeRedirect.exe"
+			_ArrayDisplay($aCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
 			_SafeRun($aCMDLine[1], $aCMDLine[2])
 		Case _ArraySearch($aCMDLine, "localhost:", 2, 0, 0, 1) > 0 ; Improve on #162
@@ -165,9 +167,9 @@ Func FixTreeIntegrity($aCMDLine)
 
 			ProcessClose($iParent)
 
-		Case "MSEdgeRedirect.exe"
+		Case Else
 
-			_SafeRun(StringReplace($aEdges[1], "msedge.exe", "msedge_IFEO.exe"), $aCMDLine[3])
+			;;;
 
 	EndSwitch
 	Return $aCMDLine
@@ -309,12 +311,14 @@ Func ProcessCMDLine()
 					$bSilent = True
 					$hFile = "WINGET"
 					_ArrayDelete($CmdLine, 1)
+				Case "--MSEdgeRedirect"
+					;;;
 				Case Else
 					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Unexpected Commandline: " & _ArrayToString($CmdLine) & @CRLF)
 					If @Compiled Then ; support for running non-compiled script - mLipok
 						MsgBox(0, _
 							"Invalid", _
-							'Invalid parameter - "' & $CmdLine[1] & "." & @CRLF)
+							'Invalid parameter - "' & $CmdLine[1] & '".' & @CRLF)
 						Exit 87 ; ERROR_INVALID_PARAMETER
 					EndIf
 			EndSwitch
@@ -581,7 +585,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			EndSelect
 		Case StringInStr($sCMDLine, "bing.com/chat") Or StringInStr($sCMDLine, "bing.com%2Fchat") ; Fix BingAI
 			If _GetSettingValue("NoChat") Then 
-				;;;
+				ShellExecute($sCMDLine)
 			Else
 				_SafeRun($sEdge, $sCMDLine)
 			EndIf
