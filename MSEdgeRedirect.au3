@@ -88,16 +88,16 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case _ArraySearch($aCMDLine, "--remote-debugging-port=", 2, 0, 0, 1) > 0 ; #271, Debugging Apps
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
+			ContinueCase
+		Case $sParent = "MSEdgeRedirect.exe"
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			_SafeRun($aCMDLine[1], $sCMDLine)
-		Case $sParent = "BrowserSelect.exe"
+		Case $sParent = "BrowserSelect.exe" ; TODO: DOUBLE CHECK $aCMDLine[2]
 			ContinueCase
 		Case $sParent = "BrowserSelector.exe"
 			ContinueCase			
 		Case $sParent = "Hurl.exe"
 			ContinueCase
-		Case $sParent = "MSEdgeRedirect.exe"
-			_ArrayDisplay($aCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
 			_SafeRun($aCMDLine[1], $aCMDLine[2])
 		Case _ArraySearch($aCMDLine, "localhost:", 2, 0, 0, 1) > 0 ; Improve on #162
@@ -312,7 +312,10 @@ Func ProcessCMDLine()
 					$hFile = "WINGET"
 					_ArrayDelete($CmdLine, 1)
 				Case "--MSEdgeRedirect"
-					;;;
+					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Recursion Prevention Check Failed. " & @CRLF & _
+						Commandline: " & _ArrayToString($CmdLine) & @CRLF & _ 
+						Parent: " & _WinAPI_GetProcessName(_WinAPI_GetProcessName($iParent)) & @CRLF)
+					_ArrayDelete($CmdLine, 1)
 				Case Else
 					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Unexpected Commandline: " & _ArrayToString($CmdLine) & @CRLF)
 					If @Compiled Then ; support for running non-compiled script - mLipok
