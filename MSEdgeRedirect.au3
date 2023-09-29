@@ -313,8 +313,8 @@ Func ProcessCMDLine()
 					_ArrayDelete($CmdLine, 1)
 				Case "--MSEdgeRedirect"
 					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Recursion Prevention Check Failed. " & @CRLF & _
-						Commandline: " & _ArrayToString($CmdLine) & @CRLF & _ 
-						Parent: " & _WinAPI_GetProcessName(_WinAPI_GetProcessName($iParent)) & @CRLF)
+						"Commandline: " & _ArrayToString($CmdLine) & @CRLF & _ 
+						"Parent: " & _WinAPI_GetProcessName(_WinAPI_GetProcessName($iParent)) & @CRLF)
 					_ArrayDelete($CmdLine, 1)
 				Case Else
 					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Unexpected Commandline: " & _ArrayToString($CmdLine) & @CRLF)
