@@ -89,7 +89,7 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
-			_SafeRun($aCMDLine[1], $sCMDLine)
+			_SafeRun($aCMDLine[1], $sCMDLine)			
 		Case $sParent = "BrowserSelect.exe"
 			ContinueCase
 		Case $sParent = "BrowserSelector.exe"
@@ -97,7 +97,8 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case $sParent = "Hurl.exe"
 			ContinueCase
 		Case $sParent = "MSEdgeRedirect.exe"
-			_ArrayDisplay($aCMDLine)
+			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
+			_SafeRun($aCMDLine[1], $sCMDLine)
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
 			_SafeRun($aCMDLine[1], $aCMDLine[2])
 		Case _ArraySearch($aCMDLine, "localhost:", 2, 0, 0, 1) > 0 ; Improve on #162
