@@ -57,7 +57,6 @@ Func ActiveMode(ByRef $aCMDLine)
 	Local $sCMDLine = ""
 	Local $sParent = _WinAPI_GetProcessName(_WinAPI_GetParentProcess())
 
-
 	$aCMDLine = FixTreeIntegrity($aCMDLine)
 	CheckEdgeIntegrity($aCMDLine[1])
 	$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_IFEO.exe")
@@ -586,15 +585,15 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				Case Else
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
 			EndSelect
-		Case StringInStr($sCMDLine, "bing.com/chat") Or StringInStr($sCMDLine, "bing.com%2Fchat") ; Fix BingAI
-			If _GetSettingValue("NoChat") Then 
-				ShellExecute($sCMDLine)
-			Else
-				_SafeRun($sEdge, $sCMDLine)
-			EndIf
 		Case StringInStr($sCMDLine, "ux=copilot")
 			If _GetSettingValue("NoPilot") Then
 				ShellExecute("ms-settings:")
+			Else
+				_SafeRun($sEdge, $sCMDLine)
+			EndIf
+		Case StringInStr($sCMDLine, "bing.com/chat") Or StringInStr($sCMDLine, "bing.com%2Fchat") ; Fix BingAI
+			If _GetSettingValue("NoChat") Then 
+				ContinueCase
 			Else
 				_SafeRun($sEdge, $sCMDLine)
 			EndIf
