@@ -560,9 +560,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hPDFSrc = GUICtrlCreateCombo("", 240, 240, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Default|Custom", "Default")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoChat = GUICtrlCreateCheckbox("Disable Bing Chat", 240, 265, 180, 20)
+			Local $hNoPilot = GUICtrlCreateCheckbox("Disable Windows CoPilot", 240, 265, 180, 20)
 			If @OSVersion <> "WIN_11" Then GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoPilot = GUICtrlCreateCheckbox("Disable Windows CoPilot", 240, 285, 180, 20)
+			Local $hNoChat = GUICtrlCreateCheckbox("Redirect Bing Chat", 240, 285, 180, 20)
 			If @OSVersion <> "WIN_11" Then GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoApps = GUICtrlCreateCheckbox("Redirect Windows Store 'Apps'", 240, 305, 180, 20)
 
