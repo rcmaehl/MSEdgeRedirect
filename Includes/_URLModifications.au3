@@ -312,6 +312,12 @@ Func _CMDLineDecode($sCMDLine)
 	$sCMDLine = StringReplace($sCMDLine, "&&", "&")
 
 	;TODO: Add url=<url> somehow if "url=" doesn't exist. Method=<whatver> screws this up. 
+		;UPDATE: This broke command line flags HAHAHAHAHAHAHAHA
+
+	If StringInStr($sCMDLine, "url=--") Then 
+		$sCMDLine = StringSplit($sCMDLine, "url=", $STR_ENTIRESPLIT+$STR_NOCOUNT)[0]
+		$sCMDLine = StringTrimRight($sCMDLine, 1)
+	EndIf
 
 	$aCMDLine_1D = StringSplit($sCMDLine, "&", $STR_NOCOUNT)
 	Redim $aCMDLine_2D[UBound($aCMDLine_1D)][2]
