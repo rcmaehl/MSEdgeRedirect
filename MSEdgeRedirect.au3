@@ -165,6 +165,7 @@ Func FixTreeIntegrity($aCMDLine)
 			$aCMDLine[0] = UBound($aCMDLine) - 1
 
 			ProcessClose($iParent)
+			_WinAPI_CloseHandle($hToken)
 
 		Case Else
 
