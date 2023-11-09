@@ -66,7 +66,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 		If Not FileCopy(@ScriptFullPath, $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
 			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
 			If Not $bSilent Then
-				MsgBox($MB_ICONERROR+$MB_OK, _
+				MsgBox($MB_ICONERROR + $MB_OK, _
 					"[CRITICAL]", _
 					"Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'")
 			EndIf
@@ -77,7 +77,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 		If Not FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
 			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
 			If Not $bSilent Then
-				MsgBox($MB_ICONERROR+$MB_OK, _
+				MsgBox($MB_ICONERROR + $MB_OK, _
 					"[CRITICAL]", _
 					"Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'")
 			EndIf
@@ -382,7 +382,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		If @OSVersion = 'WIN_10' or 'WIN_11' Then DllCall(@SystemDir & "\User32.dll", "bool", "SetProcessDpiAwarenessContext", "HWND", "DPI_AWARENESS_CONTEXT" - 1)
 
 		Local $hInstallGUI = GUICreate("MSEdgeRedirect " & $sVersion & " Setup", 640, 480)
-
 		GUICtrlCreateLabel("", 0, 0, 180, 420)
 		GUICtrlSetBkColor(-1, 0x00A4EF)
 
