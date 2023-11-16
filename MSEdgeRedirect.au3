@@ -546,12 +546,6 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 	Local $aCMDLine
 
 	Select
-		Case StringLeft($sCMDLine, 2) = "--"
-			If _GetSettingValue("RunUnsafe") Then
-				_SafeRun($sEdge, $sCMDLine)
-			Else
-				FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe Flag: " & $sCMDLine & @CRLF)
-			EndIf
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Settings URL: " & $sCMDLine & @CRLF)
 		Case StringInStr($sCMDLine, "profiles_settings")
@@ -623,6 +617,12 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				Else
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
 				EndIf
+			EndIf
+		Case StringLeft($sCMDLine, 2) = "--"
+			If _GetSettingValue("RunUnsafe") Then
+				_SafeRun($sEdge, $sCMDLine)
+			Else
+				FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe Flag: " & $sCMDLine & @CRLF)
 			EndIf
 		Case Else
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
