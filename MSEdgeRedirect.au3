@@ -47,7 +47,6 @@ Opt("TrayAutoPause", 0)
 Opt("GUICloseOnESC", 0)
 
 #include "MSEdgeRedirect_Wrapper.au3"
-#include "MSEdgeRedirect_Troubleshooter.au3"
 
 SetupAppdata()
 ProcessCMDLine()
