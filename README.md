@@ -1,5 +1,3 @@
-<!---[![Build Status](https://img.shields.io/github/workflow/status/rcmaehl/MSEdgeRedirect/mser)](https://github.com/rcmaehl/MSEdgeRedirect/actions?query=workflow%3Amser)
-[![Download](https://img.shields.io/github/v/release/rcmaehl/MSEdgeRedirect)](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/)--->
 [![Latest download count](https://img.shields.io/github/downloads/rcmaehl/MSEdgeRedirect/latest/total)](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/)
 [![Chocolatey download count](https://img.shields.io/chocolatey/dt/msedgeredirect?label=Chocolatey+downloads)](https://chocolatey.org/packages/msedgeredirect)
 [![Ko-fi](https://img.shields.io/badge/Support%20me%20on-Ko--fi-FF5E5B.svg?logo=ko-fi)](https://ko-fi.com/rcmaehl)
@@ -25,7 +23,7 @@ Looking to Disable Web Search Entirely? Try [@krlvm](https://github.com/krlvm)'s
 
 Download Stable (GitHub)|Download Testing (GitHub)
 ----|----
-<a href="https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe"><img src="https://img.shields.io/github/v/release/rcmaehl/msedgeredirect?display_name=tag&style=for-the-badge" height="45px" /></a>|<a href="https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/MSER/main/mser.zip"><img src="https://img.shields.io/github/workflow/status/rcmaehl/MSEdgeRedirect/mser?style=for-the-badge" height="45px" /></a>
+<a href="https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe"><img src="https://img.shields.io/github/v/release/rcmaehl/msedgeredirect?display_name=tag&style=for-the-badge" height="45px" /></a>|<a href="https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/MSER/0.8.0.0-dev/mser.zip"><img src="https://img.shields.io/github/actions/workflow/status/rcmaehl/MSEdgeRedirect/MSER.yml?branch=0.8.0.0-dev&style=for-the-badge" height="45px" /></a>
 
 ### Package Managers
 
@@ -74,7 +72,7 @@ Run `microsoft-edge:https://google.com` using the `Windows` + `R` keys. If that 
 
 ### Will searches inside \<app name here\> still use Bing?
 
-MSEdge Redirect only redirects links that attempt to open in MS Edge. It will not affect results generated within other applications.
+MSEdgeRedirect only redirects links that attempt to open in MS Edge. It will not affect results generated within other applications.
 
 ### Can you change Bing results to Google Results?
 
@@ -82,6 +80,12 @@ Yes, as of 0.5.0.0, you can select One of 8 available Search Engines, or set you
   
 ### How do I uninstall?
 
-Regular Install|Chocolatey|Scoop|Winget
-----|----|----|----
-Use Programs and Features|`choco uninstall msedgeredirect`|`scoop uninstall msedgeredirect`|`winget uninstall MSEdgeRedirect`
+#### Normal Installs
+Regular Install|Corrupted Install
+----|----
+Use Programs and Features|[Cleanup Tool](https://raw.githubusercontent.com/rcmaehl/MSEdgeRedirect/main/Assets/Cleanup%20Tool.ps1)
+
+#### Package Managers
+Chocolatey|Scoop|Winget
+----|----|----
+`choco uninstall msedgeredirect`|`scoop uninstall msedgeredirect`|`winget uninstall MSEdgeRedirect`

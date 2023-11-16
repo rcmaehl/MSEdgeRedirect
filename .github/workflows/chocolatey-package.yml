@@ -16,7 +16,7 @@ jobs:
     if: github.repository == 'rcmaehl/MSEdgeRedirect'
     steps:
       - name: Clone Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - uses: oprypin/find-latest-tag@v1
         with:
           repository: rcmaehl/MSEdgeRedirect  # The repository to scan.
@@ -34,13 +34,21 @@ jobs:
         id: version
         run: |
           version=${{ steps.latesttag.outputs.tag }}
-          echo "::set-output name=nuget::$version"
+          echo "nuget=$version" >> $GITHUB_OUTPUT
           sed -i "s/{VERSION}/${version}/g" "Assets/Choco/MSEdgeRedirect/msedgeredirect.nuspec"
+      - name: Choco Downgrade
+        uses: crazy-max/ghaction-chocolatey@v3
+        with:
+          args: install chocolatey --version=1.2.1 --allow-downgrade -y -r --no-progress
       - name: Pack Release
-        uses: crazy-max/ghaction-chocolatey@v1
+        uses: crazy-max/ghaction-chocolatey@v3
         with:
           args: pack Assets/Choco/MSEdgeRedirect/msedgeredirect.nuspec --outputdirectory Assets/Choco/MSEdgeRedirect
+      - name: Choco Upgrade
+        uses: crazy-max/ghaction-chocolatey@v3
+        with:
+          args: upgrade chocolatey
       - name: Upload Release
-        uses: crazy-max/ghaction-chocolatey@v1
+        uses: crazy-max/ghaction-chocolatey@v3
         with:
           args: push Assets/Choco/MSEdgeRedirect/msedgeredirect.${{ steps.version.outputs.nuget }}.nupkg -s https://push.chocolatey.org/ -k ${{ secrets.CHOCO_KEY }}
