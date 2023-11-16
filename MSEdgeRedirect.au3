@@ -540,8 +540,12 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 	Local $aCMDLine
 
 	Select
-		Case StringLeft($sCMDLine, 2) = "--" And _GetSettingValue("RunUnsafe")
-			_SafeRun($sEdge, $sCMDLine)
+		Case StringLeft($sCMDLine, 2) = "--"
+			If _GetSettingValue("RunUnsafe") Then
+				_SafeRun($sEdge, $sCMDLine)
+			Else
+				FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe Flag: " & $sCMDLine & @CRLF)
+			EndIf
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Settings URL: " & $sCMDLine & @CRLF)
 		Case StringInStr($sCMDLine, "profiles_settings")
