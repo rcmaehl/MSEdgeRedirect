@@ -5,7 +5,9 @@
 ## Active Mode Install
 Remove-Item -Path "C:\Program Files\MSEdgeRedirect\*" -Force -ErrorAction "Ignore"
 Remove-Item -Path "C:\Program Files\MSEdgeRedirect" -Force -ErrorAction "Ignore"
+Remove-Item -Path "C:\Program Files\Microsoft\Edge\Application\msedge_ifeo.exe" -Force -ErrorAction "Ignore"
 Remove-Item -Path "C:\Program Files\Microsoft\Edge\Application\msedge_no_ifeo.exe" -Force -ErrorAction "Ignore"
+Remove-Item -Path "C:\Program Files (x86)\Microsoft\Edge\Application\msedge_ifeo.exe" -Force -ErrorAction "Ignore"
 Remove-Item -Path "C:\Program Files (x86)\Microsoft\Edge\Application\msedge_no_ifeo.exe" -Force -ErrorAction "Ignore"
 
 ## Service Mode Install
