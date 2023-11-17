@@ -7,9 +7,9 @@
 #AutoIt3Wrapper_Res_Comment=https://www.msedgeredirect.com
 #AutoIt3Wrapper_Res_CompanyName=Robert Maehl Software
 #AutoIt3Wrapper_Res_Description=MSEdgeRedirect
-#AutoIt3Wrapper_Res_Fileversion=0.7.5.0
+#AutoIt3Wrapper_Res_Fileversion=0.7.5.1
 #AutoIt3Wrapper_Res_ProductName=MSEdgeRedirect App & Service
-#AutoIt3Wrapper_Res_ProductVersion=0.7.5.0
+#AutoIt3Wrapper_Res_ProductVersion=0.7.5.1
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
@@ -47,7 +47,6 @@ Opt("TrayAutoPause", 0)
 Opt("GUICloseOnESC", 0)
 
 #include "MSEdgeRedirect_Wrapper.au3"
-#include "MSEdgeRedirect_Troubleshooter.au3"
 
 SetupAppdata()
 ProcessCMDLine()
@@ -547,8 +546,6 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 	Local $aCMDLine
 
 	Select
-		Case StringLeft($sCMDLine, 2) = "--" And _GetSettingValue("RunUnsafe")
-			_SafeRun($sEdge, $sCMDLine)
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Settings URL: " & $sCMDLine & @CRLF)
 		Case StringInStr($sCMDLine, "profiles_settings")
@@ -620,6 +617,12 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				Else
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
 				EndIf
+			EndIf
+		Case StringLeft($sCMDLine, 2) = "--"
+			If _GetSettingValue("RunUnsafe") Then
+				_SafeRun($sEdge, $sCMDLine)
+			Else
+				FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe Flag: " & $sCMDLine & @CRLF)
 			EndIf
 		Case Else
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*) microsoft-edge:[\/]*", "") ; Legacy Installs

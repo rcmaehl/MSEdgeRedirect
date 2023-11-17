@@ -1,7 +1,7 @@
-name: "🐛 Bug report"
-description: Report errors or unexpected behavior
+name: "⁉ Help Request"
+description: It's just not working
 labels: 
-- bug
+- troubleshooting
 body:
 - type: markdown
   attributes:
@@ -12,8 +12,8 @@ body:
   attributes:
     label: Preflight Checklist
     options:
-      - label: Running `microsoft-edge:https://google.com` redirects successfully
       - label: Microsoft Edge is selected in any "How do you want to open this?" box
+      - label: I've ran the [Cleanup tool](https://raw.githubusercontent.com/rcmaehl/MSEdgeRedirect/main/Assets/Cleanup%20Tool.ps1) and tried another install
 
 - type: dropdown
   attributes:
@@ -42,23 +42,9 @@ body:
 
 - type: textarea
   attributes:
-    label: Steps to reproduce
+    label: ℹ Behavior
     description: We highly suggest including screenshots and logs (%localappdata%\MSEdgeRedirect\logs).
-    placeholder: Tell us the steps required to trigger your bug.
-  validations:
-    required: true
-
-- type: textarea
-  attributes:
-    label: ✔️ Expected Behavior
-    placeholder: What were you expecting?
-  validations:
-    required: false
-
-- type: textarea
-  attributes:
-    label: ❌ Actual Behavior
-    placeholder: What happened instead?
+    placeholder: What isn't working?
   validations:
     required: false
 
