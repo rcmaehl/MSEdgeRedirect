@@ -212,8 +212,9 @@ Func _ChangeWeatherProvider($sURL)
 								Case '"i"'
 									;;;
 								Case '"g"'
-									$sLocale = StringTrimLeft($aData[$iLoop], 4)
-									$sLocale = StringTrimRight($aData[$iLoop], 1)
+									$sLocale = $aData[$iLoop]
+									$sLocale = StringTrimLeft($sLocale, 5)
+									$sLocale = StringTrimRight($sLocale, 1)
 								Case '"x"'
 									$fLong = StringTrimLeft($aData[$iLoop], 4)
 								Case '"y"'
@@ -242,13 +243,14 @@ Func _ChangeWeatherProvider($sURL)
 						$sURL = "https://darksky.net/forecast/" & $fLat & "," & $fLong & "/"
 
 					Case "Weather.com"
-						$sURL = "https://www.weather.com/wx/today/?lat=" & $fLat & "&lon=" & $fLong & "&temp=" & $sSign ;"&locale=" & <LOCALE>
+						$sURL = "https://weather.com/" & $sLocale & "/weather/today/l/" & $fLat & "," & $fLong
 
 					Case "Weather.gov" ; TODO: Swap to "Government" and pass to the appropriate organization (https://en.wikipedia.org/wiki/List_of_meteorology_institutions)
 						$sURL = "https://forecast.weather.gov/MapClick.php?lat=" & $fLat & "&lon=" & $fLong
 
 					Case "Windy"
-						$sURL = "https://www.windy.com/?" & $fLat & "," & $fLong
+						$sLocale = StringLeft($sLocale,2)
+						$sURL = "https://www.windy.com/" & $sLocale & "/?" & $fLat & "," & $fLong
 
 					Case "WUnderground"
 						$sURL = "https://www.wunderground.com/weather/" & $fLat & "," & $fLong
