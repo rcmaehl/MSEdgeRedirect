@@ -34,6 +34,9 @@ Func _ChangeImageProvider($sURL)
 			Case "Sogou"
 				$sURL = "https://image.sogou.com/pics?query=" & $sURL
 
+			Case "StartPage"
+				$sURL = "https://www.startpage.com/search?cat=images&query=" & $sURL
+
 			Case "Yahoo"
 				$sURL = "https://images.search.yahoo.com/search/images?p=" & $sURL
 
