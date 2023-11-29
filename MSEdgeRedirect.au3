@@ -67,6 +67,8 @@ Func ActiveMode(ByRef $aCMDLine)
 			ReDim $aCMDLine[3]
 			$aCMDLine[2] = ""
 			ContinueCase
+		Case $aCMDLine[0] = 2 And FileExists($aCMDLine[2])
+			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--uninstall" ; Uninstalling Edge
 			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--suspend-background-mode" ; Uninstalling Edge
@@ -194,8 +196,7 @@ Func ProcessCMDLine()
 	If $iParams > 0 Then
 
 		$CMDLine = RepairCMDLine($CMDLine)
-
-		If _ArraySearch($aEdges, $CMDLine[1]) > 0 Then ; Image File Execution Options Mode
+		If _ArraySearch($aEdges, $CMDLine[1]) > 0 Or StringInStr($CMDLine[1], "ie_to_edge_stub.exe") Then ; Image File Execution Options Mode
 			ActiveMode($CMDLine)
 			If Not _GetSettingValue("NoUpdates") And Random(1, 10, 1) = 1 Then RunUpdateCheck()
 			Exit
