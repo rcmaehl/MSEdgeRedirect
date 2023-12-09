@@ -240,7 +240,10 @@ Func _ChangeWeatherProvider($sURL)
 						$sURL = "https://www.accuweather.com/en/search-locations?query=" & $fLat & "," & $fLong
 
 					Case "Custom"
-						$sURL = _GetSettingValue("WeatherPath") & $fLat & "," & $fLong
+						$sURL = _GetSettingValue("WeatherPath")
+						$sURL = StringReplace($sURL, "%lat%", $fLat)
+						$sUrl = StringReplace($sURL, "%long%", $fLong)
+						$sUrl = StringReplace($sURL, "%locale%", $sLocale)
 
 					Case "Weather.com"
 						$sURL = "https://weather.com/" & $sLocale & "/weather/today/l/" & $fLat & "," & $fLong
