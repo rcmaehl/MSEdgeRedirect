@@ -822,7 +822,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					EndIf
 
 				Case $hMsg = $hEngine And GUICtrlRead($hEngine) = "Custom"
-					$sEngine = InputBox("Enter Search Engine URL", "Enter the URL format of the custom Search Engine to use", "https://duckduckgo.com/?q=")
+					$sEngine = InputBox("Enter Search Engine URL", "Enter the URL format of the custom Search Engine to use, including the %query% placeholder.", "https://duckduckgo.com/?q=%query%")
 					If @error Then GUICtrlSetData($hEngine, "Google")
 
 				Case $hMsg = $hNoImgs
@@ -833,7 +833,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					EndIf
 
 				Case $hMsg = $hImgSRC And GUICtrlRead($hImgSRC) = "Custom"
-					$sImgEng = InputBox("Enter Image Search Engine URL", "Enter the URL format of the custom Image Search Engine to use", "https://duckduckgo.com/?ia=images&iax=images&q=")
+					$sImgEng = InputBox("Enter Image Search Engine URL", "Enter the URL format of the custom Image Search Engine to use, including the %query% placeholder.", "https://duckduckgo.com/?ia=images&iax=images&q=%query%")
 					If @error Then GUICtrlSetData($hImgSRC, "Google")
 
 				Case $hMsg = $hNoMSN
@@ -844,7 +844,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					EndIf
 
 				Case $hMsg = $hWeather And GUICtrlRead($hWeather) = "Custom"
-					$sWeatherEng = InputBox("Enter Weather Engine URL", "Enter the URL format of the custom Weather Engine to use (REQUIRES LAT,LONG SUPPORT!)", "https://www.accuweather.com/en/search-locations?query=")
+					$sWeatherEng = InputBox("Enter Weather Engine URL", "Enter the URL format of the custom Weather Engine to use, including the %lat%, %long%, and (optionally) %locale% placeholders.", "https://www.accuweather.com/en/search-locations?query=")
 					If @error Then GUICtrlSetData($hImgSRC, "Weather.com")
 
 				Case $hMsg = $hNoNews
