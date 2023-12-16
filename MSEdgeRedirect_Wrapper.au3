@@ -66,7 +66,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 		If Not FileCopy(@ScriptFullPath, $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
 			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
 			If Not $bSilent Then
-				MsgBox($MB_ICONERROR+$MB_OK, _
+				MsgBox($MB_ICONERROR + $MB_OK, _
 					"[CRITICAL]", _
 					"Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'")
 			EndIf
@@ -77,7 +77,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 		If Not FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
 			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
 			If Not $bSilent Then
-				MsgBox($MB_ICONERROR+$MB_OK, _
+				MsgBox($MB_ICONERROR + $MB_OK, _
 					"[CRITICAL]", _
 					"Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'")
 			EndIf
@@ -382,7 +382,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		If @OSVersion = 'WIN_10' or 'WIN_11' Then DllCall(@SystemDir & "\User32.dll", "bool", "SetProcessDpiAwarenessContext", "HWND", "DPI_AWARENESS_CONTEXT" - 1)
 
 		Local $hInstallGUI = GUICreate("MSEdgeRedirect " & $sVersion & " Setup", 640, 480)
-
 		GUICtrlCreateLabel("", 0, 0, 180, 420)
 		GUICtrlSetBkColor(-1, 0x00A4EF)
 
@@ -542,7 +541,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		GUICtrlCreateGroup("Additional Redirections", 20, 200, 420, 210)
 			Local $hNoImgs = GUICtrlCreateCheckbox("Bing Images:", 50, 220, 180, 20)
 			Local $hImgSRC = GUICtrlCreateCombo("", 50, 240, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
-			GUICtrlSetData(-1, "Baidu|Brave|Custom|DuckDuckGo|Ecosia|Google|Sogou|Yahoo|Yandex", "Google")
+			GUICtrlSetData(-1, "Baidu|Brave|Custom|DuckDuckGo|Ecosia|Google|Sogou|StartPage|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hSearch = GUICtrlCreateCheckbox("Bing Search:", 50, 265, 180, 20)
 			Local $hEngine = GUICtrlCreateCombo("", 50, 285, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
@@ -554,15 +553,15 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoMSN = GUICtrlCreateCheckbox("MSN Weather:", 50, 355, 180, 20)
 			Local $hWeather = GUICtrlCreateCombo("", 50, 375, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
-			GUICtrlSetData(-1, "AccuWeather|Custom|DarkSky|Weather.com|Weather.gov|Windy|WUnderground|Ventusky|Yandex", "Weather.com")
+			GUICtrlSetData(-1, "AccuWeather|Custom|Weather.com|Weather.gov|Windy|WUnderground|Ventusky|Yandex", "Weather.com")
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoPDFs = GUICtrlCreateCheckbox("PDF Viewer:", 240, 220, 180, 20)
 			Local $hPDFSrc = GUICtrlCreateCombo("", 240, 240, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Default|Custom", "Default")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoChat = GUICtrlCreateCheckbox("Disable Bing Chat", 240, 265, 180, 20)
+			Local $hNoPilot = GUICtrlCreateCheckbox("Disable Windows CoPilot", 240, 265, 180, 20)
 			If @OSVersion <> "WIN_11" Then GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoPilot = GUICtrlCreateCheckbox("Disable Windows CoPilot", 240, 285, 180, 20)
+			Local $hNoChat = GUICtrlCreateCheckbox("Redirect Bing Chat", 240, 285, 180, 20)
 			If @OSVersion <> "WIN_11" Then GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoApps = GUICtrlCreateCheckbox("Redirect Windows Store 'Apps'", 240, 305, 180, 20)
 
@@ -823,7 +822,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					EndIf
 
 				Case $hMsg = $hEngine And GUICtrlRead($hEngine) = "Custom"
-					$sEngine = InputBox("Enter Search Engine URL", "Enter the URL format of the custom Search Engine to use", "https://duckduckgo.com/?q=")
+					$sEngine = InputBox("Enter Search Engine URL", "Enter the URL format of the custom Search Engine to use, including the %query% placeholder.", "https://duckduckgo.com/?q=%query%")
 					If @error Then GUICtrlSetData($hEngine, "Google")
 
 				Case $hMsg = $hNoImgs
@@ -834,7 +833,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					EndIf
 
 				Case $hMsg = $hImgSRC And GUICtrlRead($hImgSRC) = "Custom"
-					$sImgEng = InputBox("Enter Image Search Engine URL", "Enter the URL format of the custom Image Search Engine to use", "https://duckduckgo.com/?ia=images&iax=images&q=")
+					$sImgEng = InputBox("Enter Image Search Engine URL", "Enter the URL format of the custom Image Search Engine to use, including the %query% placeholder.", "https://duckduckgo.com/?ia=images&iax=images&q=%query%")
 					If @error Then GUICtrlSetData($hImgSRC, "Google")
 
 				Case $hMsg = $hNoMSN
@@ -845,7 +844,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					EndIf
 
 				Case $hMsg = $hWeather And GUICtrlRead($hWeather) = "Custom"
-					$sWeatherEng = InputBox("Enter Weather Engine URL", "Enter the URL format of the custom Weather Engine to use (REQUIRES LAT,LONG SUPPORT!)", "https://www.accuweather.com/en/search-locations?query=")
+					$sWeatherEng = InputBox("Enter Weather Engine URL", "Enter the URL format of the custom Weather Engine to use, including the %lat%, %long%, and (optionally) %locale% placeholders.", "https://www.accuweather.com/en/search-locations?query=")
 					If @error Then GUICtrlSetData($hImgSRC, "Weather.com")
 
 				Case $hMsg = $hNoNews

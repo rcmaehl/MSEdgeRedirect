@@ -7,10 +7,15 @@
 
 Func _ChangeImageProvider($sURL)
 
+	Local $sOriginal
+
 	If StringInStr($sURL, "bing.com/images/search?q=") Then
 		$sURL = StringRegExpReplace($sURL, "(?i)(.*)(q=)", "")
 		$sURL = StringRegExpReplace($sURL, "(?i)(?=&id=)(.*)", "")
 		$sURL = StringReplace($sURL, " ", "+")
+
+		$sOriginal = $sURL
+
 		Switch _GetSettingValue("Images")
 
 			Case "Baidu"
@@ -20,7 +25,12 @@ Func _ChangeImageProvider($sURL)
 				$sURL = "https://search.brave.com/?ia=images&iax=images&q=" & $sURL
 
 			Case "Custom"
-				$sURL = _GetSettingValue("ImagePath") & $sURL
+				$sURL = _GetSettingValue("SearchPath")
+				If StringInStr($sURL, "%query%") Then
+					$sURL = StringReplace($sURL, "%query%", $sOriginal)
+				Else
+					$sURL = $sURL & $sOriginal
+				EndIf
 
 			Case "DuckDuckGo"
 				$sURL = "https://duckduckgo.com/?ia=images&iax=images&q=" & $sURL
@@ -33,6 +43,9 @@ Func _ChangeImageProvider($sURL)
 
 			Case "Sogou"
 				$sURL = "https://image.sogou.com/pics?query=" & $sURL
+
+			Case "StartPage"
+				$sURL = "https://www.startpage.com/search?cat=images&query=" & $sURL
 
 			Case "Yahoo"
 				$sURL = "https://images.search.yahoo.com/search/images?p=" & $sURL
@@ -55,7 +68,7 @@ EndFunc
 
 Func _ChangeNewsProvider($sURL)
 
-	Local $sOriginal = $sURL
+	Local $sOriginal
 
 	Local $sRegex = "(?i).*\/(" & _
 		"autos(\/enthusiasts)?" & _
@@ -76,6 +89,8 @@ Func _ChangeNewsProvider($sURL)
 	If StringInStr($sURL, "msn.com/") And StringRegExp($sURL, $sRegex) Then
 		$sURL = StringRegExpReplace($sURL, $sRegex, "")
 		$sURL = StringRegExpReplace($sURL, "(?i)(?=)\/.*", "")
+
+		$sOriginal = $sURL
 
 		Switch _GetSettingValue("News")
 
@@ -100,9 +115,13 @@ EndFunc
 
 Func _ChangeSearchEngine($sURL)
 
+	Local $sOriginal
+
 	If StringInStr($sURL, "bing.com/search?q=") Then
 		$sURL = StringRegExpReplace($sURL, "(?i)(.*)((\?|&)q=)", "")
 		If StringInStr($sURL, "&form") Then $sURL = StringRegExpReplace($sURL, "(?i)(?=&form)(.*)", "")
+
+		$sOriginal = $sURL
 
 		Switch _GetSettingValue("Search")
 
@@ -116,7 +135,12 @@ Func _ChangeSearchEngine($sURL)
 				$sURL = "https://search.brave.com/search?q=" & $sURL
 
 			Case "Custom"
-				$sURL = _GetSettingValue("SearchPath") & $sURL
+				$sURL = _GetSettingValue("SearchPath")
+				If StringInStr($sURL, "%query%") Then
+					$sURL = StringReplace($sURL, "%query%", $sOriginal)
+				Else
+					$sURL = $sURL & $sOriginal
+				EndIf
 
 			Case "DuckDuckGo"
 				$sURL = "https://duckduckgo.com/?q=" & $sURL
@@ -212,8 +236,9 @@ Func _ChangeWeatherProvider($sURL)
 								Case '"i"'
 									;;;
 								Case '"g"'
-									$sLocale = StringTrimLeft($aData[$iLoop], 4)
-									$sLocale = StringTrimRight($aData[$iLoop], 1)
+									$sLocale = $aData[$iLoop]
+									$sLocale = StringTrimLeft($sLocale, 5)
+									$sLocale = StringTrimRight($sLocale, 1)
 								Case '"x"'
 									$fLong = StringTrimLeft($aData[$iLoop], 4)
 								Case '"y"'
@@ -236,19 +261,20 @@ Func _ChangeWeatherProvider($sURL)
 						$sURL = "https://www.accuweather.com/en/search-locations?query=" & $fLat & "," & $fLong
 
 					Case "Custom"
-						$sURL = _GetSettingValue("WeatherPath") & $fLat & "," & $fLong
-
-					Case "DarkSky"
-						$sURL = "https://darksky.net/forecast/" & $fLat & "," & $fLong & "/"
+						$sURL = _GetSettingValue("WeatherPath")
+						$sURL = StringReplace($sURL, "%lat%", $fLat)
+						$sURL = StringReplace($sURL, "%long%", $fLong)
+						$sURL = StringReplace($sURL, "%locale%", $sLocale)
 
 					Case "Weather.com"
-						$sURL = "https://www.weather.com/wx/today/?lat=" & $fLat & "&lon=" & $fLong & "&temp=" & $sSign ;"&locale=" & <LOCALE>
+						$sURL = "https://weather.com/" & $sLocale & "/weather/today/l/" & $fLat & "," & $fLong
 
 					Case "Weather.gov" ; TODO: Swap to "Government" and pass to the appropriate organization (https://en.wikipedia.org/wiki/List_of_meteorology_institutions)
 						$sURL = "https://forecast.weather.gov/MapClick.php?lat=" & $fLat & "&lon=" & $fLong
 
 					Case "Windy"
-						$sURL = "https://www.windy.com/?" & $fLat & "," & $fLong
+						$sLocale = StringLeft($sLocale, 2)
+						$sURL = "https://www.windy.com/" & $sLocale & "/?" & $fLat & "," & $fLong
 
 					Case "WUnderground"
 						$sURL = "https://www.wunderground.com/weather/" & $fLat & "," & $fLong
@@ -312,6 +338,12 @@ Func _CMDLineDecode($sCMDLine)
 	$sCMDLine = StringReplace($sCMDLine, "&&", "&")
 
 	;TODO: Add url=<url> somehow if "url=" doesn't exist. Method=<whatver> screws this up. 
+		;UPDATE: This broke command line flags HAHAHAHAHAHAHAHA
+
+	If StringInStr($sCMDLine, "url=--") Then 
+		$sCMDLine = StringSplit($sCMDLine, "url=", $STR_ENTIRESPLIT+$STR_NOCOUNT)[0]
+		$sCMDLine = StringTrimRight($sCMDLine, 1)
+	EndIf
 
 	$aCMDLine_1D = StringSplit($sCMDLine, "&", $STR_NOCOUNT)
 	Redim $aCMDLine_2D[UBound($aCMDLine_1D)][2]

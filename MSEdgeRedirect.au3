@@ -7,9 +7,9 @@
 #AutoIt3Wrapper_Res_Comment=https://www.msedgeredirect.com
 #AutoIt3Wrapper_Res_CompanyName=Robert Maehl Software
 #AutoIt3Wrapper_Res_Description=MSEdgeRedirect
-#AutoIt3Wrapper_Res_Fileversion=0.7.5.0
+#AutoIt3Wrapper_Res_Fileversion=0.7.5.1
 #AutoIt3Wrapper_Res_ProductName=MSEdgeRedirect App & Service
-#AutoIt3Wrapper_Res_ProductVersion=0.7.5.0
+#AutoIt3Wrapper_Res_ProductVersion=0.7.5.1
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
@@ -47,7 +47,6 @@ Opt("TrayAutoPause", 0)
 Opt("GUICloseOnESC", 0)
 
 #include "MSEdgeRedirect_Wrapper.au3"
-#include "MSEdgeRedirect_Troubleshooter.au3"
 
 SetupAppdata()
 ProcessCMDLine()
@@ -56,7 +55,6 @@ Func ActiveMode(ByRef $aCMDLine)
 
 	Local $sCMDLine = ""
 	Local $sParent = _WinAPI_GetProcessName(_WinAPI_GetParentProcess())
-
 
 	$aCMDLine = FixTreeIntegrity($aCMDLine)
 	CheckEdgeIntegrity($aCMDLine[1])
@@ -68,6 +66,8 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case $aCMDLine[0] = 2 And UBound($aCMDLine) < 2
 			ReDim $aCMDLine[3]
 			$aCMDLine[2] = ""
+			ContinueCase
+		Case $aCMDLine[0] = 2 And FileExists($aCMDLine[2])
 			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--uninstall" ; Uninstalling Edge
 			ContinueCase
@@ -88,9 +88,11 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case _ArraySearch($aCMDLine, "--remote-debugging-port=", 2, 0, 0, 1) > 0 ; #271, Debugging Apps
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
+			ContinueCase
+		Case $sParent = "MSEdgeRedirect.exe"
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
-			_SafeRun($aCMDLine[1], $sCMDLine)
-		Case $sParent = "BrowserSelect.exe"
+			_SafeRun($aCMDLine[1], $sCMDLine)			
+		Case $sParent = "BrowserSelect.exe" ; TODO: DOUBLE CHECK $aCMDLine[2]
 			ContinueCase
 		Case $sParent = "BrowserSelector.exe"
 			ContinueCase			
@@ -164,10 +166,11 @@ Func FixTreeIntegrity($aCMDLine)
 			$aCMDLine[0] = UBound($aCMDLine) - 1
 
 			ProcessClose($iParent)
+			_WinAPI_CloseHandle($hToken)
 
-		Case "MSEdgeRedirect.exe"
+		Case Else
 
-			_SafeRun(StringReplace($aEdges[1], "msedge.exe", "msedge_IFEO.exe"), $aCMDLine[3])
+			;;;
 
 	EndSwitch
 	Return $aCMDLine
@@ -193,8 +196,7 @@ Func ProcessCMDLine()
 	If $iParams > 0 Then
 
 		$CMDLine = RepairCMDLine($CMDLine)
-
-		If _ArraySearch($aEdges, $CMDLine[1]) > 0 Then ; Image File Execution Options Mode
+		If _ArraySearch($aEdges, $CMDLine[1]) > 0 Or StringInStr($CMDLine[1], "ie_to_edge_stub.exe") Then ; Image File Execution Options Mode
 			ActiveMode($CMDLine)
 			If Not _GetSettingValue("NoUpdates") And Random(1, 10, 1) = 1 Then RunUpdateCheck()
 			Exit
@@ -309,12 +311,17 @@ Func ProcessCMDLine()
 					$bSilent = True
 					$hFile = "WINGET"
 					_ArrayDelete($CmdLine, 1)
+				Case "--MSEdgeRedirect"
+					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Recursion Prevention Check Failed. " & @CRLF & _
+						"Commandline: " & _ArrayToString($CmdLine) & @CRLF & _ 
+						"Parent: " & _WinAPI_GetProcessName(_WinAPI_GetParentProcess()) & @CRLF)
+					_ArrayDelete($CmdLine, 1)
 				Case Else
 					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Unexpected Commandline: " & _ArrayToString($CmdLine) & @CRLF)
 					If @Compiled Then ; support for running non-compiled script - mLipok
 						MsgBox(0, _
 							"Invalid", _
-							'Invalid parameter - "' & $CmdLine[1] & "." & @CRLF)
+							'Invalid parameter - "' & $CmdLine[1] & '".' & @CRLF)
 						Exit 87 ; ERROR_INVALID_PARAMETER
 					EndIf
 			EndSwitch
@@ -540,12 +547,6 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 	Local $aCMDLine
 
 	Select
-		Case StringLeft($sCMDLine, 2) = "--"
-			If _GetSettingValue("RunUnsafe") Then
-				_SafeRun($sEdge, $sCMDLine)
-			Else
-				FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe Flag: " & $sCMDLine & @CRLF)
-			EndIf
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Settings URL: " & $sCMDLine & @CRLF)
 		Case StringInStr($sCMDLine, "profiles_settings")
@@ -554,7 +555,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			If _GetSettingValue("NoPDFs") Then
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
 				Switch _GetSettingValue("PDFApp")
-					Case "Default"
+					Case "Default", False
 						If RunPDFCheck() And _IsSafePDF($sCMDLine) Then ShellExecute('"' & $sCMDLine & '"')
 					Case Else
 						ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
@@ -583,15 +584,15 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				Case Else
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
 			EndSelect
-		Case StringInStr($sCMDLine, "bing.com/chat") Or StringInStr($sCMDLine, "bing.com%2Fchat") ; Fix BingAI
-			If _GetSettingValue("NoChat") Then 
-				;;;
-			Else
-				_SafeRun($sEdge, $sCMDLine)
-			EndIf
 		Case StringInStr($sCMDLine, "ux=copilot")
 			If _GetSettingValue("NoPilot") Then
 				ShellExecute("ms-settings:")
+			Else
+				_SafeRun($sEdge, $sCMDLine)
+			EndIf
+		Case StringInStr($sCMDLine, "bing.com/chat") Or StringInStr($sCMDLine, "bing.com%2Fchat") ; Fix BingAI
+			If _GetSettingValue("NoChat") Then 
+				ContinueCase
 			Else
 				_SafeRun($sEdge, $sCMDLine)
 			EndIf
@@ -617,6 +618,12 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				Else
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
 				EndIf
+			EndIf
+		Case StringLeft($sCMDLine, 2) = "--"
+			If _GetSettingValue("RunUnsafe") Then
+				_SafeRun($sEdge, $sCMDLine)
+			Else
+				FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe Flag: " & $sCMDLine & @CRLF)
 			EndIf
 		Case Else
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
