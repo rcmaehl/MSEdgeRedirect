@@ -853,7 +853,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "Nation", "REG_SZ", GUICtrlRead($aNew[3]))
 								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "Name", "REG_SZ", GUICtrlRead($aNew[4]))
 							EndIf
-							MsgBox(0, "Reboot Required", "A Reboot/Restart is required to Complete the Regional Changes of Europe Mode.")
+							MsgBox($MB_OK + $MB_ICONINFORMATION + $MB_TOPMOST, "Reboot Required", "A Reboot/Restart is required to Complete the Regional Changes of Europe Mode.")
 							Exit
 					EndSwitch
 					GUISetState(@SW_HIDE, $aPages[$iPage])
