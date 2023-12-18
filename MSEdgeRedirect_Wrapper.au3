@@ -754,7 +754,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					$iPage -= 1
 
 				Case $hMsg = $hNext
-					If @Compiled Then
+					If @Compiled And $iPage <> $hCountry And $iPage <> $hSettings Then
 						Select
 
 							Case _IsChecked($hEurope)
