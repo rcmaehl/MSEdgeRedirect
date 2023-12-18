@@ -16,6 +16,7 @@
 #include "Includes\_Logging.au3"
 #include "Includes\_Theming.au3"
 #include "Includes\_Settings.au3"
+#include "Includes\_Countries.au3"
 #include "Includes\_Translation.au3"
 
 #include "Includes\TaskScheduler.au3"
@@ -362,8 +363,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 	Else
 
-		Local $aPages[4]
-		Local Enum $hLicense, $hMode, $hSettings, $hFinish, $hExit
+		Local $aPages[6]
+		Local Enum $hLicense, $hMode, $hSettings, $hFinish, $hExit, $hCountry, $hExit2
 
 		If @Compiled And Not _GetSettingValue("NoUpdates") Then RunUpdateCheck()
 
@@ -443,26 +444,26 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		GUICtrlCreateGroup("Mode", 20, 60, 420, 340)
 			GUICtrlCreateIcon("imageres.dll", 78, 30, 80, 16, 16)
-			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hEurope = GUICtrlCreateRadio("Europe Mode - COMING SOON" & @CRLF & _
+			Local $hEurope = GUICtrlCreateRadio("Europe Mode" & @CRLF & _
 				@CRLF & _
 				"System Wide Change using a Native Windows Feature" & @CRLF & _
 				@CRLF & _
-				"MSEdgeRedirect DOES NOT INSTALL. Locale and Settings changes are made to set Windows 'in EU' and respect the default browser. Coming Soon, if Daniel Aleksandersen doesn't beat me to it.", _
-				50, 80, 380, 100, $BS_TOP+$BS_MULTILINE)
-			GUICtrlSetState(-1, $GUI_DISABLE)
+				"MSEdgeRedirect DOES NOT INSTALL. Locale and Settings changes are made to set Windows 'in EU' and respect the default browser.", _
+				50, 80, 380, 80, $BS_TOP+$BS_MULTILINE)
 
-			GUICtrlCreateLabel("", 50, 175, 380, 1, $SS_SUNKEN)
+			If (@OSVersion = "WIN_11" And @OSBuild < 22621) Or (@OSVersion = "WIN_10" AND @OSBuild < 19045) Then GUICtrlSetState(-1, $GUI_DISABLE)
+
+			GUICtrlCreateLabel("", 50, 165, 380, 1, $SS_SUNKEN)
 
 			Local $hService = GUICtrlCreateRadio("Service Mode" & @CRLF & _
 				@CRLF & _
 				"Adminless, Less Intrustive, Single User Install" & @CRLF & _
 				@CRLF & _
 				"MSEdgeRedirect stays running in the background. Detected Edge data is redirected to your default browser. Uses 1-10% CPU depending on System.", _
-				50, 180, 380, 80, $BS_TOP+$BS_MULTILINE)
+				50, 175, 380, 80, $BS_TOP+$BS_MULTILINE)
 			If Not $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
 
-			GUICtrlCreateLabel("", 50, 265, 380, 1, $SS_SUNKEN)
+			GUICtrlCreateLabel("", 50, 260, 380, 1, $SS_SUNKEN)
 
 			GUICtrlCreateIcon("imageres.dll", 78, 30, 270, 16, 16)
 			Local $hActive = GUICtrlCreateRadio("Active Mode - RECOMMENDED" & @CRLF & _
@@ -628,8 +629,82 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		GUISwitch($hInstallGUI)
 		#EndRegion
 
+		#Region EuropeModePage
+		$aPages[$hCountry] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
+		GUISetBkColor(0xFFFFFF)
+
+		GUICtrlCreateLabel("Configure European Country", 20, 10, 420, 30)
+		GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+
+		GUICtrlCreateLabel("You may need to enable this via ViveTool (IDs: 43699941, 44353396)!", 20, 40, 420, 40)
+		GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+
+		GUICtrlCreateGroup("Current Values", 20, 70, 210, 145)
+
+		Local $aNations[3] = [RegRead("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\DeviceRegion", "DeviceRegion"), _
+								RegRead("HKEY_USERS\.DEFAULT\Control Panel\International\Geo", "Nation"), _ 
+								RegRead("HKEY_CURRENT_USER\Control Panel\International\Geo", "Nation")]
+		Local $aIDs[2] = [RegRead("HKEY_USERS\.DEFAULT\Control Panel\International\Geo", "Name"), RegRead("HKEY_CURRENT_USER\Control Panel\International\Geo", "Name")]
+
+		Local $aOld[6]
+
+		GUICtrlCreateLabel("Machine Region:", 30, 90, 95, 20)
+			$aOld[0] = GUICtrlCreateLabel($aNations[0], 125, 90, 95, 20, $SS_RIGHT)
+		GUICtrlCreateLabel("Default Region ID:", 30, 110, 95, 20)
+			$aOld[1] = GUICtrlCreateLabel($aIDs[0], 125, 110, 95, 20, $SS_RIGHT)
+		GUICtrlCreateLabel("Default Region:", 30, 130, 95, 20)
+			$aOld[2] = GUICtrlCreateLabel($aNations[1], 125, 130, 95, 20, $SS_RIGHT)
+		GUICtrlCreateLabel("User Region ID:", 30, 150, 95, 20)
+			$aOld[3] = GUICtrlCreateLabel($aIDs[1], 125, 150, 95, 20, $SS_RIGHT)
+		GUICtrlCreateLabel("User Region:", 30, 170, 95, 20)
+			$aOld[4] = GUICtrlCreateLabel($aNations[2], 125, 170, 95, 20, $SS_RIGHT)
+		GUICtrlCreateLabel("Is ID in ISRPS.json:", 30, 190, 95, 20)
+			$aOld[5] = GUICtrlCreateLabel("", 125, 190, 95, 20, $SS_RIGHT)
+				
+			Local $sTemp = ""
+
+			$sTemp = StringInStr(FileRead("C:\Windows\System32\IntegratedServicesRegionPolicySet.json"), '"' & $aIDs[0] & '"') ? "✓" : "X"
+			$sTemp &= " / " 
+			$sTemp &= StringInStr(FileRead("C:\Windows\System32\IntegratedServicesRegionPolicySet.json"), '"' & $aIDs[1] & '"') ? "✓" : "X"
+		
+			GUICtrlSetData(-1, $sTemp)
+
+		GUICtrlCreateGroup("New Values", 230, 70, 210, 145)
+		
+		Local $aNew[6]
+
+		GUICtrlCreateLabel("Machine Region:", 240, 90, 95, 20)
+			$aNew[0] = GUICtrlCreateLabel("", 335, 90, 95, 20, $SS_RIGHT)
+		GUICtrlCreateLabel("Default Region ID:", 240, 110, 95, 20)
+			$aNew[1] = GUICtrlCreateLabel("", 335, 110, 95, 20, $SS_RIGHT)
+		GUICtrlCreateLabel("Default Region:", 240, 130, 95, 20)
+			$aNew[2] = GUICtrlCreateLabel("", 335, 130, 95, 20, $SS_RIGHT)
+		GUICtrlCreateLabel("User Region ID:", 240, 150, 95, 20)
+			$aNew[3] = GUICtrlCreateLabel("", 335, 150, 95, 20, $SS_RIGHT)
+		GUICtrlCreateLabel("User Region:", 240, 170, 95, 20)
+			$aNew[4] = GUICtrlCreateLabel("", 335, 170, 95, 20, $SS_RIGHT)
+		GUICtrlCreateLabel("Is ID in ISRPS.json:", 240, 190, 95, 20)
+			$aNew[5] = GUICtrlCreateLabel("", 335, 190, 95, 20, $SS_RIGHT)
+	
+		GUICtrlCreateGroup("Method Selection", 20, 220, 420, 190)
+
+		GUICtrlCreateLabel("Method 1: Set the PC to be in EEA. Will not be reverted by Windows Update.", 30, 240, 400, 20)
+		GUICtrlCreateLabel("EEA Country:", 30, 265, 200, 20)
+		Local $hEEA = GUICtrlCreateCombo("", 230, 260, 200, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+		GUICtrlSetData(-1, _ArrayToString($aCountries, "|", -1, -1, "|", 0, 0), "Germany")
+		Local $hSetEEA = GUICtrlCreateButton("Set All to Selected EEA Country", 30, 285, 400, 30)
+
+		GUICtrlCreateLabel("Method 2: Tell the PC your ID/Nation is in the EEA. This will probably be reverted often via Windows Update. (COMING SOON)", 30, 340, 400, 30)
+		Local $hAddEEA = GUICtrlCreateButton("Add Current Values to ISRPS", 30, 370, 400, 30)
+		GUICtrlSetState(-1, $GUI_DISABLE)
+
+		GUISwitch($hInstallGUI)
+		#EndRegion
+
 		GUISetState(@SW_SHOW, $hInstallGUI)
 		GUISetState(@SW_SHOW, $aPages[$iPage])
+
+		Local $iIndex
 
 		While True
 			$hMsg = GUIGetMsg()
@@ -679,9 +754,22 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					$iPage -= 1
 
 				Case $hMsg = $hNext
-					If _IsChecked($hOthers) Then
-						ShellExecute("https://github.com/rcmaehl/MSEdgeRedirect/wiki/Alternative-Apps-Comparison-Chart")
-						Exit
+					If @Compiled And $iPage <> $hCountry And $iPage <> $hSettings Then
+						Select
+
+							Case _IsChecked($hEurope)
+								ShellExecute(@ScriptFullPath, "/ContinueEurope", @ScriptDir, "RunAs")
+								Exit
+
+							Case _IsChecked($hActive)
+								ShellExecute(@ScriptFullPath, "/ContinueActive", @ScriptDir, "RunAs")
+								Exit
+
+							Case _IsChecked($hOthers)
+								ShellExecute("https://github.com/rcmaehl/MSEdgeRedirect/wiki/Alternative-Apps-Comparison-Chart")
+								Exit
+						
+						EndSelect
 					EndIf
 					Switch $iPage + 1
 						Case $hMode
@@ -693,65 +781,79 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								GUICtrlSetData($hNext, "Install")
 							EndIf
 						Case $hFinish
-							# 8.0.0.0 Refactor
-							If $bUpdate And $iMode <> $hSettings Then
-								RunRemoval(True)
-							Else
-								FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
-							EndIf
+							If @Compiled Then
+								# 8.0.0.0 Refactor
+								If $bUpdate And $iMode <> $hSettings Then
+									RunRemoval(True)
+								Else
+									FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
+								EndIf
 
-							If $iMode = $hSettings Then
-								$aConfig[$vMode] = $bIsAdmin
-							Else
-								$aConfig[$vMode] = _IsChecked($hActive)
-							EndIf
+								If $iMode = $hSettings Then
+									$aConfig[$vMode] = $bIsAdmin
+								Else
+									$aConfig[$vMode] = _IsChecked($hActive)
+								EndIf
 
-							$aSettings[$bNoApps] = _IsChecked($hNoApps)
-							$aSettings[$bNoBing] = _IsChecked($hSearch)
-							$aSettings[$bNoChat] = _IsChecked($hNoChat)
-							$aSettings[$bNoImgs] = _IsChecked($hNoImgs)
-							$aSettings[$bNoMSN] = _IsChecked($hNoMSN)
-							$aSettings[$bNoNews] = _IsChecked($hNoNews)
-							$aSettings[$bNoPDFs] = _IsChecked($hNoPDFs)
-							$aSettings[$bNoPilot] = _IsChecked($hNoPilot)
-							$aSettings[$bNoTray] = _IsChecked($hNoIcon)
-							$aSettings[$sImages] = GUICtrlRead($hImgSRC)
-							$aSettings[$sImagePath] = $sImgEng
-							$aSettings[$sNews] = GUICtrlRead($hNewSRC)
-							$aSettings[$sPDFApp] = $sHandler
-							$aSettings[$sSearch] = GUICtrlRead($hEngine)
-							$aSettings[$sSearchPath] = $sEngine
-							$aSettings[$bStartup] = _IsChecked($hStartup)
-							$aSettings[$sWeather] = GUICtrlRead($hWeather)
-							$aSettings[$sWeatherPath] = $sWeatherEng
+								$aSettings[$bNoApps] = _IsChecked($hNoApps)
+								$aSettings[$bNoBing] = _IsChecked($hSearch)
+								$aSettings[$bNoChat] = _IsChecked($hNoChat)
+								$aSettings[$bNoImgs] = _IsChecked($hNoImgs)
+								$aSettings[$bNoMSN] = _IsChecked($hNoMSN)
+								$aSettings[$bNoNews] = _IsChecked($hNoNews)
+								$aSettings[$bNoPDFs] = _IsChecked($hNoPDFs)
+								$aSettings[$bNoPilot] = _IsChecked($hNoPilot)
+								$aSettings[$bNoTray] = _IsChecked($hNoIcon)
+								$aSettings[$sImages] = GUICtrlRead($hImgSRC)
+								$aSettings[$sImagePath] = $sImgEng
+								$aSettings[$sNews] = GUICtrlRead($hNewSRC)
+								$aSettings[$sPDFApp] = $sHandler
+								$aSettings[$sSearch] = GUICtrlRead($hEngine)
+								$aSettings[$sSearchPath] = $sEngine
+								$aSettings[$bStartup] = _IsChecked($hStartup)
+								$aSettings[$sWeather] = GUICtrlRead($hWeather)
+								$aSettings[$sWeatherPath] = $sWeatherEng
 
-							GUISetState(@SW_HIDE, $hSettings)
-							RunInstall($aConfig, $aSettings)
-							SetAppRegistry($aConfig)
-							If $aConfig[$vMode] Then
-								For $iLoop = 0 To UBound($aChannels) - 1 Step 1
-									$aChannels[$iLoop] = _IsChecked($hChannels[$iLoop])
-								Next
-								SetIFEORegistry($aChannels)
-							EndIf
-							If $iMode = $hSettings Then Return
-							GUICtrlSetData($hNext, "Finish")
-							GUICtrlSetState($hHelp, $GUI_DISABLE)
-							GUICtrlSetState($hBack, $GUI_DISABLE)
-							GUICtrlSetState($hCancel, $GUI_DISABLE)
-							If _IsChecked($hActive) Then
-								GUICtrlSetState($hLaunch, $GUI_DISABLE)
-							Else
-								GUICtrlSetState($hLaunch, $GUI_CHECKED)
+								GUISetState(@SW_HIDE, $hSettings)
+								RunInstall($aConfig, $aSettings)
+								SetAppRegistry($aConfig)
+								If $aConfig[$vMode] Then
+									For $iLoop = 0 To UBound($aChannels) - 1 Step 1
+										$aChannels[$iLoop] = _IsChecked($hChannels[$iLoop])
+									Next
+									SetIFEORegistry($aChannels)
+								EndIf
+								If $iMode = $hSettings Then Return
+								GUICtrlSetData($hNext, "Finish")
+								GUICtrlSetState($hHelp, $GUI_DISABLE)
+								GUICtrlSetState($hBack, $GUI_DISABLE)
+								GUICtrlSetState($hCancel, $GUI_DISABLE)
+								If _IsChecked($hActive) Then
+									GUICtrlSetState($hLaunch, $GUI_DISABLE)
+								Else
+									GUICtrlSetState($hLaunch, $GUI_CHECKED)
+								EndIf
 							EndIf
 						Case $hExit
-							If _IsChecked($hAppLnk) Then SetAppShortcuts($aConfig, $aSettings)
-							If _IsChecked($hDonate) Then ShellExecute("https://paypal.me/rhsky")
-							If _IsChecked($hHelpUs) Then ShellExecute("https://safebrowsing.google.com/safebrowsing/report_error/?url=https://github.com/rcmaehl/MSEdgeRedirect")
-							If Not $aConfig[$vMode] And _IsChecked($hLaunch) Then
-								If $aSettings[$bNoTray] Then $sArgs = "/hide"
-								ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
+							If @Compiled Then
+								If _IsChecked($hAppLnk) Then SetAppShortcuts($aConfig, $aSettings)
+								If _IsChecked($hDonate) Then ShellExecute("https://paypal.me/rhsky")
+								If _IsChecked($hHelpUs) Then ShellExecute("https://safebrowsing.google.com/safebrowsing/report_error/?url=https://github.com/rcmaehl/MSEdgeRedirect")
+								If Not $aConfig[$vMode] And _IsChecked($hLaunch) Then
+									If $aSettings[$bNoTray] Then $sArgs = "/hide"
+									ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
+								EndIf
+								Exit
 							EndIf
+						Case $hExit2
+							If @Compiled Then
+								RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\DeviceRegion", "DeviceRegion", "REG_DWORD", GUICtrlRead($aNew[0]))
+								RegWrite("HKEY_USERS\.DEFAULT\Control Panel\International\Geo", "Name", "REG_SZ", GUICtrlRead($aNew[1]))
+								RegWrite("HKEY_USERS\.DEFAULT\Control Panel\International\Geo", "Nation", "REG_SZ", GUICtrlRead($aNew[2]))
+								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "Nation", "REG_SZ", GUICtrlRead($aNew[3]))
+								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "Name", "REG_SZ", GUICtrlRead($aNew[4]))
+							EndIf
+							MsgBox($MB_OK + $MB_ICONINFORMATION + $MB_TOPMOST, "Reboot Required", "A Reboot/Restart is required to Complete the Regional Changes of Europe Mode.")
 							Exit
 					EndSwitch
 					GUISetState(@SW_HIDE, $aPages[$iPage])
@@ -759,15 +861,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					$iPage += 1
 
 				Case $hMsg = $hActive or $hMsg = $hService
-					If @Compiled And _IsChecked($hActive) And Not $bIsAdmin Then
-						If ShellExecute(@ScriptFullPath, "", @ScriptDir, "RunAs") Then Exit
-						GUICtrlSetState($hActive, $GUI_UNCHECKED)
-						GUICtrlSetState($hService, $GUI_CHECKED)
-						MsgBox($MB_ICONERROR+$MB_OK, _
-							"Admin Required", _
-							"Unable to install Active Mode without Admin Rights!")
-						FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Active Mode UAC Elevation Attempt Failed!" & @CRLF)
-					EndIf
 					If _IsChecked($hService) Then
 						;GUICtrlSetState($hInstall, $GUI_ENABLE)
 						GUICtrlSetState($hStartup, $GUI_ENABLE)
@@ -873,6 +966,23 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						GUICtrlSetState($hNoPDFs, $GUI_UNCHECKED)
 						GUICtrlSetState($hPDFSrc, $GUI_DISABLE)
 					EndIf
+
+				Case $hMsg = $hSetEEA
+					$iIndex = _ArraySearch($aCountries, GUICtrlRead($hEEA))
+					GUICtrlSetData($aNew[0], $aCountries[$iIndex][1])
+					GUICtrlSetData($aNew[1], $aCountries[$iIndex][2])
+					GUICtrlSetData($aNew[2], $aCountries[$iIndex][1])
+					GUICtrlSetData($aNew[3], $aCountries[$iIndex][2])
+					GUICtrlSetData($aNew[4], $aCountries[$iIndex][1])
+					GUICtrlSetData($aNew[Ubound($aOld) - 1], "✓ / ✓")
+					GUICtrlSetData($hNext, "Save")
+
+				Case $hMsg = $hAddEEA
+					For $iLoop = 0 To Ubound($aOld) - 2 Step 1
+						GUICtrlSetData($aNew[$iLoop], GUICtrlRead($aOld[$iLoop]))
+					Next
+					GUICtrlSetData($aNew[Ubound($aOld) - 1], "✓ / ✓")
+					GUICtrlSetData($hNext, "Save")
 
 				Case Else
 					;;;
