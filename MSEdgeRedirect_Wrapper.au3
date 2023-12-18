@@ -648,6 +648,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		Local $aOld[6]
 
+		FileWrite($hLogs[$Install], _NowCalc() & " - " & "Read Pre-European Install Values of: " & _ArrayToString($aNations) & " & " & _ArrayToString($aIDs) & @CRLF)
+
 		GUICtrlCreateLabel("Machine Region:", 30, 90, 95, 20)
 			$aOld[0] = GUICtrlCreateLabel($aNations[0], 125, 90, 95, 20, $SS_RIGHT)
 		GUICtrlCreateLabel("Default Region ID:", 30, 110, 95, 20)
