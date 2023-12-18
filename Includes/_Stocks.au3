@@ -1,4 +1,4 @@
-Local $aStocks[10154][2] = _
+Global $aStocks[10154][2] = _
 [["A","a1mnrw"], _
 ["AA","a1mnur"], _
 ["AAA","bvqj77"], _
