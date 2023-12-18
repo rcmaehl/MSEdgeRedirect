@@ -191,6 +191,7 @@ Func ProcessCMDLine()
 	Local $aInstall[3]
 	Local $bPortable = False
 
+	$aInstall = _IsInstalled()
 	If DriveGetType(@ScriptDir) = "Removable" Then $bPortable = True
 
 	If $iParams > 0 Then
@@ -232,6 +233,26 @@ Func ProcessCMDLine()
 				Case "/change"
 					RunSetup(True, $bSilent, 1)
 					Exit
+				Case "/ContinueActive"
+					If Not $bIsAdmin Then
+						MsgBox($MB_ICONERROR+$MB_OK, _
+							"Admin Required", _
+							"Unable to install Active Mode without Admin Rights!")
+						FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Active Mode UAC Elevation Attempt Failed!" & @CRLF)
+						Exit
+					Else
+						RunSetup($aInstall[0], False, 2)
+					EndIf
+				Case "/ContinueEurope", "/SetEurope"
+					If Not $bIsAdmin Then
+						MsgBox($MB_ICONERROR+$MB_OK, _
+							"Admin Required", _
+							"Unable to Setup Europe Mode without Admin Rights!")
+						FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Europe Mode UAC Elevation Attempt Failed!" & @CRLF)
+						Exit
+					Else
+						RunSetup($aInstall[0], False, 5)
+					EndIf
 				Case "/f", "/force"
 					$bForce = True
 					_ArrayDelete($CmdLine, 1)
@@ -339,7 +360,6 @@ Func ProcessCMDLine()
 	EndIf
 
 	If Not $bPortable Then
-		$aInstall = _IsInstalled()
 
 		Select
 			Case Not $aInstall[0] ; Not Installed
