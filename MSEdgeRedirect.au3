@@ -177,8 +177,6 @@ Func FixTreeIntegrity($aCMDLine)
 
 EndFunc
 
-
-
 Func ProcessCMDLine()
 
 	Local $aPIDs
@@ -241,7 +239,7 @@ Func ProcessCMDLine()
 						FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Active Mode UAC Elevation Attempt Failed!" & @CRLF)
 						Exit
 					Else
-						RunSetup($aInstall[0], False, 2)
+						RunSetup($aInstall[0], False, -2)
 					EndIf
 				Case "/ContinueEurope", "/SetEurope"
 					If Not $bIsAdmin Then
@@ -251,7 +249,7 @@ Func ProcessCMDLine()
 						FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Europe Mode UAC Elevation Attempt Failed!" & @CRLF)
 						Exit
 					Else
-						RunSetup($aInstall[0], False, 5)
+						RunSetup($aInstall[0], False, -5)
 					EndIf
 				Case "/f", "/force"
 					$bForce = True
