@@ -229,6 +229,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $sEngine
 	Local $sImgEng
 	Local $sHandler
+	Local $bResumed = False
 	Local $hChannels[5]
 	Local $aChannels[5] = [True, False, False, False, True]
 	Local $sWeatherEng
@@ -237,6 +238,11 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local Enum $hFile, $bManaged, $vMode
 
 	Local $aSettings[20] = [False, False, False, False, False, False, False, False, False, False, "", "", "", "", "", "", "Full", True, "", ""]
+
+	If $iPage < 0 Then
+		$iPage = Abs($iPage)
+		$bResumed = True
+	EndIf
 
 	If $bSilent Then
 
@@ -400,7 +406,13 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		Local $hNext = GUICtrlCreateButton("Next >", 420, 435, 90, 30)
 		If $iPage = $hLicense Then
 			GUICtrlSetState(-1, $GUI_DISABLE)
-		ElseIf $iPage = $hSettings Then
+		ElseIf $iPage = $hSettings And $bResumed Then
+			If $bUpdate Then
+				GUICtrlSetData(-1, "Update")
+			Else
+				GUICtrlSetData(-1, "Install")
+			EndIf
+		ElseIf $iPage = $hSettings Or $iPage = $hCountry Then
 			GUICtrlSetData(-1, "Save")
 		EndIf
 		Local $hCancel = GUICtrlCreateButton("Cancel", 530, 435, 90, 30)
@@ -648,6 +660,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		Local $aOld[6]
 
+		FileWrite($hLogs[$Install], _NowCalc() & " - " & "Read Pre-European Install Values of: " & _ArrayToString($aNations) & " & " & _ArrayToString($aIDs) & @CRLF)
+
 		GUICtrlCreateLabel("Machine Region:", 30, 90, 95, 20)
 			$aOld[0] = GUICtrlCreateLabel($aNations[0], 125, 90, 95, 20, $SS_RIGHT)
 		GUICtrlCreateLabel("Default Region ID:", 30, 110, 95, 20)
@@ -754,7 +768,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					$iPage -= 1
 
 				Case $hMsg = $hNext
-					If @Compiled And $iPage <> $hCountry And $iPage <> $hSettings Then
+					If @Compiled And Not $bResumed Then
 						Select
 
 							Case _IsChecked($hEurope)
@@ -783,7 +797,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						Case $hFinish
 							If @Compiled Then
 								# 8.0.0.0 Refactor
-								If $bUpdate And $iMode <> $hSettings Then
+								If ($bUpdate And $iMode <> $hSettings) Or $bResumed Then
 									RunRemoval(True)
 								Else
 									FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
@@ -975,14 +989,12 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUICtrlSetData($aNew[3], $aCountries[$iIndex][2])
 					GUICtrlSetData($aNew[4], $aCountries[$iIndex][1])
 					GUICtrlSetData($aNew[Ubound($aOld) - 1], "✓ / ✓")
-					GUICtrlSetData($hNext, "Save")
 
 				Case $hMsg = $hAddEEA
 					For $iLoop = 0 To Ubound($aOld) - 2 Step 1
 						GUICtrlSetData($aNew[$iLoop], GUICtrlRead($aOld[$iLoop]))
 					Next
 					GUICtrlSetData($aNew[Ubound($aOld) - 1], "✓ / ✓")
-					GUICtrlSetData($hNext, "Save")
 
 				Case Else
 					;;;
