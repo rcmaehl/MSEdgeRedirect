@@ -768,28 +768,27 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					$iPage -= 1
 
 				Case $hMsg = $hNext
-					If @Compiled And Not $bResumed Then
-						Select
-
-							Case _IsChecked($hEurope)
-								ShellExecute(@ScriptFullPath, "/ContinueEurope", @ScriptDir, "RunAs")
-								Exit
-
-							Case _IsChecked($hActive)
-								ShellExecute(@ScriptFullPath, "/ContinueActive", @ScriptDir, "RunAs")
-								Exit
-
-							Case _IsChecked($hOthers)
-								ShellExecute("https://github.com/rcmaehl/MSEdgeRedirect/wiki/Alternative-Apps-Comparison-Chart")
-								Exit
-						
-						EndSelect
-					EndIf
 					Switch $iPage + 1
 						Case $hMode
 							GUICtrlSetState($hBack, $GUI_ENABLE)
 						Case $hSettings
-							If $bUpdate Then
+							If @Compiled And Not $bResumed Then 
+								Select
+
+									Case _IsChecked($hEurope)
+										ShellExecute(@ScriptFullPath, "/ContinueEurope", @ScriptDir, "RunAs")
+										Exit
+		
+									Case _IsChecked($hActive)
+										ShellExecute(@ScriptFullPath, "/ContinueActive", @ScriptDir, "RunAs")
+										Exit
+		
+									Case _IsChecked($hOthers)
+										ShellExecute("https://github.com/rcmaehl/MSEdgeRedirect/wiki/Alternative-Apps-Comparison-Chart")
+										Exit
+								
+								EndSelect
+							ElseIf $bUpdate Then
 								GUICtrlSetData($hNext, "Update")
 							Else
 								GUICtrlSetData($hNext, "Install")
