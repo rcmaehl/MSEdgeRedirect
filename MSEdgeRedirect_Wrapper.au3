@@ -796,11 +796,14 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						Case $hFinish
 							If @Compiled Then
 								# 8.0.0.0 Refactor
-								If ($bUpdate And $iMode <> $hSettings) Or $bResumed Then
-									RunRemoval(True)
-								Else
-									FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
-								EndIf
+								Select
+									Case $bUpdate And $iMode <> $hSettings
+										ContinueCase
+									Case $bUpdate And $bResumed
+										RunRemoval(True)
+									Case Else
+										FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
+								EndSelect
 
 								If $iMode = $hSettings Then
 									$aConfig[$vMode] = $bIsAdmin
