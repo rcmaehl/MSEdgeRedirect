@@ -194,8 +194,6 @@ Func ProcessCMDLine()
 
 	If $iParams > 0 Then
 
-		_ArrayDisplay($CMDLine)
-
 		$CMDLine = RepairCMDLine($CMDLine)
 		If _ArraySearch($aEdges, $CMDLine[1]) > 0 Or StringInStr($CMDLine[1], "ie_to_edge_stub.exe") Then ; Image File Execution Options Mode
 			ActiveMode($CMDLine)
