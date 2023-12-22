@@ -7,9 +7,9 @@
 #AutoIt3Wrapper_Res_Comment=https://www.msedgeredirect.com
 #AutoIt3Wrapper_Res_CompanyName=Robert Maehl Software
 #AutoIt3Wrapper_Res_Description=MSEdgeRedirect
-#AutoIt3Wrapper_Res_Fileversion=0.7.5.1
+#AutoIt3Wrapper_Res_Fileversion=0.7.5.2
 #AutoIt3Wrapper_Res_ProductName=MSEdgeRedirect App & Service
-#AutoIt3Wrapper_Res_ProductVersion=0.7.5.1
+#AutoIt3Wrapper_Res_ProductVersion=0.7.5.2
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
@@ -193,6 +193,8 @@ Func ProcessCMDLine()
 	If DriveGetType(@ScriptDir) = "Removable" Then $bPortable = True
 
 	If $iParams > 0 Then
+
+		_ArrayDisplay($CMDLine)
 
 		$CMDLine = RepairCMDLine($CMDLine)
 		If _ArraySearch($aEdges, $CMDLine[1]) > 0 Or StringInStr($CMDLine[1], "ie_to_edge_stub.exe") Then ; Image File Execution Options Mode
