@@ -25,6 +25,7 @@ body:
       - Manual Update
       - New Deployment (Chocolatey, Winget, Etc)
       - Managed Update (Chocolatey, Winget, Etc)
+      - N/A
   validations:
     required: true
 
@@ -36,7 +37,8 @@ body:
     options:
       - Active Mode
       - Service Mode
-      - Unsure
+      - Europe Mode
+      - N/A or Unsure
   validations:
     required: true
 
