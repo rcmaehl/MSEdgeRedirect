@@ -413,6 +413,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				GUICtrlSetData(-1, "Install")
 			EndIf
 		ElseIf $iPage = $hSettings Or $iPage = $hCountry Then
+			GUICtrlSetState(-1, $GUI_DISABLE)
 			GUICtrlSetData(-1, "Save")
 		EndIf
 		Local $hCancel = GUICtrlCreateButton("Cancel", 530, 435, 90, 30)
@@ -991,6 +992,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUICtrlSetData($aNew[3], $aCountries[$iIndex][2])
 					GUICtrlSetData($aNew[4], $aCountries[$iIndex][1])
 					GUICtrlSetData($aNew[Ubound($aOld) - 1], "✓ / ✓")
+					GUICtrlSetState($hNext, $GUI_ENABLE)
 
 				Case $hMsg = $hAddEEA
 					For $iLoop = 0 To Ubound($aOld) - 2 Step 1
