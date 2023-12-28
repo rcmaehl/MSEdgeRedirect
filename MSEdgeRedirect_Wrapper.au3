@@ -867,8 +867,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\DeviceRegion", "DeviceRegion", "REG_DWORD", GUICtrlRead($aNew[0]))
 								RegWrite("HKEY_USERS\.DEFAULT\Control Panel\International\Geo", "Name", "REG_SZ", GUICtrlRead($aNew[1]))
 								RegWrite("HKEY_USERS\.DEFAULT\Control Panel\International\Geo", "Nation", "REG_SZ", GUICtrlRead($aNew[2]))
-								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "Nation", "REG_SZ", GUICtrlRead($aNew[3]))
-								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "Name", "REG_SZ", GUICtrlRead($aNew[4]))
+								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "Name", "REG_SZ", GUICtrlRead($aNew[3]))
+								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "Nation", "REG_SZ", GUICtrlRead($aNew[4]))
 							EndIf
 							MsgBox($MB_OK + $MB_ICONINFORMATION + $MB_TOPMOST, "Reboot Required", "A Reboot/Restart is required to Complete the Regional Changes of Europe Mode.")
 							Exit
