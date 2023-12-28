@@ -565,8 +565,11 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 	Local $aCMDLine
 
 	Select
+		Case StringRegExp($sCMDLine, "--default-search-provider=\? --out-pipe-name=MSEdgeDefault[a-z0-9]+")
+			FileWrite($hLogs[$AppSecurity], _NowCalc() & " - Passed Through MS-Settings Call: " & $sCMDLine & @CRLF)
+			_SafeRun($sEdge, $sCMDLine)
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
-			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Settings URL: " & $sCMDLine & @CRLF)
+			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Blocked Invalid MS-Settings Call: " & $sCMDLine & @CRLF)
 		Case StringInStr($sCMDLine, "profiles_settings")
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Profile Settings URL: " & $sCMDLine & @CRLF)
 		Case StringInStr($sCMDLine, ".pdf")
