@@ -68,7 +68,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 
 	If $aConfig[$vMode] Then
 		If Not FileCopy(@ScriptFullPath, $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
-			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+			FileWrite($hLogs[$Install], _NowCalc() & " - [CRITICAL] Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
 			If Not $bSilent Then
 				MsgBox($MB_ICONERROR + $MB_OK, _
 					"[CRITICAL]", _
@@ -79,7 +79,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	Else
 		If $aSettings[$bNoTray] Then $sArgs = "/hide"
 		If Not FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
-			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+			FileWrite($hLogs[$Install], _NowCalc() & " - [CRITICAL] Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
 			If Not $bSilent Then
 				MsgBox($MB_ICONERROR + $MB_OK, _
 					"[CRITICAL]", _
@@ -89,7 +89,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 		EndIf
 		If $aSettings[$bStartup] Then
 			If Not FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @StartupDir & "\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs) Then
-				FileWrite($hLogs[$AppFailures], _NowCalc() & " - [WARNING] Unable to create application link in '" & @StartupDir & "\MSEdgeRedirect.lnk'" & @CRLF)
+				FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING] Unable to create application link in '" & @StartupDir & "\MSEdgeRedirect.lnk'" & @CRLF)
 			EndIf
 		EndIf
 	EndIf
