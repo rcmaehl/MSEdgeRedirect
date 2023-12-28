@@ -416,18 +416,23 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		Local $hBack = GUICtrlCreateButton("< Back", 330, 435, 90, 30)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 		Local $hNext = GUICtrlCreateButton("Next >", 420, 435, 90, 30)
-		If $iPage = $hLicense Then
-			GUICtrlSetState(-1, $GUI_DISABLE)
-		ElseIf $iPage = $hSettings And $bResumed Then
-			If $bUpdate Then
-				GUICtrlSetData(-1, "Update")
-			Else
-				GUICtrlSetData(-1, "Install")
-			EndIf
-		ElseIf $iPage = $hSettings Or $iPage = $hCountry Then
-			GUICtrlSetState(-1, $GUI_DISABLE)
-			GUICtrlSetData(-1, "Save")
-		EndIf
+		Select
+			Case $iPage = $hLicense 
+				GUICtrlSetState(-1, $GUI_DISABLE)
+			Case $iPage = $hSettings And $bResumed
+				If $bUpdate Then
+					GUICtrlSetData(-1, "Update")
+				Else
+					GUICtrlSetData(-1, "Install")
+				EndIf
+			Case $iPage = $hLicense
+				ContinueCase
+			Case $iPage = $hCountry 
+				GUICtrlSetState(-1, $GUI_DISABLE)
+				ContinueCase	
+			Case $iPage = $hSettings
+				GUICtrlSetData(-1, "Save")
+		EndSelect
 		Local $hCancel = GUICtrlCreateButton("Cancel", 530, 435, 90, 30)
 
 		#Region License Page
