@@ -25,7 +25,7 @@
 
 Global $sVersion
 Global $bIsPriv = _IsPriviledgedInstall()
-Global Enum $bNoApps, $bNoBing, $bNoChat, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoPilot, $bNoTray, $bNoUpdates, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
+Global Enum $bNoApps, $bNoBing, $bNoChat, $bNoFeed, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoPilot, $bNoTray, $bNoUpdates, $sFeed, $sFeedPath, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
 
 If @Compiled Then
 	$sVersion = FileGetVersion(@ScriptFullPath)
@@ -42,6 +42,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	SetOptionsRegistry("NoApps"     , $aSettings[$bNoApps]     , $aConfig)
 	SetOptionsRegistry("NoBing"     , $aSettings[$bNoBing]     , $aConfig)
 	SetOptionsRegistry("NoChat"     , $aSettings[$bNoChat]     , $aConfig)
+	SetOptionsRegistry("NoFeed"     , $aSettings[$bNoFeed]     , $aConfig)
 	SetOptionsRegistry("NoImgs"     , $aSettings[$bNoImgs]     , $aConfig)
 	SetOptionsRegistry("NoMSN"      , $aSettings[$bNoMSN]      , $aConfig)
 	SetOptionsRegistry("NoNews"     , $aSettings[$bNoNews]     , $aConfig)
@@ -49,6 +50,8 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	SetOptionsRegistry("NoPilot"    , $aSettings[$bNoPilot]    , $aConfig)
 	SetOptionsRegistry("NoTray"     , $aSettings[$bNoTray]     , $aConfig)
 	SetOptionsRegistry("NoUpdates"  , $aSettings[$bNoUpdates]  , $aConfig)
+	SetOptionsRegistry("Feed"       , $aSettings[$sFeed]       , $aConfig)
+	SetOptionsRegistry("FeedPath"   , $aSettings[$sFeedPath]   , $aConfig)
 	SetOptionsRegistry("Images"     , $aSettings[$sImages]     , $aConfig)
 	SetOptionsRegistry("ImagePath"  , $aSettings[$sImagePath]  , $aConfig)
 	SetOptionsRegistry("News"       , $aSettings[$sNews]       , $aConfig)
@@ -65,7 +68,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 
 	If $aConfig[$vMode] Then
 		If Not FileCopy(@ScriptFullPath, $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
-			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+			FileWrite($hLogs[$Install], _NowCalc() & " - [CRITICAL] Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
 			If Not $bSilent Then
 				MsgBox($MB_ICONERROR + $MB_OK, _
 					"[CRITICAL]", _
@@ -76,7 +79,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	Else
 		If $aSettings[$bNoTray] Then $sArgs = "/hide"
 		If Not FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
-			FileWrite($hLogs[$AppFailures], _NowCalc() & " - [CRITICAL] Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+			FileWrite($hLogs[$Install], _NowCalc() & " - [CRITICAL] Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
 			If Not $bSilent Then
 				MsgBox($MB_ICONERROR + $MB_OK, _
 					"[CRITICAL]", _
@@ -86,7 +89,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 		EndIf
 		If $aSettings[$bStartup] Then
 			If Not FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @StartupDir & "\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs) Then
-				FileWrite($hLogs[$AppFailures], _NowCalc() & " - [WARNING] Unable to create application link in '" & @StartupDir & "\MSEdgeRedirect.lnk'" & @CRLF)
+				FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING] Unable to create application link in '" & @StartupDir & "\MSEdgeRedirect.lnk'" & @CRLF)
 			EndIf
 		EndIf
 	EndIf
@@ -228,6 +231,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $sEdges
 	Local $sEngine
 	Local $sImgEng
+	Local $sFeedEng
 	Local $sHandler
 	Local $bResumed = False
 	Local $hChannels[5]
@@ -237,7 +241,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $aConfig[3] = [$hSetupFile, False, "Service"] ; Default Setup.ini Values
 	Local Enum $hFile, $bManaged, $vMode
 
-	Local $aSettings[20] = [False, False, False, False, False, False, False, False, False, False, "", "", "", "", "", "", "Full", True, "", ""]
+	Local $aSettings[23] = [False, False, False, False, False, False, False, False, False, False, False, "", "", "", "", "", "", "", "", "Full", True, "", ""]
 
 	If $iPage < 0 Then
 		$iPage = Abs($iPage)
@@ -250,6 +254,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$aSettings[$bNoApps] = _Bool(_GetSettingValue("NoApps"))
 			$aSettings[$bNoBing] = _Bool(_GetSettingValue("NoBing"))
 			$aSettings[$bNoChat] = _Bool(_GetSettingValue("NoChat"))
+			$aSettings[$bNoFeed] = _Bool(_GetSettingValue("NoFeed"))
 			$aSettings[$bNoImgs] = _Bool(_GetSettingValue("NoImgs"))
 			$aSettings[$bNoMSN] = _Bool(_GetSettingValue("NoMSN"))
 			$aSettings[$bNoNews] = _Bool(_GetSettingValue("NoNews"))
@@ -260,6 +265,10 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			If $aSettings[$bNoBing] Then
 				$aSettings[$sSearch] = _GetSettingValue("Search")
 				$aSettings[$sSearchPath] = _GetSettingValue("SearchPath")
+			EndIf
+			If $aSettings[$bNoFeed] Then
+				$aSettings[$sFeed] = _GetSettingValue("Feed")
+				$aSettings[$sFeedPath] = _GetSettingValue("FeedPath")
 			EndIf
 			If $aSettings[$bNoImgs] Then
 				$aSettings[$sImages] = _GetSettingValue("Images")
@@ -292,6 +301,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$aSettings[$bNoApps] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoApps", $aSettings[$bNoApps]))
 			$aSettings[$bNoBing] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoBing", $aSettings[$bNoBing]))
 			$aSettings[$bNoChat] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoChat", $aSettings[$bNoChat]))
+			$aSettings[$bNoFeed] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoFeed", $aSettings[$bNoFeed]))
 			$aSettings[$bNoImgs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoImgs", $aSettings[$bNoImgs]))
 			$aSettings[$bNoMSN] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoMSN", $aSettings[$bNoMSN]))
 			$aSettings[$bNoNews] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoNews", $aSettings[$bNoNews]))
@@ -299,6 +309,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$aSettings[$bNoPilot] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoPilot", $aSettings[$bNoPilot]))
 			$aSettings[$bNoTray] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoTray", $aSettings[$bNoTray]))
 			$aSettings[$bNoUpdates] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoUpdates", $aSettings[$bNoUpdates]))
+			$aSettings[$sFeed] = _Bool(IniRead($aConfig[$hFile], "Settings", "Feed", $aSettings[$sFeed]))
+			$aSettings[$sFeedPath] = _Bool(IniRead($aConfig[$hFile], "Settings", "FeedPath", $aSettings[$sFeedPath]))
 			$aSettings[$sImages] = _Bool(IniRead($aConfig[$hFile], "Settings", "Images", $aSettings[$sImages]))
 			$aSettings[$sImagePath] = _Bool(IniRead($aConfig[$hFile], "Settings", "ImagePath", $aSettings[$sImagePath]))
 			$aSettings[$sNews] = _Bool(IniRead($aConfig[$hFile], "Settings", "News", $aSettings[$sNews]))
@@ -404,17 +416,23 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		Local $hBack = GUICtrlCreateButton("< Back", 330, 435, 90, 30)
 		GUICtrlSetState(-1, $GUI_DISABLE)
 		Local $hNext = GUICtrlCreateButton("Next >", 420, 435, 90, 30)
-		If $iPage = $hLicense Then
-			GUICtrlSetState(-1, $GUI_DISABLE)
-		ElseIf $iPage = $hSettings And $bResumed Then
-			If $bUpdate Then
-				GUICtrlSetData(-1, "Update")
-			Else
-				GUICtrlSetData(-1, "Install")
-			EndIf
-		ElseIf $iPage = $hSettings Or $iPage = $hCountry Then
-			GUICtrlSetData(-1, "Save")
-		EndIf
+		Select
+			Case $iPage = $hLicense 
+				GUICtrlSetState(-1, $GUI_DISABLE)
+			Case $iPage = $hSettings And $bResumed
+				If $bUpdate Then
+					GUICtrlSetData(-1, "Update")
+				Else
+					GUICtrlSetData(-1, "Install")
+				EndIf
+			Case $iPage = $hLicense
+				ContinueCase
+			Case $iPage = $hCountry 
+				GUICtrlSetState(-1, $GUI_DISABLE)
+				ContinueCase	
+			Case $iPage = $hSettings
+				GUICtrlSetData(-1, "Save")
+		EndSelect
 		Local $hCancel = GUICtrlCreateButton("Cancel", 530, 435, 90, 30)
 
 		#Region License Page
@@ -552,10 +570,10 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			EndIf
 
 		GUICtrlCreateGroup("Additional Redirections", 20, 200, 420, 210)
-			Local $hNoImgs = GUICtrlCreateCheckbox("Bing Images:", 50, 220, 180, 20)
-			Local $hImgSRC = GUICtrlCreateCombo("", 50, 240, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
-			GUICtrlSetData(-1, "Baidu|Brave|Custom|DuckDuckGo|Ecosia|Google|Sogou|StartPage|Yahoo|Yandex", "Google")
-			GUICtrlSetState(-1, $GUI_DISABLE)
+			Local $hNoFeed = GUICtrlCreateCheckbox("Bing Discover:", 50, 220, 180, 20)
+			Local $hFeedSRC = GUICtrlCreateCombo("", 50, 240, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			GUICtrlSetData(-1, "Ask|Baidu|Custom|Google|Yahoo", "Google")
+			GUICtrlSetState(-1, $GUI_DISABLE)		
 			Local $hSearch = GUICtrlCreateCheckbox("Bing Search:", 50, 265, 180, 20)
 			Local $hEngine = GUICtrlCreateCombo("", 50, 285, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Ask|Baidu|Brave|Custom|DuckDuckGo|Ecosia|Google|Lemmy|Sogou|StartPage|Yahoo|Yandex", "Google")
@@ -568,15 +586,19 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hWeather = GUICtrlCreateCombo("", 50, 375, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "AccuWeather|Custom|Weather.com|Weather.gov|Windy|WUnderground|Ventusky|Yandex", "Weather.com")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoPDFs = GUICtrlCreateCheckbox("PDF Viewer:", 240, 220, 180, 20)
-			Local $hPDFSrc = GUICtrlCreateCombo("", 240, 240, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			Local $hNoImgs = GUICtrlCreateCheckbox("Bing Images:", 240, 220, 180, 20)
+			Local $hImgSRC = GUICtrlCreateCombo("", 240, 240, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+			GUICtrlSetData(-1, "Baidu|Brave|Custom|DuckDuckGo|Ecosia|Google|Sogou|StartPage|Yahoo|Yandex", "Google")
+			GUICtrlSetState(-1, $GUI_DISABLE)		
+			Local $hNoPDFs = GUICtrlCreateCheckbox("PDF Viewer:", 240, 265, 180, 20)
+			Local $hPDFSrc = GUICtrlCreateCombo("", 240, 285, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Default|Custom", "Default")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoPilot = GUICtrlCreateCheckbox("Disable Windows CoPilot", 240, 265, 180, 20)
+			Local $hNoPilot = GUICtrlCreateCheckbox("Disable Windows CoPilot", 240, 305, 180, 20)
 			If @OSVersion <> "WIN_11" Then GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoChat = GUICtrlCreateCheckbox("Redirect Bing Chat", 240, 285, 180, 20)
+			Local $hNoChat = GUICtrlCreateCheckbox("Redirect Bing Chat", 240, 325, 180, 20)
 			If @OSVersion <> "WIN_11" Then GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoApps = GUICtrlCreateCheckbox("Redirect Windows Store 'Apps'", 240, 305, 180, 20)
+			Local $hNoApps = GUICtrlCreateCheckbox("Redirect Windows Store 'Apps'", 240, 345, 180, 20)
 
 		If $bUpdate Then
 			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
@@ -587,6 +609,12 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				$sEngine = _GetSettingValue("SearchPath")
 			EndIf
 			GUICtrlSetState($hNoChat, _GetSettingValue("NoChat"))
+			GUICtrlSetState($hNoFeed, _GetSettingValue("NoFeed"))
+			If _IsChecked($hNoFeed) Then
+				GUICtrlSetState($hFeedSRC, $GUI_ENABLE)
+				GUICtrlSetData($hFeedSRC, _GetSettingValue("Feed"))
+				$sFeedEng = _GetSettingValue("FeedPath")
+			EndIf
 			GUICtrlSetState($hNoImgs, _GetSettingValue("NoImgs"))
 			If _IsChecked($hNoImgs) Then
 				GUICtrlSetState($hImgSRC, $GUI_ENABLE)
@@ -814,12 +842,15 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								$aSettings[$bNoApps] = _IsChecked($hNoApps)
 								$aSettings[$bNoBing] = _IsChecked($hSearch)
 								$aSettings[$bNoChat] = _IsChecked($hNoChat)
+								$aSettings[$bNoFeed] = _IsChecked($hNoFeed)
 								$aSettings[$bNoImgs] = _IsChecked($hNoImgs)
 								$aSettings[$bNoMSN] = _IsChecked($hNoMSN)
 								$aSettings[$bNoNews] = _IsChecked($hNoNews)
 								$aSettings[$bNoPDFs] = _IsChecked($hNoPDFs)
 								$aSettings[$bNoPilot] = _IsChecked($hNoPilot)
 								$aSettings[$bNoTray] = _IsChecked($hNoIcon)
+								$aSettings[$sFeed] = GUICtrlRead($hFeedSRC)
+								$aSettings[$sFeedPath] = $sFeedEng					
 								$aSettings[$sImages] = GUICtrlRead($hImgSRC)
 								$aSettings[$sImagePath] = $sImgEng
 								$aSettings[$sNews] = GUICtrlRead($hNewSRC)
@@ -866,8 +897,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\DeviceRegion", "DeviceRegion", "REG_DWORD", GUICtrlRead($aNew[0]))
 								RegWrite("HKEY_USERS\.DEFAULT\Control Panel\International\Geo", "Name", "REG_SZ", GUICtrlRead($aNew[1]))
 								RegWrite("HKEY_USERS\.DEFAULT\Control Panel\International\Geo", "Nation", "REG_SZ", GUICtrlRead($aNew[2]))
-								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "Nation", "REG_SZ", GUICtrlRead($aNew[3]))
-								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "Name", "REG_SZ", GUICtrlRead($aNew[4]))
+								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "Name", "REG_SZ", GUICtrlRead($aNew[3]))
+								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "Nation", "REG_SZ", GUICtrlRead($aNew[4]))
 							EndIf
 							MsgBox($MB_OK + $MB_ICONINFORMATION + $MB_TOPMOST, "Reboot Required", "A Reboot/Restart is required to Complete the Regional Changes of Europe Mode.")
 							Exit
@@ -934,12 +965,23 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					$sEngine = InputBox("Enter Search Engine URL", "Enter the URL format of the custom Search Engine to use, including the %query% placeholder.", "https://duckduckgo.com/?q=%query%")
 					If @error Then GUICtrlSetData($hEngine, "Google")
 
+				Case $hMsg = $hNoFeed
+					If _IsChecked($hNoFeed) Then
+						GUICtrlSetState($hFeedSRC, $GUI_ENABLE)
+					Else
+						GUICtrlSetState($hFeedSRC, $GUI_DISABLE)
+					EndIf
+
 				Case $hMsg = $hNoImgs
 					If _IsChecked($hNoImgs) Then
 						GUICtrlSetState($hImgSRC, $GUI_ENABLE)
 					Else
 						GUICtrlSetState($hImgSRC, $GUI_DISABLE)
 					EndIf
+
+				Case $hMsg = $hFeedSRC And GUICtrlRead($hFeedSRC) = "Custom"
+					$sFeedEng = InputBox("Enter Feed URL", "Enter the URL format of the custom Feed to use.", "https://news.google.com")
+					If @error Then GUICtrlSetData($hFeedSRC, "Google")
 
 				Case $hMsg = $hImgSRC And GUICtrlRead($hImgSRC) = "Custom"
 					$sImgEng = InputBox("Enter Image Search Engine URL", "Enter the URL format of the custom Image Search Engine to use, including the %query% placeholder.", "https://duckduckgo.com/?ia=images&iax=images&q=%query%")
@@ -991,6 +1033,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUICtrlSetData($aNew[3], $aCountries[$iIndex][2])
 					GUICtrlSetData($aNew[4], $aCountries[$iIndex][1])
 					GUICtrlSetData($aNew[Ubound($aOld) - 1], "✓ / ✓")
+					GUICtrlSetState($hNext, $GUI_ENABLE)
 
 				Case $hMsg = $hAddEEA
 					For $iLoop = 0 To Ubound($aOld) - 2 Step 1
@@ -1186,15 +1229,15 @@ Func SetOptionsRegistry($sName, $vValue, ByRef $aConfig)
 	Select
 		Case IsBool($vValue)
 			RegWrite($sHive & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sName, "REG_DWORD", $vValue)
-			If @error Then FileWrite($hLogs[$AppFailures], _NowCalc() & " - [WARNING!] Unable to write REG_DWORD Registry Key '" & $sName & "' - with value '" & $vValue & "'" & @CRLF)
+			If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write REG_DWORD Registry Key '" & $sName & "' - with value '" & $vValue & "'" & @CRLF)
 
 		Case IsString($vValue)
 			RegWrite($sHive & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sName, "REG_SZ", $vValue)
-			If @error Then FileWrite($hLogs[$AppFailures], _NowCalc() & " - [WARNING!] Unable to write REG_SZ Registry Key '" & $sName & "' - with value '" & $vValue & "'" & @CRLF)
+			If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write REG_SZ Registry Key '" & $sName & "' - with value '" & $vValue & "'" & @CRLF)
 
 		Case Else
 			RegWrite($sHive & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sName, "REG_SZ", $vValue)
-			If @error Then FileWrite($hLogs[$AppFailures], _NowCalc() & " - [WARNING!] Unable to write REG_SZ Registry Key '" & $sName & "' - with value '" & $vValue & "'" & @CRLF)
+			If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write REG_SZ Registry Key '" & $sName & "' - with value '" & $vValue & "'" & @CRLF)
 
 	EndSelect
 

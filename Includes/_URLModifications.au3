@@ -5,6 +5,40 @@
 #include "Base64.au3"
 #include "_Settings.au3"
 
+Func _ChangeFeedProvider($sURL)
+
+	If StringRegExp($sURL, "https?\:\/\/www.msn\.com\/[a-z]{2}-[a-z]{2}\/feed.*") Then
+
+		Switch _GetSettingValue("Feed")
+
+			Case "Ask"
+				$sUrl = "https://www.ask.com/"
+
+			Case "Baidu"
+				$sURL = "https://news.baidu.com/"
+
+			Case "Custom"
+				$sURL = _GetSettingValue("FeedPath")
+
+			Case "Google"
+				$sURL = "https://news.google.com/"
+
+			Case "Yahoo"
+				$sURL = "https://news.yahoo.com/"
+
+			Case Null
+				$sURL = $sURL
+
+			Case Else
+				$sURL = _GetSettingValue("FeedPath")
+
+		EndSwitch
+	EndIf
+
+	Return $sURL
+
+EndFunc
+
 Func _ChangeImageProvider($sURL)
 
 	Local $sOriginal
@@ -25,7 +59,7 @@ Func _ChangeImageProvider($sURL)
 				$sURL = "https://search.brave.com/?ia=images&iax=images&q=" & $sURL
 
 			Case "Custom"
-				$sURL = _GetSettingValue("SearchPath")
+				$sURL = _GetSettingValue("ImagePath")
 				If StringInStr($sURL, "%query%") Then
 					$sURL = StringReplace($sURL, "%query%", $sOriginal)
 				Else
@@ -309,6 +343,7 @@ EndFunc
 
 Func _ModifyURL($sURL)
 
+	If _GetSettingValue("NoFeed") Then $sURL = _ChangeFeedProvider($sURL)
 	If _GetSettingValue("NoImgs") Then $sURL = _ChangeImageProvider($sURL)
 	If _GetSettingValue("NoNews") Then $sURL = _ChangeNewsProvider($sURL)
 	If _GetSettingValue("NoBing") Then $sURL = _ChangeSearchEngine($sURL)
