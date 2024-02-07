@@ -583,6 +583,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				EndSwitch
 			Else
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
+				If FileExists($sCMDLine) Then $sCMDLine = '"' & $sCMDLine & '"'
 				_SafeRun($sEdge, $sCMDLine)
 				If Not _IsPriviledgedInstall() Then Sleep(1000)
 			EndIf
