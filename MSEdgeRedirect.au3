@@ -435,8 +435,10 @@ Func ReactiveMode($bHide = False)
 
 	Local $sRegex
 	Local $iSIHost = ProcessExists("sihost.exe")
+	Local $bHavePath = True
 	Local $aProcessList
-	Local $sCommandline
+	Local $sProcessPath
+	Local $sCommandline	
 
 	If _GetSettingValue("NoApps") Then
 		$sRegex = "(?i).*(microsoft\-edge|app\-id).*"
@@ -460,8 +462,12 @@ Func ReactiveMode($bHide = False)
 		Else
 			ProcessClose($aProcessList[1][0])
 			$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[1][0])
+			$sProcessPath = _WinAPI_GetProcessFileName($aProcessList[1][0])
+			If @error Then $bHavePath = False
 			If StringRegExp($sCommandline, $sRegex) Then
 				_DecodeAndRun(Default, $sCommandline)
+			Elseif $bHavePath = True Then
+				_SafeRun($sProcessPath, $sCommandline)
 			EndIf
 		EndIf
 
