@@ -436,7 +436,7 @@ EndFunc
 ;                  $dFlag           - [Optional] WinAPI Function parameters
 ; Return values .: The URL unescaped string
 ; Author ........: mistersquirrle, rcmaehl
-; Modified ......: 3/27/2023
+; Modified ......: 2/8/2024
 ; Remarks .......: URL_DONT_UNESCAPE_EXTRA_INFO = 0x02000000
 ;                  URL_UNESCAPE_AS_UTF8         = 0x00040000 (Win 8+)                
 ;                  URL_UNESCAPE_INPLACE         = 0x00100000
@@ -458,6 +458,9 @@ Func _WinAPI_UrlUnescape($sUrl, $dFlags = 0x00040000)
         Return SetError(@error, @extended, 0)
     EndIf
 
-    If IsArray($aUrlUnescape) Then Return $aUrlUnescape[2]
+    If IsArray($aUrlUnescape) Then
+		If $aUrlUnescape[2] <> "decodedUrl" Then Return $sURL
+		Return $aUrlUnescape[2]
+	EndIf
     
 EndFunc   ;==>_WinAPI_UrlUnescape
