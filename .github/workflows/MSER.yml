@@ -54,7 +54,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         run: 7z a MSEdgeRedirect.zip MSEdgeRedirect*.exe checksums.sha256
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
