@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
       - uses: oprypin/find-latest-tag@v1
         with:
-          repository: rcmaehl/MSEdgeRedirect  # The repository to scan.
+          repository: ${{ github.repository }}  # The repository to scan.
           releases-only: true  # We know that all relevant tags have a GitHub release for them.
         id: latesttag
       - name: Set Checksum
