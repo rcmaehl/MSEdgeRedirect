@@ -168,6 +168,10 @@ Func FixTreeIntegrity($aCMDLine)
 			ProcessClose($iParent)
 			_WinAPI_CloseHandle($hToken)
 
+		Case "MSEdgeRedirect.exe"
+
+			;;;
+
 		Case Else
 
 			;;;
@@ -573,6 +577,9 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 	Select
 		Case StringRegExp($sCMDLine, "--default-search-provider=\? --out-pipe-name=MSEdgeDefault[a-z0-9]+")
 			FileWrite($hLogs[$AppSecurity], _NowCalc() & " - Passed Through MS-Settings Call: " & $sCMDLine & @CRLF)
+			_SafeRun($sEdge, $sCMDLine)
+		Case $sCMDLine = "--no-startup-window --win-session-start"
+			FileWrite($hLogs[$AppSecurity], _NowCalc() & " - Passed Through MSEdge Startup Call: " & $sCMDLine & @CRLF)
 			_SafeRun($sEdge, $sCMDLine)
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Blocked Invalid MS-Settings Call: " & $sCMDLine & @CRLF)
