@@ -466,7 +466,7 @@ Func ReactiveMode($bHide = False)
 			If @error Then $bHavePath = False
 			If StringRegExp($sCommandline, $sRegex) Then
 				_DecodeAndRun(Default, $sCommandline)
-			Elseif $bHavePath = True Then
+			ElseIf $bHavePath = True Then
 				_SafeRun($sProcessPath, $sCommandline)
 			EndIf
 		EndIf
@@ -553,7 +553,7 @@ Func RunHTTPCheck($bSilent = False)
 			If Not $bSilent Then
 				MsgBox($MB_ICONERROR+$MB_OK, _
 					"Edge Set As Default", _
-					"You must set a different Default Browser to use MSEdgeRedirect!")
+					"You must set a different Default Browser to use MSEdgeRedirect! Once this is corrected, please relaunch MSEdgeRedirect.")
 			EndIf
 			FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Found same MS Edge for both default browser and microsoft-edge handling, EXITING!" & @CRLF)
 			For $iLoop = 0 To UBound($hLogs) - 1
