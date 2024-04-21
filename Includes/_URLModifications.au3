@@ -459,8 +459,8 @@ Func _WinAPI_UrlUnescape($sUrl, $dFlags = 0x00040000)
     EndIf
 
     If IsArray($aUrlUnescape) Then
-		If $aUrlUnescape[2] <> "decodedUrl" Then Return $sURL
-		Return $aUrlUnescape[2]
+		If $aUrlUnescape[2] <> "decodedUrl" Then Return $aUrlUnescape[2]
+		Return $sURL
 	EndIf
     
 EndFunc   ;==>_WinAPI_UrlUnescape
