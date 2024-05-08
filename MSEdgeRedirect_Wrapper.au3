@@ -487,7 +487,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 			Local $hService = GUICtrlCreateRadio("Service Mode" & @CRLF & _
 				@CRLF & _
-				"Adminless, Less Intrustive, Single User Install" & @CRLF & _
+				"Adminless, Less Intrusive, Single User Install" & @CRLF & _
 				@CRLF & _
 				"MSEdgeRedirect stays running in the background. Detected Edge data is redirected to your default browser. Uses 1-10% CPU depending on System.", _
 				50, 175, 380, 80, $BS_TOP+$BS_MULTILINE)
@@ -500,7 +500,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				@CRLF & _
 				"Best Performing, System Wide, Customizable, and Compatible Install" & @CRLF & _
 				@CRLF & _
-				"MSEdgeRedirect is ran instead of Edge, similary to the old EdgeDeflector app. Does not run in background. Compatible with AveYo's Edge Removal Tool.", _
+				"MSEdgeRedirect is ran instead of Edge, similarly to the old EdgeDeflector app. Does not run in background. Compatible with AveYo's Edge Removal Tool.", _
 				50, 270, 380, 80, $BS_TOP+$BS_MULTILINE)
 			If $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
 
