@@ -188,7 +188,6 @@ Func _ChangeSearchEngine($sURL)
 			Case "Google (No AI)"
 				$sURL = "https://www.google.com/search?q=" & $sURL & "&udm=14"
 
-
 			Case "Sogou"
 				$sURL = "https://www.sogou.com/web?query=" & $sURL
 
