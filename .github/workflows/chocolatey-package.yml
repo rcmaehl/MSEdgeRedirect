@@ -48,7 +48,11 @@ jobs:
         uses: crazy-max/ghaction-chocolatey@v3
         with:
           args: upgrade chocolatey
+      - name: Connect to Chocolatey Repository
+        uses: crazy-max/ghaction-chocolatey@v3
+        with:
+          args: apikey -k ${{ secrets.CHOCO_KEY }} -s https://push.chocolatey.org/
       - name: Upload Release
         uses: crazy-max/ghaction-chocolatey@v3
         with:
-          args: push Assets/Choco/MSEdgeRedirect/msedgeredirect.${{ steps.version.outputs.nuget }}.nupkg -s https://push.chocolatey.org/ -k ${{ secrets.CHOCO_KEY }}
+          args: push Assets/Choco/MSEdgeRedirect/msedgeredirect.${{ steps.version.outputs.nuget }}.nupkg -s https://push.chocolatey.org/
