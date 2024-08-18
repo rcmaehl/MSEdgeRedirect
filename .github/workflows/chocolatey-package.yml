@@ -40,12 +40,7 @@ jobs:
         uses: crazy-max/ghaction-chocolatey@v3
         with:
           args: pack Assets/Choco/MSEdgeRedirect/msedgeredirect.nuspec --outputdirectory Assets/Choco/MSEdgeRedirect
-      - name: Upload Package to Artifacts
-        uses: actions/upload-artifact@v2
+      - name: Upload Release
+        uses: crazy-max/ghaction-chocolatey@v3
         with:
-          name: pkg-files
-          path: ./Assets
-      # - name: Upload Release
-      #   uses: crazy-max/ghaction-chocolatey@v3
-      #   with:
-      #     args: push Assets/Choco/MSEdgeRedirect/msedgeredirect.${{ steps.version.outputs.nuget }}.nupkg -s https://push.chocolatey.org/ -k ${{ secrets.CHOCO_KEY }}
+          args: push Assets/Choco/MSEdgeRedirect/msedgeredirect.${{ steps.version.outputs.nuget }}.nupkg -s https://push.chocolatey.org/ -k ${{ secrets.CHOCO_KEY }}
