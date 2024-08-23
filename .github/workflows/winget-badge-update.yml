@@ -16,11 +16,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Winget Version Badge
-        uses: gnpaone/winget-version-badge@main
+        uses: gnpaone/winget-version-badge@v1.0.3
         with:
           id: "rcmaehl.MSEdgeRedirect"
           marker_text: "WINGET_PKG"
           pkg_link: "https://github.com/microsoft/winget-pkgs/tree/master/manifests/r/rcmaehl/MSEdgeRedirect"
+          newline: "false"
           confirm_and_push: "false"
         id: latestver
 
