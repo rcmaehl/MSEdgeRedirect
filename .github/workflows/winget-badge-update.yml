@@ -16,8 +16,37 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Winget Version Badge
-        uses: gnpaone/winget-version-badge@v1.0.2
+        uses: gnpaone/winget-version-badge@main
         with:
           id: "rcmaehl.MSEdgeRedirect"
           marker_text: "WINGET_PKG"
           pkg_link: "https://github.com/microsoft/winget-pkgs/tree/master/manifests/r/rcmaehl/MSEdgeRedirect"
+          confirm_and_push: "false"
+        id: latestver
+
+      - name: Create pull request
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "${{ steps.latestver.outputs.commit_message }}"
+          committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          branch: github-actions/repo-update
+          delete-branch: true
+          title: Update README
+
+      - name: Enable pull request automerge
+        if: steps.cpr.outputs.pull-request-operation == 'created'
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.MSEdgeRedirect_PAT }}
+          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+
+      - name: Auto approve
+        if: steps.cpr.outputs.pull-request-operation == 'created'
+        uses: juliangruber/approve-pull-request-action@v2
+        with:
+          github-token: ${{ secrets.MSEdgeRedirect_PAT }}
+          number: ${{ steps.cpr.outputs.pull-request-number }}
+          
