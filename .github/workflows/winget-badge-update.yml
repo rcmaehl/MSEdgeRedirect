@@ -20,3 +20,4 @@ jobs:
         with:
           id: "rcmaehl.MSEdgeRedirect"
           marker_text: "WINGET_PKG"
+          pkg_link: "https://github.com/microsoft/winget-pkgs/tree/master/manifests/r/rcmaehl/MSEdgeRedirect"
