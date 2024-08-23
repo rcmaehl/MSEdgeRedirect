@@ -1,0 +1,22 @@
+name: Winget version badge update
+
+on:
+   workflow_dispatch:
+   workflow_run:
+     workflows: [Publish to WinGet]
+     types:
+       - completed
+
+jobs:
+  update-badge:
+    name: Update latest version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Winget Version Badge
+        uses: gnpaone/winget-version-badge@v1.0.2
+        with:
+          id: "rcmaehl.MSEdgeRedirect"
+          marker_text: "WINGET_PKG"
