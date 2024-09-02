@@ -22,6 +22,7 @@ jobs:
           marker_text: "WINGET_PKG"
           pkg_link: "https://github.com/microsoft/winget-pkgs/tree/master/manifests/r/rcmaehl/MSEdgeRedirect"
           newline: "false"
+          color: "brightgreen"
           confirm_and_push: "false"
         id: latestver
 
