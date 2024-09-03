@@ -51,4 +51,11 @@ jobs:
         with:
           github-token: ${{ secrets.MSEdgeRedirect_PAT }}
           number: ${{ steps.cpr.outputs.pull-request-number }}
+
+      - name: Delete PRs head branch
+        if: steps.cpr.outputs.pull-request-operation == 'created'
+        uses: dawidd6/action-delete-branch@v3
+        with:
+          github_token: ${{ secrets.MSEdgeRedirect_PAT }}
+          numbers: ${{ steps.cpr.outputs.pull-request-number }}
           
