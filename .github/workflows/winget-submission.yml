@@ -21,3 +21,9 @@ jobs:
           release-tag: ${{ steps.latesttag.outputs.tag }}
           delete-previous-version: 'true'
           token: ${{ secrets.MSEdgeRedirect_PAT }}
+      - name: Toggle Workflow
+        uses: StephenMP/workflow-toggle@v2.0.1
+        with:
+          token: ${{ secrets.MSEdgeRedirect_PAT }}
+          workflow_id: winget-badge-update.yml
+          action: enable
