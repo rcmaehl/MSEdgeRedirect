@@ -60,6 +60,9 @@ jobs:
           github_token: ${{ secrets.MSEdgeRedirect_PAT }}
           numbers: ${{ steps.cpr.outputs.pull-request-number }}
 
+      - name: Install Cheerio
+        run: npm install cheerio
+
       - uses: actions/github-script@v7
         id: get-pr
         env:
