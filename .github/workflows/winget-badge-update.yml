@@ -58,4 +58,11 @@ jobs:
         with:
           github_token: ${{ secrets.MSEdgeRedirect_PAT }}
           numbers: ${{ steps.cpr.outputs.pull-request-number }}
+
+      - name: Toggle Workflow
+        uses: StephenMP/workflow-toggle@v2.0.1
+        with:
+          token: ${{ secrets.MSEdgeRedirect_PAT }}
+          workflow_id: winget-badge-update.yml
+          action: disable
           
