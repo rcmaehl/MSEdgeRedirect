@@ -16,54 +16,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Winget Version Badge
-        uses: gnpaone/winget-version-badge@v1.0.3
-        with:
-          id: "rcmaehl.MSEdgeRedirect"
-          marker_text: "WINGET_PKG"
-          pkg_link: "https://github.com/microsoft/winget-pkgs/tree/master/manifests/r/rcmaehl/MSEdgeRedirect"
-          newline: "false"
-          color: "brightgreen"
-          confirm_and_push: "false"
-        id: latestver
-
-      - name: Create pull request
-        id: cpr
-        uses: peter-evans/create-pull-request@v7
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "${{ steps.latestver.outputs.commit_message }}"
-          committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-          author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-          branch: github-actions/repo-update
-          delete-branch: true
-          title: Update README
-
-      - name: Enable pull request automerge
-        if: steps.cpr.outputs.pull-request-operation == 'created'
-        uses: peter-evans/enable-pull-request-automerge@v3
-        with:
-          token: ${{ secrets.MSEdgeRedirect_PAT }}
-          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
-
-      - name: Auto approve
-        if: steps.cpr.outputs.pull-request-operation == 'created'
-        uses: juliangruber/approve-pull-request-action@v2
-        with:
-          github-token: ${{ secrets.MSEdgeRedirect_PAT }}
-          number: ${{ steps.cpr.outputs.pull-request-number }}
-
-      - name: Delete PRs head branch
-        if: steps.cpr.outputs.pull-request-operation == 'created'
-        uses: dawidd6/action-delete-branch@v3
-        with:
-          github_token: ${{ secrets.MSEdgeRedirect_PAT }}
-          numbers: ${{ steps.cpr.outputs.pull-request-number }}
-
       - name: Install Cheerio
         run: npm install cheerio
 
-      - uses: actions/github-script@v7
+      - name: Fetch PR status
+        uses: actions/github-script@v7
         id: get-pr
         env:
           REPO_OWNER: 'microsoft'
@@ -128,6 +85,52 @@ jobs:
                 core.setFailed(`Request failed with error: ${err.message}`);
               }
             }
+
+      - name: Winget Version Badge
+        if: steps.get-pr.outputs.pr_status == 'closed'
+        uses: gnpaone/winget-version-badge@v1.0.3
+        with:
+          id: "rcmaehl.MSEdgeRedirect"
+          marker_text: "WINGET_PKG"
+          pkg_link: "https://github.com/microsoft/winget-pkgs/tree/master/manifests/r/rcmaehl/MSEdgeRedirect"
+          newline: "false"
+          color: "brightgreen"
+          confirm_and_push: "false"
+        id: latestver
+
+      - name: Create pull request
+        if: steps.get-pr.outputs.pr_status == 'closed'
+        id: cpr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "${{ steps.latestver.outputs.commit_message }}"
+          committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+          branch: github-actions/repo-update
+          delete-branch: true
+          title: Update README
+
+      - name: Enable pull request automerge
+        if: steps.get-pr.outputs.pr_status == 'closed' && steps.cpr.outputs.pull-request-operation == 'created'
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          token: ${{ secrets.MSEdgeRedirect_PAT }}
+          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+
+      - name: Auto approve
+        if: steps.get-pr.outputs.pr_status == 'closed' && steps.cpr.outputs.pull-request-operation == 'created'
+        uses: juliangruber/approve-pull-request-action@v2
+        with:
+          github-token: ${{ secrets.MSEdgeRedirect_PAT }}
+          number: ${{ steps.cpr.outputs.pull-request-number }}
+
+      - name: Delete PRs head branch
+        if: steps.get-pr.outputs.pr_status == 'closed' && steps.cpr.outputs.pull-request-operation == 'created'
+        uses: dawidd6/action-delete-branch@v3
+        with:
+          github_token: ${{ secrets.MSEdgeRedirect_PAT }}
+          numbers: ${{ steps.cpr.outputs.pull-request-number }}
 
       - name: Disable Workflow
         if: steps.get-pr.outputs.pr_status == 'closed'
