@@ -2,10 +2,11 @@ name: Winget version badge update
 
 on:
    workflow_dispatch:
-   workflow_run:
-     workflows: [Publish to WinGet]
-     types:
-       - completed
+   # workflow_run:
+   #   workflows: [Publish to WinGet]
+   #   types:
+   #     - completed
+   schedule: [{cron: "0 0 */2 * *"}]
 
 jobs:
   update-badge:
@@ -59,7 +60,74 @@ jobs:
           github_token: ${{ secrets.MSEdgeRedirect_PAT }}
           numbers: ${{ steps.cpr.outputs.pull-request-number }}
 
-      - name: Toggle Workflow
+      - uses: actions/github-script@v7
+        id: get-pr
+        env:
+          REPO_OWNER: 'microsoft'
+          REPO_NAME: 'winget-pkgs'
+          AUTHOR: 'rcmaehl'
+        with:
+          script: |
+            const cheerio = require('cheerio');
+
+            const repoOwner = process.env.REPO_OWNER;
+            const repoName = process.env.REPO_NAME;
+            const author = process.env.AUTHOR;
+
+            core.info(`Fetching latest PR by author ${author} in ${repoOwner}/${repoName}`);
+
+            const url = `https://github.com/${repoOwner}/${repoName}/pulls?q=is%3Apr+author%3A${author}`;
+            let number = null;
+
+            try {
+              const response = await fetch(url);
+              const text = await response.text();
+
+              const $ = cheerio.load(text);
+
+              const container = $('.js-active-navigation-container');
+              if (container.length > 0) {
+                const firstDiv = container.find('div').first();
+                if (firstDiv.length > 0) {
+                  const id = firstDiv.attr('id');
+                  const match = id.match(/issue_(\d+)/);
+                  if (match) {
+                    number = match[1];
+                    core.info(`Extracted PR number: ${number}`);
+                  }
+                }
+              }
+            } catch (error) {
+              core.setOutput('pr_number', 'none');
+              core.setOutput('pr_status', 'none');
+              core.setFailed(`Fetch failed with error: ${error.message}`);
+              return;
+            }
+
+            if (number) {
+              try {
+                const { data: pullRequest } = await github.rest.pulls.get({
+                  owner: repoOwner,
+                  repo: repoName,
+                  pull_number: parseInt(number)
+                });
+                
+                if (!pullRequest) {
+                  core.info(`No pull requests found in the repository.`);
+                  core.setOutput('pr_number', 'none');
+                  core.setOutput('pr_status', 'none');
+                  return;
+                }
+
+                core.setOutput('pr_number', number);
+                core.setOutput('pr_status', pullRequest.state);
+              } catch (err) {
+                core.setFailed(`Request failed with error: ${err.message}`);
+              }
+            }
+
+      - name: Disable Workflow
+        if: steps.get-pr.outputs.pr_status == 'closed'
         uses: StephenMP/workflow-toggle@v2.0.1
         with:
           token: ${{ secrets.MSEdgeRedirect_PAT }}
