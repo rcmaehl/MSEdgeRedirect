@@ -102,8 +102,10 @@ EndFunc
 
 Func _ChangeNewsProvider($sURL)
 
+	Local $aURL
 	Local $sOriginal
 
+#cs
 	Local $sRegex = "(?i).*\/(" & _
 		"autos(\/enthusiasts)?" & _
 		"|comics" & _
@@ -123,24 +125,38 @@ Func _ChangeNewsProvider($sURL)
 	If StringInStr($sURL, "msn.com/") And StringRegExp($sURL, $sRegex) Then
 		$sURL = StringRegExpReplace($sURL, $sRegex, "")
 		$sURL = StringRegExpReplace($sURL, "(?i)(?=)\/.*", "")
+#ce
+
+	If StringInStr($sURL, "msn.com/") And StringInStr($sURL, "/", 0, 6) Then
 
 		$sOriginal = $sURL
+		$aURL = StringSplit($sURL, "/")
+		$sURL = ""
 
-		Switch _GetSettingValue("News")
+		For $iLoop = 1 To $aURL[0] Step 1 ; Get longest section (Article Title)
+			If StringLen($aURL[$iLoop]) > StringLen($sURL) Then $sURL = $aURL[$iLoop]
+		Next
 
-			Case "DuckDuckGo"
-				$sURL = "https://duckduckgo.com/?q=%5C" & $sURL & "+-site%3Amsn.com%20-site%3Abing.com"
+		If StringInStr($sURL, "-") Then ; All News URLs use "-" instead of spaces
+			Switch _GetSettingValue("News")
 
-			Case "Google"
-				$sURL = "https://www.google.com/search?q=" & $sURL & "+-site%3Amsn.com%20-site%3Abing.com&btnI=I%27m+Feeling+Lucky"
+				Case "DuckDuckGo"
+					$sURL = "https://duckduckgo.com/?q=%5C" & $sURL & "+-site%3Amsn.com%20-site%3Abing.com"
 
-			Case Null
-				ContinueCase
+				Case "Google"
+					$sURL = "https://www.google.com/search?q=" & $sURL & "+-site%3Amsn.com%20-site%3Abing.com&btnI=I%27m+Feeling+Lucky"
 
-			Case Else
-				$sURL = $sOriginal
+				Case Null
+					ContinueCase
 
-		EndSwitch
+				Case Else
+					$sURL = $sOriginal
+
+			EndSwitch
+		Else
+			$sURL = $sOriginal
+		EndIf
+
 	EndIf
 
 	Return $sURL
@@ -345,9 +361,9 @@ Func _ModifyURL($sURL)
 
 	If _GetSettingValue("NoFeed") Then $sURL = _ChangeFeedProvider($sURL)
 	If _GetSettingValue("NoImgs") Then $sURL = _ChangeImageProvider($sURL)
-	If _GetSettingValue("NoNews") Then $sURL = _ChangeNewsProvider($sURL)
 	If _GetSettingValue("NoBing") Then $sURL = _ChangeSearchEngine($sURL)
 	If _GetSettingValue("NoMSN") Then $sURL = _ChangeWeatherProvider($sURL)
+	If _GetSettingValue("NoNews") Then $sURL = _ChangeNewsProvider($sURL)
 
 	Return $sURL
 
