@@ -133,7 +133,7 @@ Func _ChangeNewsProvider($sURL)
 		$aURL = StringSplit($sURL, "/")
 		$sURL = ""
 
-		For $iLoop = 1 To $aURL[0] Step 1 ; Get longest section (Article Title)
+		For $iLoop = 1 To $aURL[0] - 1 Step 1 ; Get longest section (Article Title), Skip Metadata
 			If StringLen($aURL[$iLoop]) > StringLen($sURL) Then $sURL = $aURL[$iLoop]
 		Next
 

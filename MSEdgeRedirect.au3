@@ -53,13 +53,14 @@ ProcessCMDLine()
 
 Func ActiveMode(ByRef $aCMDLine)
 
+	Local $iIndex
 	Local $sCMDLine = ""
 	Local $sParent = _WinAPI_GetProcessName(_WinAPI_GetParentProcess())
 
 	$aCMDLine = FixTreeIntegrity($aCMDLine)
 	CheckEdgeIntegrity($aCMDLine[1])
 	$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_IFEO.exe")
-
+	
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
 			ContinueCase
@@ -90,7 +91,11 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
 			ContinueCase
 		Case $sParent = "MSEdgeRedirect.exe"
-			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
+			$iIndex = _ArraySearch($aCMDLine, "--from-ie-to-edge", 2, 0, 0, 1)
+			If $iIndex Then
+				_ArrayDelete($aCMDLine, $iIndex)
+				$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
+			EndIf
 			_SafeRun($aCMDLine[1], $sCMDLine)			
 		Case $sParent = "BrowserSelect.exe" ; TODO: DOUBLE CHECK $aCMDLine[2]
 			ContinueCase
