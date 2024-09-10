@@ -252,15 +252,27 @@ Func ProcessCMDLine()
 						RunSetup($aInstall[0], False, -2)
 					EndIf
 				Case "/ContinueEurope", "/SetEurope"
-					If Not $bIsAdmin Then
-						MsgBox($MB_ICONERROR+$MB_OK, _
-							"Admin Required", _
-							"Unable to Setup Europe Mode without Admin Rights!")
-						FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Europe Mode UAC Elevation Attempt Failed!" & @CRLF)
-						Exit
-					Else
-						RunSetup($aInstall[0], False, -5)
-					EndIf
+					Select
+						Case Not $bIsAdmin
+							MsgBox($MB_ICONERROR+$MB_OK, _
+								"Admin Required", _
+								"Unable to Setup Europe Mode without Admin Rights!")
+							FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Europe Mode UAC Elevation Attempt Failed!" & @CRLF)
+							Exit
+						Case Not RegRead("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "Start") = 4
+							ContinueCase
+						Case Not RegRead("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "FeatureV2") = 2
+							If MsgBox($MB_YESNO + $MB_ICONWARNING + $MB_TOPMOST, _
+								"Reboot Required", _
+								"A Reboot/Restart is required to disable User Choice Protection Driver (UCPD), would you like to do so now?") = $IDYES Then
+								RegWrite("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "Start", "REG_DWORD", 4)
+								RegWrite("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "FeatureV2", "REG_DWORD", 4)
+								Shutdown($SD_REBOOT)
+							EndIf
+							Exit
+						Case Else
+							RunSetup($aInstall[0], False, -5)
+					EndSelect
 				Case "/f", "/force"
 					$bForce = True
 					_ArrayDelete($CmdLine, 1)
