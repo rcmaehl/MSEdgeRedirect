@@ -133,7 +133,7 @@ Func _ChangeNewsProvider($sURL)
 		$aURL = StringSplit($sURL, "/")
 		$sURL = ""
 
-		For $iLoop = 1 To $aURL[0] - 1 Step 1 ; Get longest section (Article Title), Skip Metadata
+		For $iLoop = 1 To $aURL[0] Step 1 ; Get longest section (Article Title)
 			If StringLen($aURL[$iLoop]) > StringLen($sURL) Then $sURL = $aURL[$iLoop]
 		Next
 
@@ -167,63 +167,68 @@ Func _ChangeSearchEngine($sURL)
 
 	Local $sOriginal
 
-	If StringInStr($sURL, "bing.com/search?q=") Then
-		$sURL = StringRegExpReplace($sURL, "(?i)(.*)((\?|&)q=)", "")
-		If StringInStr($sURL, "&form") Then $sURL = StringRegExpReplace($sURL, "(?i)(?=&form)(.*)", "")
+	Select
 
-		$sOriginal = $sURL
+		Case StringInStr($sURL, "bing.com/spotlight")
+			If _GetSettingValue("NoSpotlight") Then ContinueCase
 
-		Switch _GetSettingValue("Search")
+		Case StringInStr($sURL, "bing.com/search?q=")
+			$sURL = StringRegExpReplace($sURL, "(?i)(.*)((\?|&)q=)", "")
+			If StringInStr($sURL, "&form") Then $sURL = StringRegExpReplace($sURL, "(?i)(?=&form)(.*)", "")
 
-			Case "Ask"
-				$sURL = "https://www.ask.com/web?q=" & $sURL
+			$sOriginal = $sURL
 
-			Case "Baidu"
-				$sURL = "https://www.baidu.com/s?wd=" & $sURL
+			Switch _GetSettingValue("Search")
 
-			Case "Brave"
-				$sURL = "https://search.brave.com/search?q=" & $sURL
+				Case "Ask"
+					$sURL = "https://www.ask.com/web?q=" & $sURL
 
-			Case "Custom"
-				$sURL = _GetSettingValue("SearchPath")
-				If StringInStr($sURL, "%query%") Then
-					$sURL = StringReplace($sURL, "%query%", $sOriginal)
-				Else
-					$sURL = $sURL & $sOriginal
-				EndIf
+				Case "Baidu"
+					$sURL = "https://www.baidu.com/s?wd=" & $sURL
 
-			Case "DuckDuckGo"
-				$sURL = "https://duckduckgo.com/?q=" & $sURL
+				Case "Brave"
+					$sURL = "https://search.brave.com/search?q=" & $sURL
 
-			Case "Ecosia"
-				$sURL = "https://www.ecosia.org/search?q=" & $sURL
+				Case "Custom"
+					$sURL = _GetSettingValue("SearchPath")
+					If StringInStr($sURL, "%query%") Then
+						$sURL = StringReplace($sURL, "%query%", $sOriginal)
+					Else
+						$sURL = $sURL & $sOriginal
+					EndIf
 
-			Case "Google"
-				$sURL = "https://www.google.com/search?q=" & $sURL
+				Case "DuckDuckGo"
+					$sURL = "https://duckduckgo.com/?q=" & $sURL
 
-			Case "Google (No AI)"
-				$sURL = "https://www.google.com/search?q=" & $sURL & "&udm=14"
+				Case "Ecosia"
+					$sURL = "https://www.ecosia.org/search?q=" & $sURL
 
-			Case "Sogou"
-				$sURL = "https://www.sogou.com/web?query=" & $sURL
+				Case "Google"
+					$sURL = "https://www.google.com/search?q=" & $sURL
 
-			Case "Startpage"
-				$sURL = "https://www.startpage.com/search?q=" & $sURL
+				Case "Google (No AI)"
+					$sURL = "https://www.google.com/search?q=" & $sURL & "&udm=14"
 
-			Case "Yahoo"
-				$sURL = "https://search.yahoo.com/search?p=" & $sURL
+				Case "Sogou"
+					$sURL = "https://www.sogou.com/web?query=" & $sURL
 
-			Case "Yandex"
-				$sURL = "https://yandex.com/search/?text=" & $sURL
+				Case "Startpage"
+					$sURL = "https://www.startpage.com/search?q=" & $sURL
 
-			Case Null
-				$sURL = "https://bing.com/search?q=" & $sURL
+				Case "Yahoo"
+					$sURL = "https://search.yahoo.com/search?p=" & $sURL
 
-			Case Else
-				$sURL = _GetSettingValue("SearchPath") & $sURL
+				Case "Yandex"
+					$sURL = "https://yandex.com/search/?text=" & $sURL
 
-		EndSwitch
-	EndIf
+				Case Null
+					$sURL = "https://bing.com/search?q=" & $sURL
+
+				Case Else
+					$sURL = _GetSettingValue("SearchPath") & $sURL
+
+			EndSwitch
+	EndSelect
 
 	Return $sURL
 
