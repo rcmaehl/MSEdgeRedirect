@@ -69,6 +69,7 @@ Func ActiveMode(ByRef $aCMDLine)
 			$aCMDLine[2] = ""
 			ContinueCase
 		Case $aCMDLine[0] = 2 And FileExists($aCMDLine[2])
+			If FileExists($aCMDLine[2]) Then $aCMDLine[2] = '"' & $aCMDLine[2] & '"'
 			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--uninstall" ; Uninstalling Edge
 			ContinueCase
@@ -94,8 +95,8 @@ Func ActiveMode(ByRef $aCMDLine)
 			$iIndex = _ArraySearch($aCMDLine, "--from-ie-to-edge", 2, 0, 0, 1)
 			If $iIndex Then
 				_ArrayDelete($aCMDLine, $iIndex)
-				$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			EndIf
+			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			_SafeRun($aCMDLine[1], $sCMDLine)			
 		Case $sParent = "BrowserSelect.exe" ; TODO: DOUBLE CHECK $aCMDLine[2]
 			ContinueCase
