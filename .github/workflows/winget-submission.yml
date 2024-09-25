@@ -2,22 +2,28 @@ name: Publish to WinGet
 
 on:
   release:
-    types: [released]
+    types: [published]
   workflow_dispatch:
-    inputs:
-      tag_name:
-        description: 'Specific tag name'
-        required: true 
-        type: string
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
+      - uses: oprypin/find-latest-tag@v1
+        with:
+          repository: ${{ github.repository }}
+          releases-only: true 
+        id: latesttag
       - uses: vedantmgoyal2009/winget-releaser@v2
         with:
           identifier: rcmaehl.MSEdgeRedirect
-          version: ${{ inputs.tag_name || github.event.release.tag_name }}
-          release-tag: ${{ inputs.tag_name || github.event.release.tag_name }}
+          version: ${{ steps.latesttag.outputs.tag }}
+          release-tag: ${{ steps.latesttag.outputs.tag }}
           delete-previous-version: 'true'
           token: ${{ secrets.MSEdgeRedirect_PAT }}
+      - name: Enable Workflow
+        uses: StephenMP/workflow-toggle@v2.0.1
+        with:
+          token: ${{ secrets.MSEdgeRedirect_PAT }}
+          workflow_id: winget-badge-update.yml
+          action: enable

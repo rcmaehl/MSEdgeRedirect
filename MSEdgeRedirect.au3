@@ -649,6 +649,9 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			Else
 				_SafeRun($sEdge, $sCMDLine)
 			EndIf
+		Case StringInStr($sCMDLine, "bing.com/spotlight?spotlightid") ; Fix Windows Spotlight
+			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)spotlight\?spotlightid=[^&]+&", "search?")
+			ContinueCase
 		Case StringInStr($sCMDLine, "&url=") ; Fix Windows 11 Widgets
 			ContinueCase
 		Case StringInStr($sCMDLine, "microsoft-edge:")
