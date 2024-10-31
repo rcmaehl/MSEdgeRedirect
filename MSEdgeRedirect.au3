@@ -471,6 +471,7 @@ Func ReactiveMode($bHide = False)
 			If StringRegExp($sCommandline, $sRegex) Then
 				_DecodeAndRun(Default, $sCommandline)
 			ElseIf $bHavePath = True Then
+				;Relaunch other processes without SIHOST Parent
 				_SafeRun($sProcessPath, $sCommandline)
 			EndIf
 		EndIf
