@@ -5,6 +5,18 @@
 #include "Base64.au3"
 #include "_Settings.au3"
 
+Func _ChangeBingWS($sURL)
+
+	If StringInStr($sURL, "bing.com/WS/redirect/?q=") Then
+		$sURL = StringRegExpReplace($sURL, "(?i)(.*)(url=)", "")
+		$sURL = StringRegExpReplace($sURL, "(?i)(?=&form=)(.*)", "")
+		$sURL = BinaryToString(_Base64Decode($sURL))
+	EndIf
+
+	Return $sURL
+
+EndFunc
+
 Func _ChangeFeedProvider($sURL)
 
 	If StringRegExp($sURL, "https?\:\/\/www.msn\.com\/[a-z]{2}-[a-z]{2}\/feed.*") Then
@@ -343,6 +355,7 @@ EndFunc
 
 Func _ModifyURL($sURL)
 
+	$sURL = _ChangeBingWS($sURL)
 	If _GetSettingValue("NoFeed") Then $sURL = _ChangeFeedProvider($sURL)
 	If _GetSettingValue("NoImgs") Then $sURL = _ChangeImageProvider($sURL)
 	If _GetSettingValue("NoNews") Then $sURL = _ChangeNewsProvider($sURL)
