@@ -487,7 +487,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 			Local $hService = GUICtrlCreateRadio("Service Mode" & @CRLF & _
 				@CRLF & _
-				"Adminless, Less Intrustive, Single User Install" & @CRLF & _
+				"Adminless, Less Intrusive, Single User Install" & @CRLF & _
 				@CRLF & _
 				"MSEdgeRedirect stays running in the background. Detected Edge data is redirected to your default browser. Uses 1-10% CPU depending on System.", _
 				50, 175, 380, 80, $BS_TOP+$BS_MULTILINE)
@@ -500,7 +500,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				@CRLF & _
 				"Best Performing, System Wide, Customizable, and Compatible Install" & @CRLF & _
 				@CRLF & _
-				"MSEdgeRedirect is ran instead of Edge, similary to the old EdgeDeflector app. Does not run in background. Compatible with AveYo's Edge Removal Tool.", _
+				"MSEdgeRedirect is ran instead of Edge, similarly to the old EdgeDeflector app. Does not run in background. Compatible with AveYo's Edge Removal Tool.", _
 				50, 270, 380, 80, $BS_TOP+$BS_MULTILINE)
 			If $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
 
@@ -576,7 +576,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetState(-1, $GUI_DISABLE)		
 			Local $hSearch = GUICtrlCreateCheckbox("Bing Search:", 50, 265, 180, 20)
 			Local $hEngine = GUICtrlCreateCombo("", 50, 285, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
-			GUICtrlSetData(-1, "Ask|Baidu|Brave|Custom|DuckDuckGo|Ecosia|Google|Lemmy|Sogou|StartPage|Yahoo|Yandex", "Google")
+			GUICtrlSetData(-1, "Ask|Baidu|Brave|Custom|DuckDuckGo|Ecosia|Google|Google (No AI)|Sogou|StartPage|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (ALPHA)", 50, 310, 180, 20)
 			Local $hNewSRC = GUICtrlCreateCombo("", 50, 330, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)

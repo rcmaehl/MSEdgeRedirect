@@ -13,7 +13,7 @@
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
-#AutoIt3Wrapper_Res_Compatibility=Win8,Win81,Win10
+#AutoIt3Wrapper_Res_Compatibility=Win10
 #AutoIt3Wrapper_AU3Check_Parameters=-d -w 1 -w 2 -w 3 -w 4 -w 5 -w 6 -w 7 -v1 -v2 -v3
 #AutoIt3Wrapper_Run_Au3Stripper=y
 #Au3Stripper_Parameters=/so
@@ -53,13 +53,14 @@ ProcessCMDLine()
 
 Func ActiveMode(ByRef $aCMDLine)
 
+	Local $iIndex
 	Local $sCMDLine = ""
 	Local $sParent = _WinAPI_GetProcessName(_WinAPI_GetParentProcess())
 
 	$aCMDLine = FixTreeIntegrity($aCMDLine)
 	CheckEdgeIntegrity($aCMDLine[1])
 	$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_IFEO.exe")
-
+	
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
 			ContinueCase
@@ -68,6 +69,7 @@ Func ActiveMode(ByRef $aCMDLine)
 			$aCMDLine[2] = ""
 			ContinueCase
 		Case $aCMDLine[0] = 2 And FileExists($aCMDLine[2])
+			If FileExists($aCMDLine[2]) Then $aCMDLine[2] = '"' & $aCMDLine[2] & '"'
 			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--uninstall" ; Uninstalling Edge
 			ContinueCase
@@ -90,6 +92,10 @@ Func ActiveMode(ByRef $aCMDLine)
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
 			ContinueCase
 		Case $sParent = "MSEdgeRedirect.exe"
+			$iIndex = _ArraySearch($aCMDLine, "--from-ie-to-edge", 2, 0, 0, 1)
+			If $iIndex Then
+				_ArrayDelete($aCMDLine, $iIndex)
+			EndIf
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			_SafeRun($aCMDLine[1], $sCMDLine)			
 		Case $sParent = "BrowserSelect.exe" ; TODO: DOUBLE CHECK $aCMDLine[2]
@@ -246,15 +252,27 @@ Func ProcessCMDLine()
 						RunSetup($aInstall[0], False, -2)
 					EndIf
 				Case "/ContinueEurope", "/SetEurope"
-					If Not $bIsAdmin Then
-						MsgBox($MB_ICONERROR+$MB_OK, _
-							"Admin Required", _
-							"Unable to Setup Europe Mode without Admin Rights!")
-						FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Europe Mode UAC Elevation Attempt Failed!" & @CRLF)
-						Exit
-					Else
-						RunSetup($aInstall[0], False, -5)
-					EndIf
+					Select
+						Case Not $bIsAdmin
+							MsgBox($MB_ICONERROR+$MB_OK, _
+								"Admin Required", _
+								"Unable to Setup Europe Mode without Admin Rights!")
+							FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Europe Mode UAC Elevation Attempt Failed!" & @CRLF)
+							Exit
+						Case Not RegRead("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "Start") = 4
+							ContinueCase
+						Case Not RegRead("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "FeatureV2") = 2
+							If MsgBox($MB_YESNO + $MB_ICONWARNING + $MB_TOPMOST, _
+								"Reboot Required", _
+								"A Reboot/Restart is required to disable User Choice Protection Driver (UCPD), would you like to do so now?") = $IDYES Then
+								RegWrite("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "Start", "REG_DWORD", 4)
+								RegWrite("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "FeatureV2", "REG_DWORD", 4)
+								Shutdown($SD_REBOOT)
+							EndIf
+							Exit
+						Case Else
+							RunSetup($aInstall[0], False, -5)
+					EndSelect
 				Case "/f", "/force"
 					$bForce = True
 					_ArrayDelete($CmdLine, 1)
@@ -312,7 +330,7 @@ Func ProcessCMDLine()
 							InetGet("https://fcofix.org/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe", @ScriptDir & "\MSEdgeRedirect_Latest.exe")
 							_ArrayDelete($CmdLine, 1)
 						Case UBound($CmdLine) > 2 And $CmdLine[2] = "dev"
-							InetGet("https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/mser/main/mser.zip", @ScriptDir & "\MSEdgeRedirect_dev.zip")
+							InetGet("https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/MSER/main/mser.zip", @ScriptDir & "\MSEdgeRedirect_dev.zip")
 							_ArrayDelete($CmdLine, "1-2")
 						Case UBound($CmdLine) > 2 And $CmdLine[2] = "release"
 							InetGet("https://fcofix.org/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe", @ScriptDir & "\MSEdgeRedirect_Latest.exe")
@@ -632,6 +650,9 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			Else
 				_SafeRun($sEdge, $sCMDLine)
 			EndIf
+		Case StringInStr($sCMDLine, "bing.com/spotlight?spotlightid") ; Fix Windows Spotlight
+			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)spotlight\?spotlightid=[^&]+&", "search?")
+			ContinueCase
 		Case StringInStr($sCMDLine, "&url=") ; Fix Windows 11 Widgets
 			ContinueCase
 		Case StringInStr($sCMDLine, "microsoft-edge:")
