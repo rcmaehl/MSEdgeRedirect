@@ -91,13 +91,17 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
 			ContinueCase
+		Case _ArraySearch($aCMDLine, "--user-data-dir=", 2, 0, 0, 1) > 0 ; #463, Multiple Profiles
+			ContinueCase			
 		Case $sParent = "MSEdgeRedirect.exe"
 			$iIndex = _ArraySearch($aCMDLine, "--from-ie-to-edge", 2, 0, 0, 1)
 			If $iIndex Then
 				_ArrayDelete($aCMDLine, $iIndex)
+				$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
+				_DecodeAndRun(Default, $sCMDLine)
 			EndIf
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
-			_SafeRun($aCMDLine[1], $sCMDLine)			
+			_SafeRun($aCMDLine[1], $sCMDLine)
 		Case $sParent = "BrowserSelect.exe" ; TODO: DOUBLE CHECK $aCMDLine[2]
 			ContinueCase
 		Case $sParent = "BrowserSelector.exe"
