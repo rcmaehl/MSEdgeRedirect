@@ -1,7 +1,7 @@
 [![Latest download count](https://img.shields.io/github/downloads/rcmaehl/MSEdgeRedirect/latest/total)](https://github.com/rcmaehl/MSEdgeRedirect/releases/latest/)
 [![Chocolatey download count](https://img.shields.io/chocolatey/dt/msedgeredirect?label=Chocolatey+downloads)](https://chocolatey.org/packages/msedgeredirect)
 [![Ko-fi](https://img.shields.io/badge/Support%20me%20on-Ko--fi-FF5E5B.svg?logo=ko-fi)](https://ko-fi.com/rcmaehl)
-[![PayPal](https://img.shields.io/badge/Donate%20on-PayPal-00457C.svg?logo=paypal)](https://paypal.me/rhsky)
+[![PayPal](https://img.shields.io/badge/Donate%20on-PayPal-00457C.svg?logo=paypal)](https://www.paypal.com/donate/?hosted_button_id=YL5HFNEJAAMTL)
 [![Join the Discord chat](https://img.shields.io/discord/728710400367001650?logo=discord)](https://discord.gg/uBnBcBx)
 
 # MSEdgeRedirect
