@@ -507,7 +507,7 @@ Func ReactiveMode($bHide = False)
 				ExitLoop
 
 			Case $hDonate
-				ShellExecute("https://paypal.me/rhsky")
+				ShellExecute("https://www.paypal.com/donate/?hosted_button_id=YL5HFNEJAAMTL")
 
 			Case $hUpdate
 				RunUpdateCheck(True)
