@@ -884,7 +884,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						Case $hExit
 							If @Compiled Then
 								If _IsChecked($hAppLnk) Then SetAppShortcuts($aConfig, $aSettings)
-								If _IsChecked($hDonate) Then ShellExecute("https://paypal.me/rhsky")
+								If _IsChecked($hDonate) Then ShellExecute("https://www.paypal.com/donate/?hosted_button_id=YL5HFNEJAAMTL")
 								If _IsChecked($hHelpUs) Then ShellExecute("https://safebrowsing.google.com/safebrowsing/report_error/?url=https://github.com/rcmaehl/MSEdgeRedirect")
 								If Not $aConfig[$vMode] And _IsChecked($hLaunch) Then
 									If $aSettings[$bNoTray] Then $sArgs = "/hide"
