@@ -5,6 +5,18 @@
 #include "Base64.au3"
 #include "_Settings.au3"
 
+Func _ChangeBingWS($sURL)
+
+	If StringInStr($sURL, "bing.com/WS/redirect/?q=") Then
+		$sURL = StringRegExpReplace($sURL, "(?i)(.*)(url=)", "")
+		$sURL = StringRegExpReplace($sURL, "(?i)(?=&form=)(.*)", "")
+		$sURL = BinaryToString(_Base64Decode($sURL))
+	EndIf
+
+	Return $sURL
+
+EndFunc
+
 Func _ChangeFeedProvider($sURL)
 
 	If StringRegExp($sURL, "https?\:\/\/www.msn\.com\/[a-z]{2}-[a-z]{2}\/feed.*") Then
@@ -102,8 +114,10 @@ EndFunc
 
 Func _ChangeNewsProvider($sURL)
 
+	Local $aURL
 	Local $sOriginal
 
+#cs
 	Local $sRegex = "(?i).*\/(" & _
 		"autos(\/enthusiasts)?" & _
 		"|comics" & _
@@ -123,24 +137,38 @@ Func _ChangeNewsProvider($sURL)
 	If StringInStr($sURL, "msn.com/") And StringRegExp($sURL, $sRegex) Then
 		$sURL = StringRegExpReplace($sURL, $sRegex, "")
 		$sURL = StringRegExpReplace($sURL, "(?i)(?=)\/.*", "")
+#ce
+
+	If StringInStr($sURL, "msn.com/") And StringInStr($sURL, "/", 0, 6) Then
 
 		$sOriginal = $sURL
+		$aURL = StringSplit($sURL, "/")
+		$sURL = ""
 
-		Switch _GetSettingValue("News")
+		For $iLoop = 1 To $aURL[0] Step 1 ; Get longest section (Article Title)
+			If StringLen($aURL[$iLoop]) > StringLen($sURL) Then $sURL = $aURL[$iLoop]
+		Next
 
-			Case "DuckDuckGo"
-				$sURL = "https://duckduckgo.com/?q=%5C" & $sURL & "+-site%3Amsn.com%20-site%3Abing.com"
+		If StringInStr($sURL, "-") Then ; All News URLs use "-" instead of spaces
+			Switch _GetSettingValue("News")
 
-			Case "Google"
-				$sURL = "https://www.google.com/search?q=" & $sURL & "+-site%3Amsn.com%20-site%3Abing.com&btnI=I%27m+Feeling+Lucky"
+				Case "DuckDuckGo"
+					$sURL = "https://duckduckgo.com/?q=%5C" & $sURL & "+-site%3Amsn.com%20-site%3Abing.com"
 
-			Case Null
-				ContinueCase
+				Case "Google"
+					$sURL = "https://www.google.com/search?q=" & $sURL & "+-site%3Amsn.com%20-site%3Abing.com&btnI=I%27m+Feeling+Lucky"
 
-			Case Else
-				$sURL = $sOriginal
+				Case Null
+					ContinueCase
 
-		EndSwitch
+				Case Else
+					$sURL = $sOriginal
+
+			EndSwitch
+		Else
+			$sURL = $sOriginal
+		EndIf
+
 	EndIf
 
 	Return $sURL
@@ -151,63 +179,68 @@ Func _ChangeSearchEngine($sURL)
 
 	Local $sOriginal
 
-	If StringInStr($sURL, "bing.com/search?q=") Then
-		$sURL = StringRegExpReplace($sURL, "(?i)(.*)((\?|&)q=)", "")
-		If StringInStr($sURL, "&form") Then $sURL = StringRegExpReplace($sURL, "(?i)(?=&form)(.*)", "")
+	Select
 
-		$sOriginal = $sURL
+		Case StringInStr($sURL, "bing.com/spotlight")
+			If _GetSettingValue("NoSpotlight") Then ContinueCase
 
-		Switch _GetSettingValue("Search")
+		Case StringInStr($sURL, "bing.com/search?q=")
+			$sURL = StringRegExpReplace($sURL, "(?i)(.*)((\?|&)q=)", "")
+			If StringInStr($sURL, "&form") Then $sURL = StringRegExpReplace($sURL, "(?i)(?=&form)(.*)", "")
 
-			Case "Ask"
-				$sURL = "https://www.ask.com/web?q=" & $sURL
+			$sOriginal = $sURL
 
-			Case "Baidu"
-				$sURL = "https://www.baidu.com/s?wd=" & $sURL
+			Switch _GetSettingValue("Search")
 
-			Case "Brave"
-				$sURL = "https://search.brave.com/search?q=" & $sURL
+				Case "Ask"
+					$sURL = "https://www.ask.com/web?q=" & $sURL
 
-			Case "Custom"
-				$sURL = _GetSettingValue("SearchPath")
-				If StringInStr($sURL, "%query%") Then
-					$sURL = StringReplace($sURL, "%query%", $sOriginal)
-				Else
-					$sURL = $sURL & $sOriginal
-				EndIf
+				Case "Baidu"
+					$sURL = "https://www.baidu.com/s?wd=" & $sURL
 
-			Case "DuckDuckGo"
-				$sURL = "https://duckduckgo.com/?q=" & $sURL
+				Case "Brave"
+					$sURL = "https://search.brave.com/search?q=" & $sURL
 
-			Case "Ecosia"
-				$sURL = "https://www.ecosia.org/search?q=" & $sURL
+				Case "Custom"
+					$sURL = _GetSettingValue("SearchPath")
+					If StringInStr($sURL, "%query%") Then
+						$sURL = StringReplace($sURL, "%query%", $sOriginal)
+					Else
+						$sURL = $sURL & $sOriginal
+					EndIf
 
-			Case "Google"
-				$sURL = "https://www.google.com/search?q=" & $sURL
+				Case "DuckDuckGo"
+					$sURL = "https://duckduckgo.com/?q=" & $sURL
 
-			Case "Lemmy"
-				$sURL = "https://search-lemmy.com/results?query=" & $sURL
+				Case "Ecosia"
+					$sURL = "https://www.ecosia.org/search?q=" & $sURL
 
-			Case "Sogou"
-				$sURL = "https://www.sogou.com/web?query=" & $sURL
+				Case "Google"
+					$sURL = "https://www.google.com/search?q=" & $sURL
 
-			Case "Startpage"
-				$sURL = "https://www.startpage.com/search?q=" & $sURL
+				Case "Google (No AI)"
+					$sURL = "https://www.google.com/search?q=" & $sURL & "&udm=14"
 
-			Case "Yahoo"
-				$sURL = "https://search.yahoo.com/search?p=" & $sURL
+				Case "Sogou"
+					$sURL = "https://www.sogou.com/web?query=" & $sURL
 
-			Case "Yandex"
-				$sURL = "https://yandex.com/search/?text=" & $sURL
+				Case "Startpage"
+					$sURL = "https://www.startpage.com/search?q=" & $sURL
 
-			Case Null
-				$sURL = "https://bing.com/search?q=" & $sURL
+				Case "Yahoo"
+					$sURL = "https://search.yahoo.com/search?p=" & $sURL
 
-			Case Else
-				$sURL = _GetSettingValue("SearchPath") & $sURL
+				Case "Yandex"
+					$sURL = "https://yandex.com/search/?text=" & $sURL
 
-		EndSwitch
-	EndIf
+				Case Null
+					$sURL = "https://bing.com/search?q=" & $sURL
+
+				Case Else
+					$sURL = _GetSettingValue("SearchPath") & $sURL
+
+			EndSwitch
+	EndSelect
 
 	Return $sURL
 
@@ -343,11 +376,12 @@ EndFunc
 
 Func _ModifyURL($sURL)
 
+	$sURL = _ChangeBingWS($sURL)
 	If _GetSettingValue("NoFeed") Then $sURL = _ChangeFeedProvider($sURL)
 	If _GetSettingValue("NoImgs") Then $sURL = _ChangeImageProvider($sURL)
-	If _GetSettingValue("NoNews") Then $sURL = _ChangeNewsProvider($sURL)
 	If _GetSettingValue("NoBing") Then $sURL = _ChangeSearchEngine($sURL)
 	If _GetSettingValue("NoMSN") Then $sURL = _ChangeWeatherProvider($sURL)
+	If _GetSettingValue("NoNews") Then $sURL = _ChangeNewsProvider($sURL)
 
 	Return $sURL
 
@@ -436,7 +470,7 @@ EndFunc
 ;                  $dFlag           - [Optional] WinAPI Function parameters
 ; Return values .: The URL unescaped string
 ; Author ........: mistersquirrle, rcmaehl
-; Modified ......: 3/27/2023
+; Modified ......: 2/8/2024
 ; Remarks .......: URL_DONT_UNESCAPE_EXTRA_INFO = 0x02000000
 ;                  URL_UNESCAPE_AS_UTF8         = 0x00040000 (Win 8+)                
 ;                  URL_UNESCAPE_INPLACE         = 0x00100000
@@ -458,6 +492,9 @@ Func _WinAPI_UrlUnescape($sUrl, $dFlags = 0x00040000)
         Return SetError(@error, @extended, 0)
     EndIf
 
-    If IsArray($aUrlUnescape) Then Return $aUrlUnescape[2]
+    If IsArray($aUrlUnescape) Then
+		If $aUrlUnescape[2] <> "decodedUrl" Then Return $aUrlUnescape[2]
+		Return $sURL
+	EndIf
     
 EndFunc   ;==>_WinAPI_UrlUnescape

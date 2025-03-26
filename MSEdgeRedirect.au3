@@ -13,7 +13,7 @@
 #AutoIt3Wrapper_Res_LegalCopyright=Robert Maehl, using LGPL 3 License
 #AutoIt3Wrapper_Res_Language=1033
 #AutoIt3Wrapper_Res_requestedExecutionLevel=asInvoker
-#AutoIt3Wrapper_Res_Compatibility=Win8,Win81,Win10
+#AutoIt3Wrapper_Res_Compatibility=Win10
 #AutoIt3Wrapper_AU3Check_Parameters=-d -w 1 -w 2 -w 3 -w 4 -w 5 -w 6 -w 7 -v1 -v2 -v3
 #AutoIt3Wrapper_Run_Au3Stripper=y
 #Au3Stripper_Parameters=/so
@@ -53,13 +53,14 @@ ProcessCMDLine()
 
 Func ActiveMode(ByRef $aCMDLine)
 
+	Local $iIndex
 	Local $sCMDLine = ""
 	Local $sParent = _WinAPI_GetProcessName(_WinAPI_GetParentProcess())
 
 	$aCMDLine = FixTreeIntegrity($aCMDLine)
 	CheckEdgeIntegrity($aCMDLine[1])
 	$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_IFEO.exe")
-
+	
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
 			ContinueCase
@@ -68,6 +69,7 @@ Func ActiveMode(ByRef $aCMDLine)
 			$aCMDLine[2] = ""
 			ContinueCase
 		Case $aCMDLine[0] = 2 And FileExists($aCMDLine[2])
+			If FileExists($aCMDLine[2]) Then $aCMDLine[2] = '"' & $aCMDLine[2] & '"'
 			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--uninstall" ; Uninstalling Edge
 			ContinueCase
@@ -89,9 +91,17 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
 			ContinueCase
+		Case _ArraySearch($aCMDLine, "--user-data-dir=", 2, 0, 0, 1) > 0 ; #463, Multiple Profiles
+			ContinueCase			
 		Case $sParent = "MSEdgeRedirect.exe"
+			$iIndex = _ArraySearch($aCMDLine, "--from-ie-to-edge", 2, 0, 0, 1)
+			If $iIndex Then
+				_ArrayDelete($aCMDLine, $iIndex)
+				$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
+				_DecodeAndRun(Default, $sCMDLine)
+			EndIf
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
-			_SafeRun($aCMDLine[1], $sCMDLine)			
+			_SafeRun($aCMDLine[1], $sCMDLine)
 		Case $sParent = "BrowserSelect.exe" ; TODO: DOUBLE CHECK $aCMDLine[2]
 			ContinueCase
 		Case $sParent = "BrowserSelector.exe"
@@ -168,6 +178,10 @@ Func FixTreeIntegrity($aCMDLine)
 			ProcessClose($iParent)
 			_WinAPI_CloseHandle($hToken)
 
+		Case "MSEdgeRedirect.exe"
+
+			;;;
+
 		Case Else
 
 			;;;
@@ -242,15 +256,27 @@ Func ProcessCMDLine()
 						RunSetup($aInstall[0], False, -2)
 					EndIf
 				Case "/ContinueEurope", "/SetEurope"
-					If Not $bIsAdmin Then
-						MsgBox($MB_ICONERROR+$MB_OK, _
-							"Admin Required", _
-							"Unable to Setup Europe Mode without Admin Rights!")
-						FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Europe Mode UAC Elevation Attempt Failed!" & @CRLF)
-						Exit
-					Else
-						RunSetup($aInstall[0], False, -5)
-					EndIf
+					Select
+						Case Not $bIsAdmin
+							MsgBox($MB_ICONERROR+$MB_OK, _
+								"Admin Required", _
+								"Unable to Setup Europe Mode without Admin Rights!")
+							FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Europe Mode UAC Elevation Attempt Failed!" & @CRLF)
+							Exit
+						Case Not RegRead("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "Start") = 4
+							ContinueCase
+						Case Not RegRead("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "FeatureV2") = 2
+							If MsgBox($MB_YESNO + $MB_ICONWARNING + $MB_TOPMOST, _
+								"Reboot Required", _
+								"A Reboot/Restart is required to disable User Choice Protection Driver (UCPD), would you like to do so now?") = $IDYES Then
+								RegWrite("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "Start", "REG_DWORD", 4)
+								RegWrite("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "FeatureV2", "REG_DWORD", 4)
+								Shutdown($SD_REBOOT)
+							EndIf
+							Exit
+						Case Else
+							RunSetup($aInstall[0], False, -5)
+					EndSelect
 				Case "/f", "/force"
 					$bForce = True
 					_ArrayDelete($CmdLine, 1)
@@ -308,7 +334,7 @@ Func ProcessCMDLine()
 							InetGet("https://fcofix.org/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe", @ScriptDir & "\MSEdgeRedirect_Latest.exe")
 							_ArrayDelete($CmdLine, 1)
 						Case UBound($CmdLine) > 2 And $CmdLine[2] = "dev"
-							InetGet("https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/mser/main/mser.zip", @ScriptDir & "\MSEdgeRedirect_dev.zip")
+							InetGet("https://nightly.link/rcmaehl/MSEdgeRedirect/workflows/MSER/main/mser.zip", @ScriptDir & "\MSEdgeRedirect_dev.zip")
 							_ArrayDelete($CmdLine, "1-2")
 						Case UBound($CmdLine) > 2 And $CmdLine[2] = "release"
 							InetGet("https://fcofix.org/MSEdgeRedirect/releases/latest/download/MSEdgeRedirect.exe", @ScriptDir & "\MSEdgeRedirect_Latest.exe")
@@ -435,8 +461,10 @@ Func ReactiveMode($bHide = False)
 
 	Local $sRegex
 	Local $iSIHost = ProcessExists("sihost.exe")
+	Local $bHavePath = True
 	Local $aProcessList
-	Local $sCommandline
+	Local $sProcessPath
+	Local $sCommandline	
 
 	If _GetSettingValue("NoApps") Then
 		$sRegex = "(?i).*(microsoft\-edge|app\-id).*"
@@ -460,8 +488,13 @@ Func ReactiveMode($bHide = False)
 		Else
 			ProcessClose($aProcessList[1][0])
 			$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[1][0])
+			$sProcessPath = _WinAPI_GetProcessFileName($aProcessList[1][0])
+			If @error Then $bHavePath = False
 			If StringRegExp($sCommandline, $sRegex) Then
 				_DecodeAndRun(Default, $sCommandline)
+			ElseIf $bHavePath = True Then
+				;Relaunch other processes without SIHOST Parent
+				_SafeRun($sProcessPath, $sCommandline)
 			EndIf
 		EndIf
 
@@ -474,7 +507,7 @@ Func ReactiveMode($bHide = False)
 				ExitLoop
 
 			Case $hDonate
-				ShellExecute("https://paypal.me/rhsky")
+				ShellExecute("https://www.paypal.com/donate/?hosted_button_id=YL5HFNEJAAMTL")
 
 			Case $hUpdate
 				RunUpdateCheck(True)
@@ -547,7 +580,7 @@ Func RunHTTPCheck($bSilent = False)
 			If Not $bSilent Then
 				MsgBox($MB_ICONERROR+$MB_OK, _
 					"Edge Set As Default", _
-					"You must set a different Default Browser to use MSEdgeRedirect!")
+					"You must set a different Default Browser to use MSEdgeRedirect! Once this is corrected, please relaunch MSEdgeRedirect.")
 			EndIf
 			FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Found same MS Edge for both default browser and microsoft-edge handling, EXITING!" & @CRLF)
 			For $iLoop = 0 To UBound($hLogs) - 1
@@ -568,6 +601,9 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 		Case StringRegExp($sCMDLine, "--default-search-provider=\? --out-pipe-name=MSEdgeDefault[a-z0-9]+")
 			FileWrite($hLogs[$AppSecurity], _NowCalc() & " - Passed Through MS-Settings Call: " & $sCMDLine & @CRLF)
 			_SafeRun($sEdge, $sCMDLine)
+		Case $sCMDLine = "--no-startup-window --win-session-start"
+			FileWrite($hLogs[$AppSecurity], _NowCalc() & " - Passed Through MSEdge Startup Call: " & $sCMDLine & @CRLF)
+			_SafeRun($sEdge, $sCMDLine)
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
 			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Blocked Invalid MS-Settings Call: " & $sCMDLine & @CRLF)
 		Case StringInStr($sCMDLine, "profiles_settings")
@@ -583,6 +619,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				EndSwitch
 			Else
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
+				If FileExists($sCMDLine) Then $sCMDLine = '"' & $sCMDLine & '"'
 				_SafeRun($sEdge, $sCMDLine)
 				If Not _IsPriviledgedInstall() Then Sleep(1000)
 			EndIf
