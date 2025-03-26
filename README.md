@@ -43,7 +43,7 @@ Download Stable (GitHub)|Download Testing (GitHub)
  |Minimum Requirements|Recommended
 ----|----|----
 OS|Windows 10|Latest Windows 11 Build
-CPU|32-bit Single Core|64-bit Dual Core or Higher
+CPU|SSE3 Capable CPU|64-bit Dual Core or Higher
 RAM (Memory)|40MB Free|100MB Free
 Disk (Storage)|5MB Free|100MB Free
 
