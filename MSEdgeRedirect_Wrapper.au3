@@ -25,7 +25,7 @@
 
 Global $sVersion
 Global $bIsPriv = _IsPriviledgedInstall()
-Global Enum $bNoApps, $bNoBing, $bNoChat, $bNoFeed, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoPilot, $bNoTray, $bNoUpdates, $sFeed, $sFeedPath, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
+Global Enum $bNoApps, $bNoBing, $bNoChat, $bNoFeed, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoPilot, $bNoSpotlight, $bNoTray, $bNoUpdates, $sFeed, $sFeedPath, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
 
 If @Compiled Then
 	$sVersion = FileGetVersion(@ScriptFullPath)
@@ -48,6 +48,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	SetOptionsRegistry("NoNews"     , $aSettings[$bNoNews]     , $aConfig)
 	SetOptionsRegistry("NoPDFs"     , $aSettings[$bNoPDFs]     , $aConfig)
 	SetOptionsRegistry("NoPilot"    , $aSettings[$bNoPilot]    , $aConfig)
+	SetOptionsRegistry("NoSpotlight", $aSettings[$bNoSpotlight], $aConfig)
 	SetOptionsRegistry("NoTray"     , $aSettings[$bNoTray]     , $aConfig)
 	SetOptionsRegistry("NoUpdates"  , $aSettings[$bNoUpdates]  , $aConfig)
 	SetOptionsRegistry("Feed"       , $aSettings[$sFeed]       , $aConfig)
@@ -241,7 +242,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $aConfig[3] = [$hSetupFile, False, "Service"] ; Default Setup.ini Values
 	Local Enum $hFile, $bManaged, $vMode
 
-	Local $aSettings[23] = [False, False, False, False, False, False, False, False, False, False, False, "", "", "", "", "", "", "", "", "Full", True, "", ""]
+	Local $aSettings[24] = [False, False, False, False, False, False, False, False, False, False, False, False, "", "", "", "", "", "", "", "", "Full", True, "", ""]
 
 	If $iPage < 0 Then
 		$iPage = Abs($iPage)
@@ -260,6 +261,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$aSettings[$bNoNews] = _Bool(_GetSettingValue("NoNews"))
 			$aSettings[$bNoPDFs] = _Bool(_GetSettingValue("NoPDFs"))
 			$aSettings[$bNoPilot] = _Bool(_GetSettingValue("NoPilot"))
+			$aSettings[$bNoSpotlight] = _Bool(_GetSettingValue("NoSpotlight"))
 			$aSettings[$bNoTray] = _Bool(_GetSettingValue("NoTray"))
 			$aSettings[$bNoUpdates] = _Bool(_GetSettingValue("NoUpdates"))
 			If $aSettings[$bNoBing] Then
@@ -307,6 +309,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$aSettings[$bNoNews] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoNews", $aSettings[$bNoNews]))
 			$aSettings[$bNoPDFs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoPDFs", $aSettings[$bNoPDFs]))
 			$aSettings[$bNoPilot] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoPilot", $aSettings[$bNoPilot]))
+			$aSettings[$bNoSpotlight] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoSpotlight", $aSettings[$bNoSpotlight]))
 			$aSettings[$bNoTray] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoTray", $aSettings[$bNoTray]))
 			$aSettings[$bNoUpdates] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoUpdates", $aSettings[$bNoUpdates]))
 			$aSettings[$sFeed] = _Bool(IniRead($aConfig[$hFile], "Settings", "Feed", $aSettings[$sFeed]))
@@ -578,7 +581,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hEngine = GUICtrlCreateCombo("", 50, 285, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "Ask|Baidu|Brave|Custom|DuckDuckGo|Ecosia|Google|Google (No AI)|Sogou|StartPage|Yahoo|Yandex", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (ALPHA)", 50, 310, 180, 20)
+			Local $hNoNews = GUICtrlCreateCheckbox("MSN News: (ALPHA v2)", 50, 310, 180, 20)
 			Local $hNewSRC = GUICtrlCreateCombo("", 50, 330, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 			GUICtrlSetData(-1, "DuckDuckGo|Google", "Google")
 			GUICtrlSetState(-1, $GUI_DISABLE)
@@ -596,9 +599,10 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoPilot = GUICtrlCreateCheckbox("Disable Windows CoPilot", 240, 305, 180, 20)
 			If @OSVersion <> "WIN_11" Then GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoChat = GUICtrlCreateCheckbox("Redirect Bing Chat", 240, 325, 180, 20)
+			Local $hNoSpotlight = GUICtrlCreateCheckbox("Redirect Windows Spotlight", 240, 325, 180, 20)
+			Local $hNoChat = GUICtrlCreateCheckbox("Redirect Bing Chat", 240, 345, 180, 20)
 			If @OSVersion <> "WIN_11" Then GUICtrlSetState(-1, $GUI_DISABLE)
-			Local $hNoApps = GUICtrlCreateCheckbox("Redirect Windows Store 'Apps'", 240, 345, 180, 20)
+			Local $hNoApps = GUICtrlCreateCheckbox("Redirect Windows Store 'Apps'", 240, 365, 180, 20)
 
 		If $bUpdate Then
 			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
@@ -642,6 +646,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				EndIf
 				$sHandler = _GetSettingValue("PDFApp")
 			EndIf
+			GUICtrlSetState($hNoSpotLight, _GetSettingValue("NoSpotlight"))
 			GUICtrlSetState($hNoPilot, _GetSettingValue("NoPilot"))
 		EndIf
 
@@ -848,9 +853,10 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								$aSettings[$bNoNews] = _IsChecked($hNoNews)
 								$aSettings[$bNoPDFs] = _IsChecked($hNoPDFs)
 								$aSettings[$bNoPilot] = _IsChecked($hNoPilot)
+								$aSettings[$bNoSpotlight] = _IsChecked($hNoSpotlight)
 								$aSettings[$bNoTray] = _IsChecked($hNoIcon)
 								$aSettings[$sFeed] = GUICtrlRead($hFeedSRC)
-								$aSettings[$sFeedPath] = $sFeedEng					
+								$aSettings[$sFeedPath] = $sFeedEng
 								$aSettings[$sImages] = GUICtrlRead($hImgSRC)
 								$aSettings[$sImagePath] = $sImgEng
 								$aSettings[$sNews] = GUICtrlRead($hNewSRC)
