@@ -967,7 +967,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						GUICtrlSetState($hEngine, $GUI_DISABLE)
 					EndIf
 
-				Case $hMsg = $hEngine And GUICtrlRead($hEngine) = "Custom"
+				Case $hMsg = $hEngine And GUICtrlRead($hEngine) = "Custom" ; TODO: Replace default example with any custom value set
 					$sEngine = InputBox("Enter Search Engine URL", "Enter the URL format of the custom Search Engine to use, including the %query% placeholder.", "https://duckduckgo.com/?q=%query%")
 					If @error Then GUICtrlSetData($hEngine, "Google")
 
@@ -985,11 +985,11 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						GUICtrlSetState($hImgSRC, $GUI_DISABLE)
 					EndIf
 
-				Case $hMsg = $hFeedSRC And GUICtrlRead($hFeedSRC) = "Custom"
+				Case $hMsg = $hFeedSRC And GUICtrlRead($hFeedSRC) = "Custom" ; TODO: Replace default example with any custom value set
 					$sFeedEng = InputBox("Enter Feed URL", "Enter the URL format of the custom Feed to use.", "https://news.google.com")
 					If @error Then GUICtrlSetData($hFeedSRC, "Google")
 
-				Case $hMsg = $hImgSRC And GUICtrlRead($hImgSRC) = "Custom"
+				Case $hMsg = $hImgSRC And GUICtrlRead($hImgSRC) = "Custom" ; TODO: Replace default example with any custom value set
 					$sImgEng = InputBox("Enter Image Search Engine URL", "Enter the URL format of the custom Image Search Engine to use, including the %query% placeholder.", "https://duckduckgo.com/?ia=images&iax=images&q=%query%")
 					If @error Then GUICtrlSetData($hImgSRC, "Google")
 
@@ -1000,7 +1000,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						GUICtrlSetState($hWeather, $GUI_DISABLE)
 					EndIf
 
-				Case $hMsg = $hWeather And GUICtrlRead($hWeather) = "Custom"
+				Case $hMsg = $hWeather And GUICtrlRead($hWeather) = "Custom" ; TODO: Replace default example with any custom value set
 					$sWeatherEng = InputBox("Enter Weather Engine URL", "Enter the URL format of the custom Weather Engine to use, including the %lat%, %long%, and (optionally) %locale% placeholders.", "https://www.accuweather.com/en/search-locations?query=")
 					If @error Then GUICtrlSetData($hImgSRC, "Weather.com")
 
@@ -1023,7 +1023,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						Case "Default"
 							If Not RunPDFCheck($bSilent) Then SetError(1)
 							$sHandler = "Default"
-						Case "Custom"
+						Case "Custom" ; TODO: Replace @ProgramFilesDir with any custom directory set
 							$sHandler = FileOpenDialog("Select a PDF Handler", @ProgramFilesDir, "Executables (*.exe)", $FD_FILEMUSTEXIST)
 					EndSwitch
 					If @error Then
