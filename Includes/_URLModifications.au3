@@ -3,6 +3,7 @@
 #include <Array.au3>
 
 #include "Base64.au3"
+#include "_Logging.au3"
 #include "_Settings.au3"
 
 Func _ChangeBingWS($sURL)
@@ -488,13 +489,19 @@ Func _WinAPI_UrlUnescape($sUrl, $dFlags = 0x00040000)
             "dword*", 1024, _ ; DWORD *pcchUnescaped - The number of characters in the buffer pointed to by pszUnescaped
             "dword", $dFlags) ; DWORD dwFlags
     If @error Then
-        ; ConsoleWrite('UrlUnescape error: ' & @error & ', LastErr: ' & _WinAPI_GetLastError() & ', LastMsg: ' & _WinAPI_GetLastErrorMessage() & @CRLF)
-        Return SetError(@error, @extended, 0)
+        FileWrite($hLogs[$URIFailures], _NowCalc() & " - " & "UrlUnescapeW call failed with error: (" & @error & "," & @extended & ")" & @CRLF)
+        Return $sURL
     EndIf
 
     If IsArray($aUrlUnescape) Then
-		If $aUrlUnescape[2] <> "decodedUrl" Then Return $aUrlUnescape[2]
-		Return $sURL
+		If $aUrlUnescape[2] <> "decodedUrl" Then ; Decode Successful
+			Return $aUrlUnescape[2]
+		Else
+			FileWrite($hLogs[$URIFailures], _NowCalc() & " - " & "UrlUnescapeW failed. Attempt result: " & _ArrayToString($aUrlUnescape) & @CRLF)
+		EndIf
+	Else
+		FileWrite($hLogs[$URIFailures], _NowCalc() & " - " & "How did we get here? UrlUnescapeW is " & $aUrlUnescape & @CRLF)
 	EndIf
+	Return $sURL
     
 EndFunc   ;==>_WinAPI_UrlUnescape
