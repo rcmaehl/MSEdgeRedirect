@@ -39,7 +39,7 @@ jobs:
       - name: Pack Release
         uses: crazy-max/ghaction-chocolatey@v3
         with:
-          args: pack Assets/Choco/MSEdgeRedirect/msedgeredirect.nuspec --outputdirectory Assets/Choco/MSEdgeRedirect
+          args: pack Assets/Choco/MSEdgeRedirect/msedgeredirect.nuspec --version ${{ steps.version.outputs.nuget }} --outputdirectory Assets/Choco/MSEdgeRedirect
       - name: Upload Release
         uses: crazy-max/ghaction-chocolatey@v3
         with:
