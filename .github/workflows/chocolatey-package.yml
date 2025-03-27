@@ -37,10 +37,14 @@ jobs:
           echo "nuget=$version" >> $GITHUB_OUTPUT
           sed -i "s/{VERSION}/${version}/g" "Assets/Choco/MSEdgeRedirect/msedgeredirect.nuspec"
       - name: Pack Release
-        uses: crazy-max/ghaction-chocolatey@v3.0.0
+        uses: crazy-max/ghaction-chocolatey@v3
         with:
           args: pack Assets/Choco/MSEdgeRedirect/msedgeredirect.nuspec --outputdirectory Assets/Choco/MSEdgeRedirect
+      - name: Rename Chocolatey Package
+        run: |
+          file=$(ls Assets/Choco/MSEdgeRedirect/msedgeredirect*.nupkg | head -n 1)
+          mv "$file" "Assets/Choco/MSEdgeRedirect/msedgeredirect.${{ steps.version.outputs.nuget }}.nupkg"
       - name: Upload Release
-        uses: crazy-max/ghaction-chocolatey@v3.0.0
+        uses: crazy-max/ghaction-chocolatey@v3
         with:
           args: push Assets/Choco/MSEdgeRedirect/msedgeredirect.${{ steps.version.outputs.nuget }}.nupkg -s https://push.chocolatey.org/ -k ${{ secrets.CHOCO_KEY }}
