@@ -120,13 +120,6 @@ jobs:
           GH_TOKEN: ${{ secrets.MSEdgeRedirect_PAT }}
           PR_NUM: ${{ steps.cpr.outputs.pull-request-number }}
 
-      # - name: Auto approve
-      #   if: steps.cpr.outputs.pull-request-operation == 'created'
-      #   uses: juliangruber/approve-pull-request-action@v2
-      #   with:
-      #     github-token: ${{ secrets.MSEdgeRedirect_PAT }}
-      #     number: ${{ steps.cpr.outputs.pull-request-number }}
-
       - name: Delete PRs head branch
         if: steps.cpr.outputs.pull-request-operation == 'created'
         uses: dawidd6/action-delete-branch@v3
