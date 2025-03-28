@@ -16,9 +16,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set Git Safe Directory
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
-
       - name: Install Cheerio
         run: npm install cheerio
 
@@ -100,11 +97,16 @@ jobs:
           confirm_and_push: "false"
         id: latestver
 
+      - run: |
+         rm .git/COMMIT_EDITMSG 
+         rm .git/logs/HEAD
+         rm .git/logs/refs/heads/main
+
       - name: Create pull request
         id: cpr
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.MSEdgeRedirect_PAT }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "${{ steps.latestver.outputs.commit_message }}"
           committer: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
           author: github-actions[bot] <github-actions[bot]@users.noreply.github.com>
