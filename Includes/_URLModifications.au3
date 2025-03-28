@@ -471,7 +471,7 @@ EndFunc
 ;                  $dFlag           - [Optional] WinAPI Function parameters
 ; Return values .: The URL unescaped string
 ; Author ........: mistersquirrle, rcmaehl
-; Modified ......: 2/8/2024
+; Modified ......: 3/28/2025
 ; Remarks .......: URL_DONT_UNESCAPE_EXTRA_INFO = 0x02000000
 ;                  URL_UNESCAPE_AS_UTF8         = 0x00040000 (Win 8+)                
 ;                  URL_UNESCAPE_INPLACE         = 0x00100000
@@ -480,13 +480,15 @@ EndFunc
 ; Example .......: No
 ; ===============================================================================================================================
 
+; TODO: Make buffer dynamic. However 4096 should be more than enough. 
+
 Func _WinAPI_UrlUnescape($sUrl, $dFlags = 0x00040000)
 
     ; https://learn.microsoft.com/en-us/windows/win32/api/shlwapi/nf-shlwapi-urlunescapew
     Local $aUrlUnescape = DllCall("Shlwapi.dll", "long", "UrlUnescapeW", _
             "wstr", $sUrl, _ ; PWSTR pszUrl - A pointer to a null-terminated string with the URL
             "wstr", "decodedUrl", _ ; PWSTR pszUnescaped - A pointer to a buffer that will receive a null-terminated string that contains the unescaped version of pszURL
-            "dword*", 1024, _ ; DWORD *pcchUnescaped - The number of characters in the buffer pointed to by pszUnescaped
+            "dword*", 4096, _ ; DWORD *pcchUnescaped - The number of characters in the buffer pointed to by pszUnescaped
             "dword", $dFlags) ; DWORD dwFlags
     If @error Then
         FileWrite($hLogs[$URIFailures], _NowCalc() & " - " & "UrlUnescapeW call failed with error: (" & @error & "," & @extended & ")" & @CRLF)
