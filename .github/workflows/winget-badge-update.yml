@@ -8,6 +8,10 @@ on:
    #     - completed
    schedule: [{cron: "0 0 */2 * *"}]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   update-badge:
     name: Update latest version
