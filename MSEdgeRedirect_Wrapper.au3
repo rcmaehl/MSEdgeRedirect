@@ -75,6 +75,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 					"[CRITICAL]", _
 					"Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'")
 			EndIf
+			_LogClose()
 			Exit 29 ; ERROR_WRITE_FAULT
 		EndIf
 	Else
@@ -86,6 +87,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 					"[CRITICAL]", _
 					"Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'")
 			EndIf
+			_LogClose()
 			Exit 29 ; ERROR_WRITE_FAULT
 		EndIf
 		If $aSettings[$bStartup] Then
@@ -140,6 +142,7 @@ Func RunRemoval($bUpdate = False)
 	Else
 		FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Determine Registry Hive for Uninstall." & @CRLF)
 		FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "DEBUG: " & _ArrayToString(_IsInstalled()) &  @CRLF)
+		_LogClose()
 		Exit 1359 ; ERROR_INTERNAL_ERROR
 	EndIf
 
@@ -197,6 +200,7 @@ Func RunRemoval($bUpdate = False)
 		FileDelete($sLocation & "*")
 	Else
 		Run(@ComSpec & " /c " & 'ping google.com && del /Q "' & $sLocation & '*"', "", @SW_HIDE)
+		_LogClose()
 		Exit
 	EndIf
 
@@ -217,8 +221,10 @@ Func RunRepair()
 				EndIf
 			EndIf
 		Next
+		_LogClose()
 		Exit
 	Else
+		_LogClose()
 		Exit 5 ; ERROR_ACCESS_DENIED
 	EndIf
 
@@ -288,6 +294,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$aConfig[$vMode] = $bIsAdmin
 			; Bypass file checks, IniReads, use default values
 		ElseIf Not FileExists($aConfig[$hFile]) And Not $bUpdate Then
+			_LogClose()
 			Exit 2 ; ERROR_FILE_NOT_FOUND
 		Else
 			$aConfig[$bManaged] = _Bool(IniRead($aConfig[$hFile], "Config", "Managed", False))
@@ -338,6 +345,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			If $aConfig[$hFile] = "WINGET" Then
 				FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Escalate for Deployment." & @CRLF)
 			Else
+				_LogClose()
 				Exit 5 ; ERROR_ACCESS_DENIED
 			EndIf
 		EndIf
@@ -348,6 +356,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				If $aConfig[$hFile] = "WINGET" Then
 					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate IEFO Channels." & @CRLF)
 				Else
+					_LogClose()
 					Exit 1359 ; ERROR_INTERNAL_ERROR
 				EndIf
 			EndIf
@@ -358,6 +367,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				If $aConfig[$hFile] = "WINGET" Then
 					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Boolean Settings." & @CRLF)
 				Else
+					_LogClose()
 					Exit 1359 ; ERROR_INTERNAL_ERROR
 				EndIf
 			EndIf
@@ -366,6 +376,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			If $aConfig[$hFile] = "WINGET" Then
 				FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Startup Boolean." & @CRLF)
 			Else
+				_LogClose()
 				Exit 1359 ; ERROR_INTERNAL_ERROR
 			EndIf
 		EndIf
@@ -380,6 +391,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			If $aSettings[$bNoTray] Then $sArgs = "/hide"
 			ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
 		EndIf
+		_LogClose()
 		Exit
 
 	Else
@@ -397,6 +409,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			For $iLoop = 0 To UBound($hLogs) - 1
 				FileClose($hLogs[$iLoop])
 			Next
+			_LogClose()
 			Exit 5 ; ERROR_ACCESS_DENIED
 		EndIf
 
@@ -759,6 +772,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Select
 
 				Case $hMsg = $GUI_EVENT_CLOSE or $hMsg = $hCancel
+					_LogClose()
 					Exit
 
 				Case $hMsg = $hAgree or $hMsg = $hDisagree
@@ -810,14 +824,17 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 									Case _IsChecked($hEurope)
 										ShellExecute(@ScriptFullPath, "/ContinueEurope", @ScriptDir, "RunAs")
+										_LogClose()
 										Exit
 		
 									Case _IsChecked($hActive)
 										ShellExecute(@ScriptFullPath, "/ContinueActive", @ScriptDir, "RunAs")
+										_LogClose()
 										Exit
 		
 									Case _IsChecked($hOthers)
 										ShellExecute("https://github.com/rcmaehl/MSEdgeRedirect/wiki/Alternative-Apps-Comparison-Chart")
+										_LogClose()
 										Exit
 								
 								EndSelect
@@ -896,6 +913,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 									If $aSettings[$bNoTray] Then $sArgs = "/hide"
 									ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
 								EndIf
+								_LogClose()
 								Exit
 							EndIf
 						Case $hExit2
@@ -907,6 +925,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "Nation", "REG_SZ", GUICtrlRead($aNew[4]))
 							EndIf
 							MsgBox($MB_OK + $MB_ICONINFORMATION + $MB_TOPMOST, "Reboot Required", "A Reboot/Restart is required to Complete the Regional Changes of Europe Mode.")
+							_LogClose()
 							Exit
 					EndSwitch
 					GUISetState(@SW_HIDE, $aPages[$iPage])

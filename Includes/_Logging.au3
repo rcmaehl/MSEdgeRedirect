@@ -18,3 +18,13 @@ Func _Log($hLog, $sMsg)
 	FileWrite($hLog, _NowCalc() & " - " & $sMsg)
 
 EndFunc
+
+Func _LogClose($sLog = "All")
+	If $sLog <> "All" Then
+		FileClose($hLogs[Eval($sLog)])
+	Else
+		For $iLoop = 0 To UBound($hLogs) - 1
+			FileClose($hLogs[$iLoop])
+		Next
+	EndIf
+EndFunc

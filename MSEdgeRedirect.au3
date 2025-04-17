@@ -132,11 +132,15 @@ Func CheckEdgeIntegrity($sLocation)
 	If StringInStr($sLocation, "ie_to_edge_stub") Then
 		;;;
 	ElseIf $sLocation = "" Then
+		_LogClose()
 		Exit
 	Else
 		Select
 			Case Not FileExists(StringReplace($sLocation, "\msedge.exe", "\msedge_IFEO.exe"))
-				If WinExists(_Translate($aMUI[1], "Admin File Copy Required")) Then Exit ; #202
+				If WinExists(_Translate($aMUI[1], "Admin File Copy Required")) Then
+					_LogClose()
+					Exit ; #202
+				EndIf
 				If MsgBox($MB_YESNO + $MB_ICONINFORMATION + $MB_TOPMOST, _
 					_Translate($aMUI[1], "Admin Rights Required"), _
 					_Translate($aMUI[1], "The IFEO junctions for MSEdgeRedirect are missing and need to be created. Create Now?"), _
@@ -197,6 +201,7 @@ Func ProcessCMDLine()
 	Local $bHide = _GetSettingValue("NoTray")
 	Local $hFile = @ScriptDir & ".\Setup.ini"
 	Local $bForce = False
+	Local $iChance = 10
 	Local $iParams = $CmdLine[0]
 	Local $sCMDLine = _ArrayToString($CmdLine, " ", 1)
 	Local $bSilent = False
@@ -214,6 +219,7 @@ Func ProcessCMDLine()
 			; TODO: Parse $aSettings[], decrease likelyhood based on number of enabled features so that users with more features enabled aren't spammed
 			; TODO: Revamp $aSettings to remove "Custom", have <whatever>PATH to replace "CUSTOM"
 			If Not _GetSettingValue("NoUpdates") And Random(1, 10, 1) = 1 Then RunUpdateCheck()
+			_LogClose()
 			Exit
 		EndIf
 
@@ -236,16 +242,19 @@ Func ProcessCMDLine()
 							@TAB & "/uninstall" & @TAB & "Uninstalls MSEdgeRedirect" & @CRLF & _
 							@CRLF & _
 							@CRLF)
+					_LogClose()
 					Exit 0
 				Case "/admin"
 					If Not $bIsAdmin Then
 						ShellExecute(@ScriptFullPath, $sCMDLine, @ScriptDir, "RunAs")
+						_LogClose()
 						Exit
 					Else
 						_ArrayDelete($CmdLine, 1)
 					EndIf
 				Case "/change"
 					RunSetup(True, $bSilent, 1)
+					_LogClose()
 					Exit
 				Case "/ContinueActive"
 					If Not $bIsAdmin Then
@@ -253,6 +262,7 @@ Func ProcessCMDLine()
 							"Admin Required", _
 							"Unable to install Active Mode without Admin Rights!")
 						FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Active Mode UAC Elevation Attempt Failed!" & @CRLF)
+						_LogClose()
 						Exit
 					Else
 						RunSetup($aInstall[0], False, -2)
@@ -264,6 +274,7 @@ Func ProcessCMDLine()
 								"Admin Required", _
 								"Unable to Setup Europe Mode without Admin Rights!")
 							FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Europe Mode UAC Elevation Attempt Failed!" & @CRLF)
+							_LogClose()
 							Exit
 						Case Not RegRead("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "Start") = 4
 							ContinueCase
@@ -275,6 +286,7 @@ Func ProcessCMDLine()
 								RegWrite("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "FeatureV2", "REG_DWORD", 4)
 								Shutdown($SD_REBOOT)
 							EndIf
+							_LogClose()
 							Exit
 						Case Else
 							RunSetup($aInstall[0], False, -5)
@@ -290,6 +302,7 @@ Func ProcessCMDLine()
 					For $iLoop = 1 To $aPIDs[0][0] Step 1
 						If $aPIDs[$iLoop][1] <> @AutoItPID Then ProcessClose($aPIDs[$iLoop][1])
 					Next
+					_LogClose()
 					Exit
 				Case "/p", "/portable"
 					$bPortable = True
@@ -297,11 +310,13 @@ Func ProcessCMDLine()
 					_ArrayDelete($CmdLine, 1)
 				Case "/repair"
 					RunRepair()
+					_LogClose()
 					Exit
 				Case "/settings"
 					If $bIsPriv Then
 						If Not $bIsAdmin Then
 							ShellExecute(@ScriptFullPath, "/settings", @ScriptDir, "RunAs")
+							_LogClose()
 							Exit
 						EndIf
 					Else
@@ -312,6 +327,7 @@ Func ProcessCMDLine()
 					EndIf
 					RunSetup(True, False, 2)
 					If Not $bIsPriv Then ShellExecute(@ScriptFullPath)
+					_LogClose()
 					Exit
 				Case "/si", "/silentinstall"
 					$bSilent = True
@@ -327,6 +343,7 @@ Func ProcessCMDLine()
 							MsgBox(0, _
 								"Invalid", _
 								'Invalid file - "' & $CmdLine[2] & @CRLF)
+							_LogClose()
 							Exit 87 ; ERROR_INVALID_PARAMETER
 					EndSelect
 				#cs
@@ -353,6 +370,7 @@ Func ProcessCMDLine()
 				#ce
 				Case "/uninstall"
 					RunRemoval()
+					_LogClose()
 					Exit
 				Case "/wingetinstall"
 					$bSilent = True
@@ -369,6 +387,7 @@ Func ProcessCMDLine()
 						MsgBox(0, _
 							"Invalid", _
 							'Invalid parameter - "' & $CmdLine[1] & '".' & @CRLF)
+						_LogClose()
 						Exit 87 ; ERROR_INVALID_PARAMETER
 					EndIf
 			EndSwitch
@@ -402,6 +421,7 @@ Func ProcessCMDLine()
 								"Unable to update an existing Active Mode install without Admin Rights! The installer will continue however.")
 							ContinueCase
 						Else
+							_LogClose()
 							Exit
 						EndIf
 					Case StringInStr($aInstall[1], "HKLM") ; Installed, Active Mode
@@ -428,6 +448,7 @@ Func ProcessCMDLine()
 						"Unable to update an existing Active Mode install without Admin Rights! The installer will continue however.")
 					ContinueCase
 				Else
+					_LogClose()
 					Exit
 				EndIf
 			Case Else
@@ -521,9 +542,7 @@ Func ReactiveMode($bHide = False)
 
 	_WinAPI_AdjustTokenPrivileges($hToken, $aAdjust, 0, $aAdjust)
 	_WinAPI_CloseHandle($hToken)
-	For $iLoop = 0 To UBound($hLogs) - 1
-		FileClose($hLogs[$iLoop])
-	Next
+	_LogClose()
 	Exit
 
 EndFunc
@@ -558,9 +577,7 @@ Func RunArchCheck($bSilent = False)
 				"The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
 		EndIf
 		FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "32 Bit Version on 64 Bit System. EXITING!" & @CRLF)
-		For $iLoop = 0 To UBound($hLogs) - 1
-			FileClose($hLogs[$iLoop])
-		Next
+		_LogClose()
 		Exit 216 ; ERROR_EXE_MACHINE_TYPE_MISMATCH
 	EndIf
 EndFunc
@@ -585,9 +602,7 @@ Func RunHTTPCheck($bSilent = False)
 					"You must set a different Default Browser to use MSEdgeRedirect! Once this is corrected, please relaunch MSEdgeRedirect.")
 			EndIf
 			FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Found same MS Edge for both default browser and microsoft-edge handling, EXITING!" & @CRLF)
-			For $iLoop = 0 To UBound($hLogs) - 1
-				FileClose($hLogs[$iLoop])
-			Next
+			_LogClose()
 			Exit 4315 ; ERROR_MEDIA_INCOMPATIBLE
 		EndIf
 	EndIf
