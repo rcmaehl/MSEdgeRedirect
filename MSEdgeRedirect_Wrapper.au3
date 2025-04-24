@@ -19,8 +19,6 @@
 #include "Includes\_Countries.au3"
 #include "Includes\_Translation.au3"
 
-#include "Includes\TaskScheduler.au3"
-
 ; TODO: Why have <Setting>PATH values for Custom handlers... Rewrite that.
 
 Global $sVersion
@@ -115,7 +113,6 @@ EndFunc
 
 Func RunRemoval($bUpdate = False)
 
-	Local $hTS
 	Local $aPIDs
 	Local $sHive = ""
 	Local $sLocation = ""
@@ -187,13 +184,6 @@ Func RunRemoval($bUpdate = False)
 				FileDelete(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"))
 			EndIf
 		Next
-		$hTS = _TS_Open() ; 0.7.2.0
-		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge.xml")
-		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Beta.xml")
-		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Canary.xml")
-		_TS_TaskDelete($hTS, "\MSEdgeRedirect\Update Edge Dev.xml")
-		_TS_FolderDelete($hTS, "\MSEdgeRedirect")
-		_TS_Close($hTS)
 	EndIf
 
 	If $bUpdate Then
