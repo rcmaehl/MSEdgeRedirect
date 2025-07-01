@@ -8,6 +8,10 @@ on:
    #     - completed
    schedule: [{cron: "0 0 */2 * *"}]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   update-badge:
     name: Update latest version
@@ -109,19 +113,12 @@ jobs:
           delete-branch: true
           title: Update README
 
-      - name: Enable pull request automerge
+      - name: Merge pull request
         if: steps.cpr.outputs.pull-request-operation == 'created'
-        uses: peter-evans/enable-pull-request-automerge@v3
-        with:
-          token: ${{ secrets.MSEdgeRedirect_PAT }}
-          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
-
-      - name: Auto approve
-        if: steps.cpr.outputs.pull-request-operation == 'created'
-        uses: juliangruber/approve-pull-request-action@v2
-        with:
-          github-token: ${{ secrets.MSEdgeRedirect_PAT }}
-          number: ${{ steps.cpr.outputs.pull-request-number }}
+        run: gh pr merge --merge -R rcmaehl/MSEdgeRedirect "$PR_NUM"
+        env:
+          GH_TOKEN: ${{ secrets.MSEdgeRedirect_PAT }}
+          PR_NUM: ${{ steps.cpr.outputs.pull-request-number }}
 
       - name: Delete PRs head branch
         if: steps.cpr.outputs.pull-request-operation == 'created'

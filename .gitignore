@@ -5,3 +5,6 @@ MSEdgeRedirect_onEvent.au3
 ETC/MSER.reg
 Setup.ini
 Del*.au3
+node_modules/
+package-lock.json
+package.json
