@@ -74,6 +74,14 @@ body:
   validations:
     required: true
 
+- type: input
+  attributes:
+    label: MSEdgeRedirect version
+    placeholder: |
+      "0.8.0.0"
+  validations:
+    required: true
+
 - type: textarea
   attributes:
     label: Other Software
