@@ -209,7 +209,7 @@ Func ProcessCMDLine()
 	Local $bPortable = False
 
 	$aInstall = _IsInstalled()
-	If DriveGetType(@ScriptDir) = "Removable" Then $bPortable = True
+	If DriveGetType(@ScriptDir) = "Removable" And FileExists(".\Settings.ini") Then $bPortable = True
 
 	If $iParams > 0 Then
 
