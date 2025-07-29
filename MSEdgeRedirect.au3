@@ -206,10 +206,9 @@ Func ProcessCMDLine()
 	Local $sCMDLine = _ArrayToString($CmdLine, " ", 1)
 	Local $bSilent = False
 	Local $aInstall[3]
-	Local $bPortable = False
 
 	$aInstall = _IsInstalled()
-	If DriveGetType(@ScriptDir) = "Removable" And FileExists(".\Settings.ini") Then $bPortable = True
+	If DriveGetType(@ScriptDir) = "Removable" And FileExists(".\Settings.ini") Then _GetSettingValue("SetPortable")
 
 	If $iParams > 0 Then
 
@@ -305,7 +304,6 @@ Func ProcessCMDLine()
 					_LogClose()
 					Exit
 				Case "/p", "/portable"
-					$bPortable = True
 					_GetSettingValue("SetPortable")
 					_ArrayDelete($CmdLine, 1)
 				Case "/repair"
@@ -404,7 +402,7 @@ Func ProcessCMDLine()
 		;;;
 	EndIf
 
-	If Not $bPortable Then
+	If Not _GetSettingValue("IsPortable") Then
 
 		Select
 			Case Not $aInstall[0] ; Not Installed

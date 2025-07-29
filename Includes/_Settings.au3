@@ -54,6 +54,8 @@ Func _GetSettingValue($sSetting)
 	Local Static $bPortable
 
 	Switch $sSetting
+		Case "IsPortable"
+			Return $bPortable
 		Case "PerUser"
 			$vReturn = Number(RegRead("HKLM\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", "PerUser"))
 		Case "RunUnsafe"
