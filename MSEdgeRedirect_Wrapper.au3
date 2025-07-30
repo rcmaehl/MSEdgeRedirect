@@ -65,35 +65,40 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 		If $aPIDs[$iLoop][1] <> @AutoItPID Then ProcessClose($aPIDs[$iLoop][1])
 	Next
 
-	If $aConfig[$vMode] Then
-		If Not FileCopy(@ScriptFullPath, $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
-			FileWrite($hLogs[$Install], _NowCalc() & " - [CRITICAL] Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
-			If Not $bSilent Then
-				MsgBox($MB_ICONERROR + $MB_OK, _
-					"[CRITICAL]", _
-					"Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'")
+	Switch $aConfig[$vMode]
+		Case "Active"
+			If Not FileCopy(@ScriptFullPath, $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
+				FileWrite($hLogs[$Install], _NowCalc() & " - [CRITICAL] Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+				If Not $bSilent Then
+					MsgBox($MB_ICONERROR + $MB_OK, _
+						"[CRITICAL]", _
+						"Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'")
+				EndIf
+				_LogClose()
+				Exit 29 ; ERROR_WRITE_FAULT
 			EndIf
-			_LogClose()
-			Exit 29 ; ERROR_WRITE_FAULT
-		EndIf
-	Else
-		If $aSettings[$bNoTray] Then $sArgs = "/hide"
-		If Not FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
-			FileWrite($hLogs[$Install], _NowCalc() & " - [CRITICAL] Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
-			If Not $bSilent Then
-				MsgBox($MB_ICONERROR + $MB_OK, _
-					"[CRITICAL]", _
-					"Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'")
+		Case "Service"
+			If $aSettings[$bNoTray] Then $sArgs = "/hide"
+			If Not FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
+				FileWrite($hLogs[$Install], _NowCalc() & " - [CRITICAL] Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+				If Not $bSilent Then
+					MsgBox($MB_ICONERROR + $MB_OK, _
+						"[CRITICAL]", _
+						"Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'")
+				EndIf
+				_LogClose()
+				Exit 29 ; ERROR_WRITE_FAULT
 			EndIf
-			_LogClose()
-			Exit 29 ; ERROR_WRITE_FAULT
-		EndIf
-		If $aSettings[$bStartup] Then
-			If Not FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @StartupDir & "\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs) Then
-				FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING] Unable to create application link in '" & @StartupDir & "\MSEdgeRedirect.lnk'" & @CRLF)
+			If $aSettings[$bStartup] Then
+				If Not FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @StartupDir & "\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs) Then
+					FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING] Unable to create application link in '" & @StartupDir & "\MSEdgeRedirect.lnk'" & @CRLF)
+				EndIf
 			EndIf
-		EndIf
-	EndIf
+		Case "Portable"
+			; TODO: Double Check Portable Install Stuff
+		Case Else
+			FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING] Invalid Install Mode '" & $aConfig[$vMode] & "'" & @CRLF)
+	EndSwitch
 
 EndFunc
 
@@ -235,7 +240,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $aChannels[5] = [True, False, False, False, True]
 	Local $sWeatherEng
 
-	Local $aConfig[3] = [$hSetupFile, False, "Service"] ; Default Setup.ini Values
+	Local $aConfig[3] = [$hSetupFile, False, "Service"] ; [File Path, Managed Install, MSER Mode] Default Setup.ini Values
 	Local Enum $hFile, $bManaged, $vMode
 
 	Local $aSettings[24] = [False, False, False, False, False, False, False, False, False, False, False, False, "", "", "", "", "", "", "", "", "Full", True, "", ""]
@@ -281,7 +286,11 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		EndIf
 
 		If $aConfig[$hFile] = "WINGET" Then
-			$aConfig[$vMode] = $bIsAdmin
+			If $bIsAdmin Then
+				$aConfig[$vMode] = "Active"
+			Else
+				$aConfig[$vMode] = "Service"
+			EndIf
 			; Bypass file checks, IniReads, use default values
 		ElseIf Not FileExists($aConfig[$hFile]) And Not $bUpdate Then
 			_LogClose()
@@ -289,12 +298,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		Else
 			$aConfig[$bManaged] = _Bool(IniRead($aConfig[$hFile], "Config", "Managed", False))
 			$aConfig[$vMode] = IniRead($aConfig[$hFile], "Config", "Mode", "Service")
-
-			If $aConfig[$vMode] = "Active" Then
-				$aConfig[$vMode] = True
-			Else
-				$aConfig[$vMode] = False
-			EndIf
 
 			; TODO: Merge with _GetSettingValue(Value, Forced Location)
 			$aSettings[$bNoApps] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoApps", $aSettings[$bNoApps]))
@@ -331,7 +334,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		EndIf
 
-		If ($aConfig[$bManaged] Or $aConfig[$vMode]) And Not $bIsAdmin Then
+		If ($aConfig[$bManaged] Or $aConfig[$vMode] = "Active") And Not $bIsAdmin Then
 			If $aConfig[$hFile] = "WINGET" Then
 				FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Escalate for Deployment." & @CRLF)
 			Else
@@ -375,12 +378,15 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		RunInstall($aConfig, $aSettings, $bSilent)
 		SetAppRegistry($aConfig)
 		SetAppShortcuts($aConfig, $aSettings)
-		If $aConfig[$vMode] Then
-			SetIFEORegistry($aChannels)
-		Else
-			If $aSettings[$bNoTray] Then $sArgs = "/hide"
-			ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
-		EndIf
+		Switch $aConfig[$vMode]
+			Case "Active"
+				SetIFEORegistry($aChannels)
+			Case "Service"
+				If $aSettings[$bNoTray] Then $sArgs = "/hide"
+				ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
+			Case Else
+				;;;
+		EndSwitch
 		_LogClose()
 		Exit
 
@@ -469,15 +475,37 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		If $bUpdate Then
 			GUICtrlCreateLabel("MSEdgeRedirect " & $sVersion & " Update", 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-;			GUICtrlCreateLabel("Click Next to continue the Update of MSEdgeRedirect after customizing your preferred mode", 20, 40, 420, 40)
-;			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+			GUICtrlCreateLabel("Click Next to continue the Update of MSEdgeRedirect after selecting your preferred mode", 20, 40, 420, 40)
+			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		Else
 			GUICtrlCreateLabel("Install MSEdgeRedirect " & $sVersion, 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-;			GUICtrlCreateLabel("Click Next to continue the Install of MSEdgeRedirect after customizing your preferred mode", 20, 40, 420, 40)
-;			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+			GUICtrlCreateLabel("Click Next to continue the Install of MSEdgeRedirect after selecting your preferred mode", 20, 40, 420, 40)
+			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
 
+		;Local $hEurope = GUICtrlCreateDummy()
+		;Local $hService = GUICtrlCreateDummy()
+		;Local $hActive = GUICtrlCreateDummy()
+		;Local $hOthers = GUICtrlCreateDummy()
+
+		GUICtrlCreateGroup("Mode", 20, 100, 420, 300)
+
+		GUICtrlCreateLabel("Operational Mode:", 50, 130, 180, 20, $SS_SUNKEN)
+		$hOpMode = GUICtrlCreateCombo("", 230, 130, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+		If (@OSVersion = "WIN_11" And @OSBuild < 22621) Or (@OSVersion = "WIN_10" AND @OSBuild < 19045) Then
+			GUICtrlSetData(-1, "Service Mode|Active Mode - RECOMMENDED|Portable Mode|Show Me Alternatives")
+		Else
+			GUICtrlSetData(-1, "Service Mode|Active Mode - RECOMMENDED|Portable Mode|Europe Mode|Show Me Alternatives")
+		EndIf
+
+		GUICtrlCreateLabel("Accuracy:", 50, 150, 180, 20, $SS_SUNKEN)
+		GUICtrlCreateLabel("CPU Usage:", 50, 170, 180, 20, $SS_SUNKEN)
+		GUICtrlCreateLabel("Customization:", 50, 190, 180, 20, $SS_SUNKEN)
+		GUICtrlCreateLabel("System Modification:", 50, 210, 180, 20, $SS_SUNKEN)
+		GUICtrlCreateLabel("Description:", 50, 250, 180, 20, $SS_SUNKEN)
+
+#cs
 		GUICtrlCreateGroup("Mode", 20, 60, 420, 340)
 			GUICtrlCreateIcon("imageres.dll", 78, 30, 80, 16, 16)
 			Local $hEurope = GUICtrlCreateRadio("Europe Mode" & @CRLF & _
@@ -514,6 +542,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 			Local $hOthers = GUICtrlCreateRadio("Show Me MSEdgeRedirect Alternatives", _
 				50, 365, 380, 20, $BS_TOP)
+#ce
 
 		GUISwitch($hInstallGUI)
 		#EndRegion
@@ -533,6 +562,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 ;			GUICtrlCreateLabel("Click Install to continue the Install of MSEdgeRedirect after customizing your preferred settings", 20, 40, 420, 40)
 ;			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
+
+		;GUICtrlCreateGroup("Mode Options", 20, 60, 420, 130)
 
 		GUICtrlCreateGroup("Active Mode Options", 20, 60, 420, 70)
 			$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 50, 80, 95, 20)
@@ -810,24 +841,24 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							GUICtrlSetState($hBack, $GUI_ENABLE)
 						Case $hSettings
 							If @Compiled And Not $bResumed Then 
-								Select
+								Switch StringRegExpReplace(GUICtrlRead($hOpMode), " Mode.*", "")
 
-									Case _IsChecked($hEurope)
+									Case "Europe"
 										ShellExecute(@ScriptFullPath, "/ContinueEurope", @ScriptDir, "RunAs")
 										_LogClose()
 										Exit
 		
-									Case _IsChecked($hActive)
+									Case "Active"
 										ShellExecute(@ScriptFullPath, "/ContinueActive", @ScriptDir, "RunAs")
 										_LogClose()
 										Exit
 		
-									Case _IsChecked($hOthers)
+									Case "Show Me Alternatives"
 										ShellExecute("https://github.com/rcmaehl/MSEdgeRedirect/wiki/Alternative-Apps-Comparison-Chart")
 										_LogClose()
 										Exit
 								
-								EndSelect
+								EndSwitch
 							ElseIf $bUpdate Then
 								GUICtrlSetData($hNext, "Update")
 							Else
@@ -846,9 +877,13 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								EndSelect
 
 								If $iMode = $hSettings Then
-									$aConfig[$vMode] = $bIsAdmin
+									If $bIsAdmin Then
+										$aConfig[$vMode] = "Active"
+									Else
+										$aConfig[$vMode] = "Service"
+									EndIf
 								Else
-									$aConfig[$vMode] = _IsChecked($hActive)
+									$aConfig[$vMode] = StringRegExpReplace(GUICtrlRead($hOpMode), " Mode.*", "")
 								EndIf
 
 								$aSettings[$bNoApps] = _IsChecked($hNoApps)
@@ -877,7 +912,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								GUISetState(@SW_HIDE, $hSettings)
 								RunInstall($aConfig, $aSettings)
 								SetAppRegistry($aConfig)
-								If $aConfig[$vMode] Then
+								If $aConfig[$vMode] = "Active" Then
 									For $iLoop = 0 To UBound($aChannels) - 1 Step 1
 										$aChannels[$iLoop] = _IsChecked($hChannels[$iLoop])
 									Next
@@ -888,7 +923,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								GUICtrlSetState($hHelp, $GUI_DISABLE)
 								GUICtrlSetState($hBack, $GUI_DISABLE)
 								GUICtrlSetState($hCancel, $GUI_DISABLE)
-								If _IsChecked($hActive) Then
+								If StringInStr(GUICtrlRead($hOpMode), "Active") Then
 									GUICtrlSetState($hLaunch, $GUI_DISABLE)
 								Else
 									GUICtrlSetState($hLaunch, $GUI_CHECKED)
@@ -899,7 +934,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								If _IsChecked($hAppLnk) Then SetAppShortcuts($aConfig, $aSettings)
 								If _IsChecked($hDonate) Then ShellExecute("https://www.paypal.com/donate/?hosted_button_id=YL5HFNEJAAMTL")
 								If _IsChecked($hHelpUs) Then ShellExecute("https://safebrowsing.google.com/safebrowsing/report_error/?url=https://github.com/rcmaehl/MSEdgeRedirect")
-								If Not $aConfig[$vMode] And _IsChecked($hLaunch) Then
+								If $aConfig[$vMode] <> "Active" And _IsChecked($hLaunch) Then
 									If $aSettings[$bNoTray] Then $sArgs = "/hide"
 									ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
 								EndIf
@@ -922,8 +957,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUISetState(@SW_SHOW, $aPages[$iPage + 1])
 					$iPage += 1
 
-				Case $hMsg = $hActive or $hMsg = $hService
-					If _IsChecked($hService) Then
+				Case $hMsg = $hOpMode
+					If StringInStr(GUICtrlRead($hOpMode), "Service") Then
 						;GUICtrlSetState($hInstall, $GUI_ENABLE)
 						GUICtrlSetState($hStartup, $GUI_ENABLE)
 						GUICtrlSetState($hNoIcon, $GUI_ENABLE)
@@ -1124,13 +1159,16 @@ Func SetAppRegistry(ByRef $aConfig)
 	Local $sHive = ""
 	Local $sLocation = ""
 
-	If $aConfig[$vMode] Then
-		$sLocation = $sDrive & "\Program Files\MSEdgeRedirect\"
-		$sHive = "HKLM"
-	Else
-		$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
-		$sHive = "HKCU"
-	EndIf
+	Switch $aConfig[$vMode]
+		Case "Active"
+			$sLocation = $sDrive & "\Program Files\MSEdgeRedirect\"
+			$sHive = "HKLM"
+		Case "Service"
+			$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
+			$sHive = "HKCU"
+		Case Else
+			Return
+	EndSwitch
 
 	; App Paths
 	RegWrite($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe", "", "REG_SZ", $sLocation & "MSEdgeRedirect.exe")
@@ -1179,14 +1217,16 @@ Func SetAppShortcuts(ByRef $aConfig, ByRef $aSettings)
 	Switch $aSettings[$sStartMenu]
 
 		Case "Full"
-			If $aConfig[$vMode] Then
-				DirCreate(@ProgramsCommonDir & "\MSEdgeRedirect")
-				FileCreateShortcut($sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", @ProgramsCommonDir & "\MSEdgeRedirect\MSER Settings.lnk", $sDrive & "\Program Files\MSEdgeRedirect\", "/settings")
-			Else
-				DirCreate(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect")
-				FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\MSER Settings.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", "/settings")
-				ContinueCase
-			EndIf
+			Switch $aConfig[$vMode]
+				Case "Active"
+					DirCreate(@ProgramsCommonDir & "\MSEdgeRedirect")
+					FileCreateShortcut($sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", @ProgramsCommonDir & "\MSEdgeRedirect\MSER Settings.lnk", $sDrive & "\Program Files\MSEdgeRedirect\", "/settings")
+				Case "Service"
+					DirCreate(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect")
+					FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\MSER Settings.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", "/settings")
+				Case Else
+					;;;
+			EndSwitch
 
 		Case "App Only"
 			DirCreate(@AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect")
@@ -1227,34 +1267,27 @@ EndFunc
 
 Func SetOptionsRegistry($sName, $vValue, ByRef $aConfig)
 
-	Local Static $sHive = ""
-	Local Static $sPolicy = ""
+	Local Static $sLocation = ""
 	Local Enum $bManaged = 1, $vMode
 
-	If $sHive = "" Then
-		If $aConfig[$vMode] Then
-			$sHive = "HKLM"
+	If $sLocation = "" Then
+		If $bManaged Then
+			$sLocation = "Policy"
 		Else
-			$sHive = "HKCU"
-		EndIf
-
-		If $aConfig[$bManaged] Then $sPolicy = "Policies\"
+			Switch $aConfig[$vMode]
+				Case "Active"
+					$sLocation = "HKLM"
+				Case "Service"
+					$sLocation = "HKCU"
+				Case "Portable"
+					$sLocation = "Portable"
+				Case Else
+					;;;
+			EndSwitch
+		EndIf		
 	EndIf
 
-	Select
-		Case IsBool($vValue)
-			RegWrite($sHive & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sName, "REG_DWORD", $vValue)
-			If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write REG_DWORD Registry Key '" & $sName & "' - with value '" & $vValue & "'" & @CRLF)
-
-		Case IsString($vValue)
-			RegWrite($sHive & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sName, "REG_SZ", $vValue)
-			If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write REG_SZ Registry Key '" & $sName & "' - with value '" & $vValue & "'" & @CRLF)
-
-		Case Else
-			RegWrite($sHive & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sName, "REG_SZ", $vValue)
-			If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write REG_SZ Registry Key '" & $sName & "' - with value '" & $vValue & "'" & @CRLF)
-
-	EndSelect
+	_SetSettingsValue($sName, $vValue, $sLocation)
 
 EndFunc
 
