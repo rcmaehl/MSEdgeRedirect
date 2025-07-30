@@ -371,6 +371,15 @@ Func ProcessCMDLine()
 					_LogClose()
 					Exit
 				Case "/wingetinstall"
+					If Not $bIsAdmin Then
+						ShellExecute(@ScriptFullPath, $sCMDLine, @ScriptDir, "RunAs")
+						If @error Then
+							;;;
+						Else
+							_LogClose()
+							Exit
+						EndIf
+					EndIf
 					$bSilent = True
 					$hFile = "WINGET"
 					_ArrayDelete($CmdLine, 1)
