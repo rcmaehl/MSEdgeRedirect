@@ -487,15 +487,10 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
 
-		;Local $hEurope = GUICtrlCreateDummy()
-		;Local $hService = GUICtrlCreateDummy()
-		;Local $hActive = GUICtrlCreateDummy()
-		;Local $hOthers = GUICtrlCreateDummy()
-
 		GUICtrlCreateGroup("Mode", 20, 100, 420, 300)
 
 		GUICtrlCreateLabel("Operational Mode:", 50, 130, 180, 20, $SS_SUNKEN)
-		$hOpMode = _GUICtrlComboBoxEx_Create($aPages[$hMode], "", 230, 130, 180, 200, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+		Local $hOpMode = _GUICtrlComboBoxEx_Create($aPages[$hMode], "", 230, 130, 180, 200, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 
 		Local $hImage = _GUIImageList_Create(16, 16, 5, 1)
 		_GUIImageList_AddIcon($hImage, @SystemDir & "\imageres.dll", 73) ; ABS(Ordinal) - 1 FOR SOME REASON. YAY. 
@@ -506,21 +501,24 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		_GUICtrlComboBoxEx_AddString($hOpMode, "Active Mode (RECOMMENDED)", 0, 0)
 		_GUICtrlComboBoxEx_AddString($hOpMode, "Portable Mode")
 		If (@OSVersion = "WIN_11" And @OSBuild < 22621) Or (@OSVersion = "WIN_10" AND @OSBuild < 19045) Then
-;			GUICtrlSetData($hOpMode, "Service Mode|Active Mode - RECOMMENDED|Portable Mode|Show Me Alternatives")
 			;;;
 		Else
 			_GUICtrlComboBoxEx_AddString($hOpMode, "Europe Mode", 0, 0)
-;			GUICtrlSetData($hOpMode, "Service Mode|Active Mode - RECOMMENDED|Portable Mode|Europe Mode|Show Me Alternatives")
 		EndIf
 		_GUICtrlComboBoxEx_AddString($hOpMode, "Show Me Alternatives")
 		_GUICtrlComboBoxEx_EndUpdate($hOpMode)
 
 		GUICtrlCreateLabel("Accuracy:", 50, 150, 180, 20, $SS_SUNKEN)
-		Local $hTest = GUICtrlCreateLabel("", 230, 150, 180, 20, $SS_SUNKEN)
+		Local $hAccuracy = GUICtrlCreateProgress(230, 150, 180, 20)
 		GUICtrlCreateLabel("CPU Usage:", 50, 170, 180, 20, $SS_SUNKEN)
+		Local $hCPUUsage = GUICtrlCreateProgress(230, 170, 180, 20)
 		GUICtrlCreateLabel("Customization:", 50, 190, 180, 20, $SS_SUNKEN)
+		Local $hCustomize = GUICtrlCreateProgress(230, 190, 180, 20)
 		GUICtrlCreateLabel("System Modification:", 50, 210, 180, 20, $SS_SUNKEN)
+		Local $hModifies = GUICtrlCreateProgress(230, 210, 180, 20)
+
 		GUICtrlCreateLabel("Description:", 50, 250, 180, 20, $SS_SUNKEN)
+		Local $hDetails = GUICtrlCreateLabel("", 50, 270, 360, 80)
 
 #cs
 		GUICtrlCreateGroup("Mode", 20, 60, 420, 340)
@@ -992,12 +990,45 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUICtrlSetState($hStartup, $GUI_ENABLE)
 					GUICtrlSetState($hNoIcon, $GUI_ENABLE)
 
-					Select
-						Case Not $aMode[0] = "Service"
+					Switch $aMode[0]
+						Case "Service"
+							GUICtrlSetData($hDetails, _
+								"Adminless, Less Intrusive, Single User Install" & @CRLF & _
+								@CRLF & _
+								"MSEdgeRedirect stays running in the background. Detected Edge data is redirected to your default browser. This uses 1-10% CPU depending on System.")
+
+						Case "Active"
+							GUICtrlSetData($hDetails, _
+								"Best Performing, System Wide, Customizable, and Compatible Install" & @CRLF & _
+								@CRLF & _
+								"MSEdgeRedirect is ran instead of Edge, similarly to the old EdgeDeflector app. CPU Resources are spared as no background process is required. Compatible with AveYo's Edge Removal Tool.")
+
+						Case "Portable"
+							GUICtrlSetData($hDetails, _
+								"Adminless, Less Intrusive, Portable Install" & @CRLF & _
+								@CRLF & _
+								"MSEdgeRedirect creates a Settings.ini file; The Installer then exits. The App and Settings file can be moved to a USB or other Device. While Running, detected Edge data is redirected to your default browser. This uses 1-10% CPU depending on System.")
+
+						Case "Europe"
+							GUICtrlSetData($hDetails, _ 
+								"System Wide Change using a Native Windows Feature" & @CRLF & _
+								@CRLF & _
+								"MSEdgeRedirect DOES NOT INSTALL. Locale and Settings changes are made to set Windows 'in EU' and respect the default browser.")
+
+						Case "Show Me Alternatives"
+							GUICtrlSetData($hDetails, _
+								"Loads the GitHub Wiki containing known alternatives to MSEdgeRedirect; The Installer then exits.")
+
+						Case Else
+							;;;
+					EndSwitch
+
+					Switch $aMode[0]
+						Case Not "Service"
 							GUICtrlSetState($hStartup, $GUI_DISABLE)
 							GUICtrlSetState($hNoIcon, $GUI_DISABLE)
 						
-						Case Not $aMode[0] = "Active"
+						Case Not "Active"
 							GUICtrlSetState($hChannels[0], $GUI_DISABLE)
 							GUICtrlSetState($hChannels[1], $GUI_DISABLE)
 							GUICtrlSetState($hChannels[2], $GUI_DISABLE)
@@ -1006,7 +1037,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						Case Else
 							;;;
 
-					EndSelect
+					EndSwitch
 
 					If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger") Then
 						GUICtrlSetState($hChannels[0], $GUI_DISABLE)
