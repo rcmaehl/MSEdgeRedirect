@@ -5,9 +5,11 @@
 #include <String.au3>
 #include <GuiComboBox.au3>
 #include <WinAPIFiles.au3>
+#include <GuiImageList.au3>
 #include <EditConstants.au3>
 #include <FileConstants.au3>
 #include <FontConstants.au3>
+#include <GuiComboBoxEx.au3>
 #include <ComboConstants.au3>
 #include <GUIConstantsEx.au3>
 #include <AutoItConstants.au3>
@@ -37,28 +39,28 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	Local $sArgs = ""
 	Local Enum $bManaged = 1, $vMode
 
-	SetOptionsRegistry("NoApps"     , $aSettings[$bNoApps]     , $aConfig)
-	SetOptionsRegistry("NoBing"     , $aSettings[$bNoBing]     , $aConfig)
-	SetOptionsRegistry("NoChat"     , $aSettings[$bNoChat]     , $aConfig)
-	SetOptionsRegistry("NoFeed"     , $aSettings[$bNoFeed]     , $aConfig)
-	SetOptionsRegistry("NoImgs"     , $aSettings[$bNoImgs]     , $aConfig)
-	SetOptionsRegistry("NoMSN"      , $aSettings[$bNoMSN]      , $aConfig)
-	SetOptionsRegistry("NoNews"     , $aSettings[$bNoNews]     , $aConfig)
-	SetOptionsRegistry("NoPDFs"     , $aSettings[$bNoPDFs]     , $aConfig)
-	SetOptionsRegistry("NoPilot"    , $aSettings[$bNoPilot]    , $aConfig)
-	SetOptionsRegistry("NoSpotlight", $aSettings[$bNoSpotlight], $aConfig)
-	SetOptionsRegistry("NoTray"     , $aSettings[$bNoTray]     , $aConfig)
-	SetOptionsRegistry("NoUpdates"  , $aSettings[$bNoUpdates]  , $aConfig)
-	SetOptionsRegistry("Feed"       , $aSettings[$sFeed]       , $aConfig)
-	SetOptionsRegistry("FeedPath"   , $aSettings[$sFeedPath]   , $aConfig)
-	SetOptionsRegistry("Images"     , $aSettings[$sImages]     , $aConfig)
-	SetOptionsRegistry("ImagePath"  , $aSettings[$sImagePath]  , $aConfig)
-	SetOptionsRegistry("News"       , $aSettings[$sNews]       , $aConfig)
-	SetOptionsRegistry("PDFApp"     , $aSettings[$sPDFApp]     , $aConfig)
-	SetOptionsRegistry("Search"     , $aSettings[$sSearch]     , $aConfig)
-	SetOptionsRegistry("SearchPath" , $aSettings[$sSearchPath] , $aConfig)
-	SetOptionsRegistry("Weather"    , $aSettings[$sWeather]    , $aConfig)
-	SetOptionsRegistry("WeatherPath", $aSettings[$sWeatherPath], $aConfig)
+	SetOptions("NoApps"     , $aSettings[$bNoApps]     , $aConfig)
+	SetOptions("NoBing"     , $aSettings[$bNoBing]     , $aConfig)
+	SetOptions("NoChat"     , $aSettings[$bNoChat]     , $aConfig)
+	SetOptions("NoFeed"     , $aSettings[$bNoFeed]     , $aConfig)
+	SetOptions("NoImgs"     , $aSettings[$bNoImgs]     , $aConfig)
+	SetOptions("NoMSN"      , $aSettings[$bNoMSN]      , $aConfig)
+	SetOptions("NoNews"     , $aSettings[$bNoNews]     , $aConfig)
+	SetOptions("NoPDFs"     , $aSettings[$bNoPDFs]     , $aConfig)
+	SetOptions("NoPilot"    , $aSettings[$bNoPilot]    , $aConfig)
+	SetOptions("NoSpotlight", $aSettings[$bNoSpotlight], $aConfig)
+	SetOptions("NoTray"     , $aSettings[$bNoTray]     , $aConfig)
+	SetOptions("NoUpdates"  , $aSettings[$bNoUpdates]  , $aConfig)
+	SetOptions("Feed"       , $aSettings[$sFeed]       , $aConfig)
+	SetOptions("FeedPath"   , $aSettings[$sFeedPath]   , $aConfig)
+	SetOptions("Images"     , $aSettings[$sImages]     , $aConfig)
+	SetOptions("ImagePath"  , $aSettings[$sImagePath]  , $aConfig)
+	SetOptions("News"       , $aSettings[$sNews]       , $aConfig)
+	SetOptions("PDFApp"     , $aSettings[$sPDFApp]     , $aConfig)
+	SetOptions("Search"     , $aSettings[$sSearch]     , $aConfig)
+	SetOptions("SearchPath" , $aSettings[$sSearchPath] , $aConfig)
+	SetOptions("Weather"    , $aSettings[$sWeather]    , $aConfig)
+	SetOptions("WeatherPath", $aSettings[$sWeatherPath], $aConfig)
 
 	$aPIDs = ProcessList("msedgeredirect.exe")
 	For $iLoop = 1 To $aPIDs[0][0] Step 1
@@ -229,6 +231,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 	Local $hMsg
 	Local $sArgs = ""
+	Local $aMode[2] = ["", ""]
 	Local $iMode = $iPage
 	Local $sEdges
 	Local $sEngine
@@ -492,14 +495,28 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		GUICtrlCreateGroup("Mode", 20, 100, 420, 300)
 
 		GUICtrlCreateLabel("Operational Mode:", 50, 130, 180, 20, $SS_SUNKEN)
-		$hOpMode = GUICtrlCreateCombo("", 230, 130, 180, 20, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+		$hOpMode = _GUICtrlComboBoxEx_Create($aPages[$hMode], "", 230, 130, 180, 200, $CBS_DROPDOWNLIST+$WS_VSCROLL)
+
+		Local $hImage = _GUIImageList_Create(16, 16, 5, 1)
+		_GUIImageList_AddIcon($hImage, @SystemDir & "\imageres.dll", 73) ; ABS(Ordinal) - 1 FOR SOME REASON. YAY. 
+		_GUICtrlComboBoxEx_SetImageList($hOpMode, $hImage)
+
+		_GUICtrlComboBoxEx_BeginUpdate($hOpMode)
+		_GUICtrlComboBoxEx_AddString($hOpMode, "Service Mode")
+		_GUICtrlComboBoxEx_AddString($hOpMode, "Active Mode (RECOMMENDED)", 0, 0)
+		_GUICtrlComboBoxEx_AddString($hOpMode, "Portable Mode")
 		If (@OSVersion = "WIN_11" And @OSBuild < 22621) Or (@OSVersion = "WIN_10" AND @OSBuild < 19045) Then
-			GUICtrlSetData(-1, "Service Mode|Active Mode - RECOMMENDED|Portable Mode|Show Me Alternatives")
+;			GUICtrlSetData($hOpMode, "Service Mode|Active Mode - RECOMMENDED|Portable Mode|Show Me Alternatives")
+			;;;
 		Else
-			GUICtrlSetData(-1, "Service Mode|Active Mode - RECOMMENDED|Portable Mode|Europe Mode|Show Me Alternatives")
+			_GUICtrlComboBoxEx_AddString($hOpMode, "Europe Mode", 0, 0)
+;			GUICtrlSetData($hOpMode, "Service Mode|Active Mode - RECOMMENDED|Portable Mode|Europe Mode|Show Me Alternatives")
 		EndIf
+		_GUICtrlComboBoxEx_AddString($hOpMode, "Show Me Alternatives")
+		_GUICtrlComboBoxEx_EndUpdate($hOpMode)
 
 		GUICtrlCreateLabel("Accuracy:", 50, 150, 180, 20, $SS_SUNKEN)
+		Local $hTest = GUICtrlCreateLabel("", 230, 150, 180, 20, $SS_SUNKEN)
 		GUICtrlCreateLabel("CPU Usage:", 50, 170, 180, 20, $SS_SUNKEN)
 		GUICtrlCreateLabel("Customization:", 50, 190, 180, 20, $SS_SUNKEN)
 		GUICtrlCreateLabel("System Modification:", 50, 210, 180, 20, $SS_SUNKEN)
@@ -838,10 +855,11 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				Case $hMsg = $hNext
 					Switch $iPage + 1
 						Case $hMode
+							GUICtrlSetState($hNext, $GUI_DISABLE)
 							GUICtrlSetState($hBack, $GUI_ENABLE)
 						Case $hSettings
 							If @Compiled And Not $bResumed Then 
-								Switch StringRegExpReplace(GUICtrlRead($hOpMode), " Mode.*", "")
+								Switch $aMode[0]
 
 									Case "Europe"
 										ShellExecute(@ScriptFullPath, "/ContinueEurope", @ScriptDir, "RunAs")
@@ -883,7 +901,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 										$aConfig[$vMode] = "Service"
 									EndIf
 								Else
-									$aConfig[$vMode] = StringRegExpReplace(GUICtrlRead($hOpMode), " Mode.*", "")
+									 $aConfig[$vMode] = $aMode[0]
 								EndIf
 
 								$aSettings[$bNoApps] = _IsChecked($hNoApps)
@@ -923,7 +941,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								GUICtrlSetState($hHelp, $GUI_DISABLE)
 								GUICtrlSetState($hBack, $GUI_DISABLE)
 								GUICtrlSetState($hCancel, $GUI_DISABLE)
-								If StringInStr(GUICtrlRead($hOpMode), "Active") Then
+								If $aConfig[$vMode] = "Active" Then
 									GUICtrlSetState($hLaunch, $GUI_DISABLE)
 								Else
 									GUICtrlSetState($hLaunch, $GUI_CHECKED)
@@ -957,42 +975,55 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUISetState(@SW_SHOW, $aPages[$iPage + 1])
 					$iPage += 1
 
-				Case $hMsg = $hOpMode
-					If StringInStr(GUICtrlRead($hOpMode), "Service") Then
-						;GUICtrlSetState($hInstall, $GUI_ENABLE)
-						GUICtrlSetState($hStartup, $GUI_ENABLE)
-						GUICtrlSetState($hNoIcon, $GUI_ENABLE)
-						GUICtrlSetState($hChannels[0], $GUI_DISABLE)
-						GUICtrlSetState($hChannels[1], $GUI_DISABLE)
-						GUICtrlSetState($hChannels[2], $GUI_DISABLE)
-						GUICtrlSetState($hChannels[3], $GUI_DISABLE)
-					Else
-						GUICtrlSetState($hStartup, $GUI_DISABLE)
-						GUICtrlSetState($hNoIcon, $GUI_DISABLE)
-						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger") Then
+				Case $aMode[0] = "" And $aMode[1] <> "" ; Fix Next Button Flickering
+
+					If Not _GUICtrlComboBoxEx_GetDroppedState($hOpMode) And $aMode[1] <> "" Then
+						GUICtrlSetState($hNext, $GUI_ENABLE)
+						ContinueCase
+					EndIf
+
+				Case $aMode[0] <> $aMode[1]
+
+					$aMode[0] = $aMode[1]
+					GUICtrlSetState($hChannels[0], $GUI_ENABLE)
+					GUICtrlSetState($hChannels[1], $GUI_ENABLE)
+					GUICtrlSetState($hChannels[2], $GUI_ENABLE)
+					GUICtrlSetState($hChannels[3], $GUI_ENABLE)
+					GUICtrlSetState($hStartup, $GUI_ENABLE)
+					GUICtrlSetState($hNoIcon, $GUI_ENABLE)
+
+					Select
+						Case Not $aMode[0] = "Service"
+							GUICtrlSetState($hStartup, $GUI_DISABLE)
+							GUICtrlSetState($hNoIcon, $GUI_DISABLE)
+						
+						Case Not $aMode[0] = "Active"
 							GUICtrlSetState($hChannels[0], $GUI_DISABLE)
 							GUICtrlSetState($hChannels[1], $GUI_DISABLE)
 							GUICtrlSetState($hChannels[2], $GUI_DISABLE)
 							GUICtrlSetState($hChannels[3], $GUI_DISABLE)
-							GUICtrlSetState($hChannels[4], $GUI_DISABLE)
-							GUICtrlSetState($hChannels[4], $GUI_CHECKED)
-						Else
-							If $bUpdate Or $iMode = $hSettings Then
-								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER1", "Debugger") Then GUICtrlSetState($hChannels[0], $GUI_CHECKED)
-								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER2", "Debugger") Then GUICtrlSetState($hChannels[1], $GUI_CHECKED)
-								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER3", "Debugger") Then GUICtrlSetState($hChannels[2], $GUI_CHECKED)
-								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER4", "Debugger") Then GUICtrlSetState($hChannels[3], $GUI_CHECKED)
-								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER5", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
-								If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\0", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
-							Else
-								GUICtrlSetState($hChannels[0], $GUI_ENABLE)
-								GUICtrlSetState($hChannels[1], $GUI_ENABLE)
-								GUICtrlSetState($hChannels[2], $GUI_ENABLE)
-								GUICtrlSetState($hChannels[3], $GUI_ENABLE)
-								GUICtrlSetState($hChannels[0], $GUI_CHECKED)
-							EndIf
-						EndIf
-						ContinueCase
+
+						Case Else
+							;;;
+
+					EndSelect
+
+					If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger") Then
+						GUICtrlSetState($hChannels[0], $GUI_DISABLE)
+						GUICtrlSetState($hChannels[1], $GUI_DISABLE)
+						GUICtrlSetState($hChannels[2], $GUI_DISABLE)
+						GUICtrlSetState($hChannels[3], $GUI_DISABLE)
+						GUICtrlSetState($hChannels[4], $GUI_DISABLE)
+						GUICtrlSetState($hChannels[4], $GUI_CHECKED)
+					EndIf
+						
+					If $bUpdate Or $iMode = $hSettings Then
+						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER1", "Debugger") Then GUICtrlSetState($hChannels[0], $GUI_CHECKED)
+						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER2", "Debugger") Then GUICtrlSetState($hChannels[1], $GUI_CHECKED)
+						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER3", "Debugger") Then GUICtrlSetState($hChannels[2], $GUI_CHECKED)
+						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER4", "Debugger") Then GUICtrlSetState($hChannels[3], $GUI_CHECKED)
+						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER5", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
+						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\0", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 					EndIf
 
 				Case $hMsg = $hChannels[0] Or $hMsg = $hChannels[1] Or $hMsg = $hChannels[2] Or $hMsg = $hChannels[3]
@@ -1090,6 +1121,13 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						GUICtrlSetData($aNew[$iLoop], GUICtrlRead($aOld[$iLoop]))
 					Next
 					GUICtrlSetData($aNew[Ubound($aOld) - 1], "✓ / ✓")
+
+				Case $aPages[$iPage] = $aPages[$hMode] ; Check last to allow other cases to take precedent
+
+					If Not _GUICtrlComboBoxEx_GetDroppedState($hOpMode) Then
+						_GUICtrlComboBoxEx_GetItemText($hOpMode, _GUICtrlComboBoxEx_GetCurSel($hOpMode), $aMode[1])
+						$aMode[1] = StringRegExpReplace($aMode[1], " Mode.*", "")
+					EndIf
 
 				Case Else
 					;;;
@@ -1265,7 +1303,7 @@ Func SetIFEORegistry(ByRef $aChannels)
 	EndIf
 EndFunc
 
-Func SetOptionsRegistry($sName, $vValue, ByRef $aConfig)
+Func SetOptions($sName, $vValue, ByRef $aConfig)
 
 	Local Static $sLocation = ""
 	Local Enum $bManaged = 1, $vMode
