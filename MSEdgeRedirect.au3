@@ -622,17 +622,22 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 	Local $aCMDLine
 
 	Select
+
+		; Run Edge
 		Case StringRegExp($sCMDLine, "--default-search-provider=\? --out-pipe-name=MSEdgeDefault[a-z0-9]+")
 			FileWrite($hLogs[$AppSecurity], _NowCalc() & " - Passed Through MS-Settings Call: " & $sCMDLine & @CRLF)
 			_SafeRun($sEdge, $sCMDLine)
 		Case $sCMDLine = "--no-startup-window --win-session-start"
 			FileWrite($hLogs[$AppSecurity], _NowCalc() & " - Passed Through MSEdge Startup Call: " & $sCMDLine & @CRLF)
 			_SafeRun($sEdge, $sCMDLine)
-		Case StringInStr($sCMDLine, "--default-search-provider=?")
-			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Blocked Invalid MS-Settings Call: " & $sCMDLine & @CRLF)
-		Case StringInStr($sCMDLine, "profiles_settings")
-			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Profile Settings URL: " & $sCMDLine & @CRLF)
-		Case StringInStr($sCMDLine, ".pdf")
+
+		; Run Another App
+		Case FileExists(StringReplace($sCMDLine, "--single-argument ", "")); File Handling
+			If _GetSettingValue("NoFiles") Then
+				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
+				ShellExecute('"' & $sCMDLine & '"')
+			EndIf
+		#cs
 			If _GetSettingValue("NoPDFs") Then
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
 				Switch _GetSettingValue("PDFApp")
@@ -647,7 +652,10 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				_SafeRun($sEdge, $sCMDLine)
 				If Not _IsPriviledgedInstall() Then Sleep(1000)
 			EndIf
-		Case StringInStr($sCMDLine, "--app-id")
+		#ce
+	
+		; Do Either (Run Another App or Run Edge)
+		Case StringInStr($sCMDLine, "--app-id") ; "Apps"
 			Select
 				Case StringInStr($sCMDLine, "--app-fallback-url=") And _GetSettingValue("NoApps"); Windows Store "Apps"
 					$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*)(--app-fallback-url=)", "")
@@ -666,18 +674,29 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 				Case Else
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
 			EndSelect
-		Case StringInStr($sCMDLine, "ux=copilot")
+
+		Case StringInStr($sCMDLine, "ux=copilot") ; CoPilot
 			If _GetSettingValue("NoPilot") Then
 				ShellExecute("ms-settings:")
 			Else
 				_SafeRun($sEdge, $sCMDLine)
 			EndIf
+
+		; Drop Call	
+		Case StringInStr($sCMDLine, "--default-search-provider=?")
+			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Blocked Invalid MS-Settings Call: " & $sCMDLine & @CRLF)
+		Case StringInStr($sCMDLine, "profiles_settings")
+			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Profile Settings URL: " & $sCMDLine & @CRLF)
+
+		; Do Either (Drop Call or Run Edge)
 		Case StringInStr($sCMDLine, "bing.com/chat") Or StringInStr($sCMDLine, "bing.com%2Fchat") ; Fix BingAI
 			If _GetSettingValue("NoChat") Then 
 				ContinueCase
 			Else
 				_SafeRun($sEdge, $sCMDLine)
 			EndIf
+
+		; Call Default Browser
 		Case StringInStr($sCMDLine, "bing.com/spotlight?spotlightid") ; Fix Windows Spotlight
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)spotlight\?spotlightid=[^&]+&", "search?")
 			ContinueCase
@@ -704,12 +723,16 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
 				EndIf
 			EndIf
+
+		; Catch Misc Edge Flags (MUST BE LOWEST PRIORITY)
 		Case StringLeft($sCMDLine, 2) = "--"
 			If _GetSettingValue("RunUnsafe") Then
 				_SafeRun($sEdge, $sCMDLine)
 			Else
 				FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe Flag: " & $sCMDLine & @CRLF)
 			EndIf
+
+		; Catch Everything Else
 		Case Else
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
 			$sCMDLine = StringReplace($sCMDLine, "?url=", "")
