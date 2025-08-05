@@ -82,6 +82,40 @@ Func _IsSafeApp(ByRef $sApp)
 
 EndFunc
 
+Func _IsSafeFile(ByRef $sPath)
+
+	Local $aPath
+	Local $bSafe = False
+
+	If Not FileExists($sPath) Then $bSafe = False
+
+	$aPath = StringSplit($sPath, ".")	
+
+	Switch $aPath[$aPath[0]]
+		Case "htm", "html", "xhtml" ; HTML
+			$bSafe = True
+		Case "xml" ; XML
+			$bSafe = True
+		Case "mht", "mhtml" ; Archives
+			$bSafe = True
+		Case "jpg", "jpeg", "png", "apng", "gif", "png", "webp", "svg", "bmp", "ico", "avif" ; Images
+			$bSafe = True
+		Case "pdf", "txt", "csv" ; Documents
+			$bSafe = True
+		Case "mp4", "webm", "ogg", "mp3", "wav", "m4a" ; Media
+			$bSafe = True
+		Case "rss", "atom" ; Feeds
+			$bSafe = True
+		Case Else
+			$bSafe = False
+	EndSwitch
+
+	If Not $bSafe Then FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Potentially Unsafe File: " & $sPath & @CRLF)
+
+	Return $bSafe
+
+EndFunc
+
 Func _IsSafeFlag(ByRef $sCommandLine)
 
 	Local $aCMDLine
@@ -142,6 +176,7 @@ Func _IsSafeFlag(ByRef $sCommandLine)
 
 EndFunc
 
+#cs
 Func _IsSafePDF(ByRef $sPath)
 
 	Local $bSafe = False
@@ -160,6 +195,7 @@ Func _IsSafePDF(ByRef $sPath)
 	Return $bSafe
 
 EndFunc
+#ce
 
 Func _IsSafeURL(ByRef $sURL)
 
