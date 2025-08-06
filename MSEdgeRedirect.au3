@@ -201,7 +201,7 @@ Func ProcessCMDLine()
 	Local $bHide = _GetSettingValue("NoTray")
 	Local $hFile = @ScriptDir & ".\Setup.ini"
 	Local $bForce = False
-	Local $iChance = 10
+	; Local $iChance = 10
 	Local $iParams = $CmdLine[0]
 	Local $sCMDLine = _ArrayToString($CmdLine, " ", 1)
 	Local $bSilent = False

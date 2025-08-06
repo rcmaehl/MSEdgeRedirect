@@ -14,6 +14,7 @@
 #include <GUIConstantsEx.au3>
 #include <AutoItConstants.au3>
 #include <WindowsConstants.au3>
+#include <ProgressConstants.au3>
 
 #include "Includes\_Logging.au3"
 #include "Includes\_Theming.au3"
@@ -498,7 +499,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		_GUICtrlComboBoxEx_BeginUpdate($hOpMode)
 		_GUICtrlComboBoxEx_AddString($hOpMode, "Service Mode")
-		_GUICtrlComboBoxEx_AddString($hOpMode, "Active Mode (RECOMMENDED)", 0, 0)
+		_GUICtrlComboBoxEx_AddString($hOpMode, "Active Mode (Recommended)", 0, 0)
 		_GUICtrlComboBoxEx_AddString($hOpMode, "Portable Mode")
 		If (@OSVersion = "WIN_11" And @OSBuild < 22621) Or (@OSVersion = "WIN_10" AND @OSBuild < 19045) Then
 			;;;
@@ -509,13 +510,18 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		_GUICtrlComboBoxEx_EndUpdate($hOpMode)
 
 		GUICtrlCreateLabel("Accuracy:", 50, 150, 180, 20, $SS_SUNKEN)
-		Local $hAccuracy = GUICtrlCreateProgress(230, 150, 180, 20)
+		Local $hAccuracy = GUICtrlCreateProgress(230, 150, 180, 20, $PBS_SMOOTHREVERSE)
 		GUICtrlCreateLabel("CPU Usage:", 50, 170, 180, 20, $SS_SUNKEN)
-		Local $hCPUUsage = GUICtrlCreateProgress(230, 170, 180, 20)
+		Local $hCPUUsage = GUICtrlCreateProgress(230, 170, 180, 20, $PBS_SMOOTHREVERSE)
 		GUICtrlCreateLabel("Customization:", 50, 190, 180, 20, $SS_SUNKEN)
-		Local $hCustomize = GUICtrlCreateProgress(230, 190, 180, 20)
+		Local $hCustomize = GUICtrlCreateProgress(230, 190, 180, 20, $PBS_SMOOTHREVERSE)
 		GUICtrlCreateLabel("System Modification:", 50, 210, 180, 20, $SS_SUNKEN)
-		Local $hModifies = GUICtrlCreateProgress(230, 210, 180, 20)
+		Local $hModifies = GUICtrlCreateProgress(230, 210, 180, 20, $PBS_SMOOTHREVERSE)
+
+		GUICtrlSetData($hAccuracy, 1)
+		GUICtrlSetData($hCPUUsage, 1)
+		GUICtrlSetData($hCustomize, 1)
+		GUICtrlSetData($hModifies, 1)
 
 		GUICtrlCreateLabel("Description:", 50, 250, 180, 20, $SS_SUNKEN)
 		Local $hDetails = GUICtrlCreateLabel("", 50, 270, 360, 80)
@@ -996,28 +1002,48 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								"Adminless, Less Intrusive, Single User Install" & @CRLF & _
 								@CRLF & _
 								"MSEdgeRedirect stays running in the background. Detected Edge data is redirected to your default browser. This uses 1-10% CPU depending on System.")
+							GUICtrlSetData($hAccuracy, 33)
+							GUICtrlSetData($hCPUUsage, 99)
+							GUICtrlSetData($hCustomize, 50)
+							GUICtrlSetData($hModifies, 10)
 
 						Case "Active"
 							GUICtrlSetData($hDetails, _
 								"Best Performing, System Wide, Customizable, and Compatible Install" & @CRLF & _
 								@CRLF & _
 								"MSEdgeRedirect is ran instead of Edge, similarly to the old EdgeDeflector app. CPU Resources are spared as no background process is required. Compatible with AveYo's Edge Removal Tool.")
+							GUICtrlSetData($hAccuracy, 66)
+							GUICtrlSetData($hCPUUsage, 10)
+							GUICtrlSetData($hCustomize, 66)
+							GUICtrlSetData($hModifies, 50)
 
 						Case "Portable"
 							GUICtrlSetData($hDetails, _
 								"Adminless, Less Intrusive, Portable Install" & @CRLF & _
 								@CRLF & _
 								"MSEdgeRedirect creates a Settings.ini file; The Installer then exits. The App and Settings file can be moved to a USB or other Device. While Running, detected Edge data is redirected to your default browser. This uses 1-10% CPU depending on System.")
+							GUICtrlSetData($hAccuracy, 33)
+							GUICtrlSetData($hCPUUsage, 99)
+							GUICtrlSetData($hCustomize, 33)
+							GUICtrlSetData($hModifies, 1)
 
 						Case "Europe"
 							GUICtrlSetData($hDetails, _ 
 								"System Wide Change using a Native Windows Feature" & @CRLF & _
 								@CRLF & _
 								"MSEdgeRedirect DOES NOT INSTALL. Locale and Settings changes are made to set Windows 'in EU' and respect the default browser.")
+							GUICtrlSetData($hAccuracy, 99)
+							GUICtrlSetData($hCPUUsage, 1)
+							GUICtrlSetData($hCustomize, 1)
+							GUICtrlSetData($hModifies, 99)
 
 						Case "Show Me Alternatives"
 							GUICtrlSetData($hDetails, _
 								"Loads the GitHub Wiki containing known alternatives to MSEdgeRedirect; The Installer then exits.")
+							GUICtrlSetData($hAccuracy, 1)
+							GUICtrlSetData($hCPUUsage, 1)
+							GUICtrlSetData($hCustomize, 1)
+							GUICtrlSetData($hModifies, 1)
 
 						Case Else
 							;;;

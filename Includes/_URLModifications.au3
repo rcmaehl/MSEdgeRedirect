@@ -391,7 +391,7 @@ EndFunc
 Func _CMDLineDecode($sCMDLine)
 
 	Local $aTemp
-	Local $aUrlMeta
+	; Local $aUrlMeta
 	Local $aCMDLine_1D
 	Local $aCMDLine_2D[0][0]
 
