@@ -633,9 +633,9 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
 		; Run Another App
 		Case FileExists(StringReplace($sCMDLine, "--single-argument ", "")); File Handling
-			If _GetSettingValue("NoFiles") Then
+			If _GetSettingValue("NoFiles") Or _GetSettingValue("NoPDFs") Then
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
-				If _IsSafeFile($sCMDLine) Then ShellExecute('"' & $sCMDLine & '"', "", "", $SHEX_EDIT)
+				If _IsSafeFile($sCMDLine) Then ShellExecute('"' & $sCMDLine & '"')
 			EndIf
 		#cs
 			If _GetSettingValue("NoPDFs") Then
