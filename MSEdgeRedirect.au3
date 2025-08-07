@@ -277,12 +277,17 @@ Func ProcessCMDLine()
 							Exit
 						Case Not RegRead("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "Start") = 4
 							ContinueCase
-						Case Not RegRead("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "FeatureV2") = 2
+						Case Not RegRead("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "FeatureV2") = 0
 							If MsgBox($MB_YESNO + $MB_ICONWARNING + $MB_TOPMOST, _
 								"Reboot Required", _
 								"A Reboot/Restart is required to disable User Choice Protection Driver (UCPD), would you like to do so now?") = $IDYES Then
 								RegWrite("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "Start", "REG_DWORD", 4)
-								RegWrite("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "FeatureV2", "REG_DWORD", 4)
+								RegWrite("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "FeatureV2", "REG_DWORD", 0)
+								RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\UCPDMgr.exe")
+								RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\UCPDMgr.exe", "UseFilter", "REG_DWORD", 1)
+								RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\UCPDMgr.exe\MSER")
+								RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\UCPDMgr.exe\MSER", "Debugger", "REG_SZ", $sDrive & "\Windows\System32\ping.exe")
+								RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\UCPDMgr.exe\MSER", "FilterFullPath", "REG_SZ", $sDrive & "\Windows\System32\UCPDMgr.exe")								
 								Shutdown($SD_REBOOT)
 							EndIf
 							_LogClose()

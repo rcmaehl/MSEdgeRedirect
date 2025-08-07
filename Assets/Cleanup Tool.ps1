@@ -33,6 +33,9 @@ Remove-Item "HKCU:\Software\Classes\Applications\MSEdgeRedirect.exe" -Recurse -F
 Remove-Item "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect" -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe" -Recurse -Force -ErrorAction SilentlyContinue
 
+## Europe Mode Install
+Remove-Item "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\UCPDMgr.exe" -Recurse -Force -ErrorAction SilentlyContinue
+
 # Restore Registry
 
 ## Europe Mode Install (>= 0.8.1.0)
@@ -99,6 +102,11 @@ try {
 catch {
     Exit
 }
+
+## Restore UCPD
+
+Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\UCPD" -Name "Start" -Value 1
+Set-ItemProperty -Path "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\UCPD" -Name "FeatureV2" -Value 2
 
 # End of Script, Advise Reboot
 Write-Output "It is Recommended that you Reboot your Computer."
