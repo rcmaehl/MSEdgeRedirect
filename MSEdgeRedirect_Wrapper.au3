@@ -736,7 +736,12 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		GUICtrlCreateLabel("Configure European Country", 20, 10, 420, 30)
 		GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 
-		GUICtrlCreateLabel("You may need to enable this via ViveTool (IDs: 43699941, 44353396)!", 20, 40, 420, 40)
+		GUICtrlCreateLabel("", 20, 40, 420, 40)
+		If (@OSVersion = "WIN_10" And @OSBuild <= 19045) Or (@OSVersion = "WIN_11" And @OSBuild <= 26100) Then
+			GUICtrlSetData(-1, "You may need to enable this via ViveTool (IDs: 43699941, 44353396)!")
+		Else
+			GUICtrlSetData(-1, "Warning: Enabling Europe Mode may disable AI (CoPilot) Features!")
+		EndIf
 		GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 
 		GUICtrlCreateGroup("Current Values", 20, 70, 210, 145)
