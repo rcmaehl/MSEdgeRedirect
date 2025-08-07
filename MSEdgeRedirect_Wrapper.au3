@@ -504,7 +504,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		If (@OSVersion = "WIN_11" And @OSBuild < 22621) Or (@OSVersion = "WIN_10" AND @OSBuild < 19045) Then
 			;;;
 		Else
-			_GUICtrlComboBoxEx_AddString($hOpMode, "Europe Mode", 0, 0)
+			_GUICtrlComboBoxEx_AddString($hOpMode, "Europe Mode (Beta)", 0, 0)
 		EndIf
 		_GUICtrlComboBoxEx_AddString($hOpMode, "Show Me Alternatives")
 		_GUICtrlComboBoxEx_EndUpdate($hOpMode)
@@ -965,6 +965,13 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 							EndIf
 						Case $hExit2
 							If @Compiled Then
+								;Backup Values
+								RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\DeviceRegion", "OldDeviceRegion", "REG_DWORD", GUICtrlRead($aOld[0]))
+								RegWrite("HKEY_USERS\.DEFAULT\Control Panel\International\Geo", "OldName", "REG_SZ", GUICtrlRead($aOld[1]))
+								RegWrite("HKEY_USERS\.DEFAULT\Control Panel\International\Geo", "OldNation", "REG_SZ", GUICtrlRead($aOld[2]))
+								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "OldName", "REG_SZ", GUICtrlRead($aOld[3]))
+								RegWrite("HKEY_CURRENT_USER\Control Panel\International\Geo", "OldNation", "REG_SZ", GUICtrlRead($aOld[4]))
+								; Write New Values
 								RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\DeviceRegion", "DeviceRegion", "REG_DWORD", GUICtrlRead($aNew[0]))
 								RegWrite("HKEY_USERS\.DEFAULT\Control Panel\International\Geo", "Name", "REG_SZ", GUICtrlRead($aNew[1]))
 								RegWrite("HKEY_USERS\.DEFAULT\Control Panel\International\Geo", "Nation", "REG_SZ", GUICtrlRead($aNew[2]))
