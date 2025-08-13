@@ -86,7 +86,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	Switch $aConfig[$vMode]
 		Case "Active"
 			If Not FileCopy(@ScriptFullPath, $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
-				FileWrite($hLogs[$Install], _NowCalc() & " - [CRITICAL] Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+				_Log($hLogs[$Install], _NowCalc() & " - [CRITICAL] Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
 				If Not $bSilent Then
 					MsgBox($MB_ICONERROR + $MB_OK, _
 						"[CRITICAL]", _
@@ -98,7 +98,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 		Case "Service"
 			If $aSettings[$bNoTray] Then $sArgs = "/hide"
 			If Not FileCopy(@ScriptFullPath, @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $FC_CREATEPATH+$FC_OVERWRITE) Then
-				FileWrite($hLogs[$Install], _NowCalc() & " - [CRITICAL] Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
+				_Log($hLogs[$Install], _NowCalc() & " - [CRITICAL] Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
 				If Not $bSilent Then
 					MsgBox($MB_ICONERROR + $MB_OK, _
 						"[CRITICAL]", _
@@ -109,13 +109,13 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 			EndIf
 			If $aSettings[$bStartup] Then
 				If Not FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @StartupDir & "\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs) Then
-					FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING] Unable to create application link in '" & @StartupDir & "\MSEdgeRedirect.lnk'" & @CRLF)
+					_Log($hLogs[$Install], _NowCalc() & " - [WARNING] Unable to create application link in '" & @StartupDir & "\MSEdgeRedirect.lnk'" & @CRLF)
 				EndIf
 			EndIf
 		Case "Portable"
 			; TODO: Double Check Portable Install Stuff
 		Case Else
-			FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING] Invalid Install Mode '" & $aConfig[$vMode] & "'" & @CRLF)
+			_Log($hLogs[$Install], _NowCalc() & " - [WARNING] Invalid Install Mode '" & $aConfig[$vMode] & "'" & @CRLF)
 	EndSwitch
 
 EndFunc
@@ -160,8 +160,8 @@ Func RunRemoval($bUpdate = False)
 	ElseIf $sHive = "HKCU" THen
 		$sLocation = @LocalAppDataDir & "\MSEdgeRedirect\"
 	Else
-		FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Determine Registry Hive for Uninstall." & @CRLF)
-		FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "DEBUG: " & _ArrayToString(_IsInstalled()) &  @CRLF)
+		_Log($hLogs[$PEBIAT], "Failed to Determine Registry Hive for Uninstall." & @CRLF)
+		_Log($hLogs[$PEBIAT], "DEBUG: " & _ArrayToString(_IsInstalled()) &  @CRLF)
 		_LogClose()
 		Exit 1359 ; ERROR_INTERNAL_ERROR
 	EndIf
@@ -354,7 +354,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		If ($aConfig[$bManaged] Or $aConfig[$vMode] = "Active") And Not $bIsAdmin Then
 			If $aConfig[$hFile] = "WINGET" Then
-				FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Escalate for Deployment." & @CRLF)
+				_Log($hLogs[$PEBIAT], "Failed to Self Escalate for Deployment." & @CRLF)
 			Else
 				_LogClose()
 				Exit 5 ; ERROR_ACCESS_DENIED
@@ -365,7 +365,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			If $aChannels[$iLoop] = True Then ExitLoop
 			If $iLoop = UBound($aChannels) - 1 Then
 				If $aConfig[$hFile] = "WINGET" Then
-					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate IEFO Channels." & @CRLF)
+					_Log($hLogs[$PEBIAT], "Failed to Self Validate IEFO Channels." & @CRLF)
 				Else
 					_LogClose()
 					Exit 1359 ; ERROR_INTERNAL_ERROR
@@ -376,7 +376,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		For $iLoop = $bNoApps To $bNoUpdates Step 1
 			If Not IsBool($aSettings[$iLoop]) Then
 				If $aConfig[$hFile] = "WINGET" Then
-					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Boolean Settings." & @CRLF)
+					_Log($hLogs[$PEBIAT], "Failed to Self Validate Boolean Settings." & @CRLF)
 				Else
 					_LogClose()
 					Exit 1359 ; ERROR_INTERNAL_ERROR
@@ -385,7 +385,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		Next
 		If Not IsBool($aSettings[$bStartup]) Then
 			If $aConfig[$hFile] = "WINGET" Then
-				FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Failed to Self Validate Startup Boolean." & @CRLF)
+				_Log($hLogs[$PEBIAT], "Failed to Self Validate Startup Boolean." & @CRLF)
 			Else
 				_LogClose()
 				Exit 1359 ; ERROR_INTERNAL_ERROR
@@ -419,7 +419,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			MsgBox($MB_ICONERROR+$MB_OK, _
 				"Admin Required", _
 				"Unable to update an Admin Install without Admin Rights!")
-			FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Non Admin Update Attempt on Admin Install. EXITING!" & @CRLF)
+			_Log($hLogs[$AppFailures], "Non Admin Update Attempt on Admin Install. EXITING!" & @CRLF)
 			For $iLoop = 0 To UBound($hLogs) - 1
 				FileClose($hLogs[$iLoop])
 			Next
@@ -770,7 +770,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		Local $aOld[6]
 
-		FileWrite($hLogs[$Install], _NowCalc() & " - " & "Read Pre-European Install Values of: " & _ArrayToString($aNations) & " & " & _ArrayToString($aIDs) & @CRLF)
+		_Log($hLogs[$Install], "Read Pre-European Install Values of: " & _ArrayToString($aNations) & " & " & _ArrayToString($aIDs) & @CRLF)
 
 		GUICtrlCreateLabel("Machine Region:", 30, 90, 95, 20)
 			$aOld[0] = GUICtrlCreateLabel($aNations[0], 125, 90, 95, 20, $SS_RIGHT)
@@ -1365,7 +1365,7 @@ Func SetAppShortcuts(ByRef $aConfig, ByRef $aSettings)
 			FileCreateShortcut(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", @AppDataDir & "\Microsoft\Windows\Start Menu\Programs\MSEdgeRedirect\MSEdgeRedirect.lnk", @LocalAppDataDir & "\MSEdgeRedirect\", $sArgs)
 
 		Case Else
-			FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Unexpected StartMenu Value: " & $aSettings[$sStartMenu] & @CRLF)
+			_Log($hLogs[$PEBIAT], "Unexpected StartMenu Value: " & $aSettings[$sStartMenu] & @CRLF)
 
 	EndSwitch
 

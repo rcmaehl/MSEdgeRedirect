@@ -122,7 +122,7 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "127.0.0.1", 2, 0, 0, 1) > 0 ; #162
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
-			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Localhost URL: " & $sCMDLine & @CRLF)
+			_Log($hLogs[$URIFailures], "Skipped Localhost URL: " & $sCMDLine & @CRLF)
 		Case Else
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			_DecodeAndRun($aCMDLine[1], $sCMDLine)
@@ -164,7 +164,7 @@ Func FixTreeIntegrity($aCMDLine)
 		
 		Case "MSEdge.exe"
 
-			FileWrite($hLogs[$AppGeneral], _NowCalc() & " - " & "Caught MSEdge Parent Process, Launched by " & _WinAPI_GetProcessName(_WinAPI_GetParentProcess($iParent)) & ", Grabbing Parameters." & @CRLF)
+			_Log($hLogs[$AppGeneral], "" & "Caught MSEdge Parent Process, Launched by " & _WinAPI_GetProcessName(_WinAPI_GetParentProcess($iParent)) & ", Grabbing Parameters." & @CRLF)
 
 			Local $aAdjust
 
@@ -262,7 +262,7 @@ Func ProcessCMDLine()
 						MsgBox($MB_ICONERROR+$MB_OK, _
 							"Admin Required", _
 							"Unable to install Active Mode without Admin Rights!")
-						FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Active Mode UAC Elevation Attempt Failed!" & @CRLF)
+						_Log($hLogs[$AppFailures], "" & "Active Mode UAC Elevation Attempt Failed!" & @CRLF)
 						_LogClose()
 						Exit
 					Else
@@ -274,7 +274,7 @@ Func ProcessCMDLine()
 							MsgBox($MB_ICONERROR+$MB_OK, _
 								"Admin Required", _
 								"Unable to Setup Europe Mode without Admin Rights!")
-							FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Europe Mode UAC Elevation Attempt Failed!" & @CRLF)
+							_Log($hLogs[$AppFailures], "" & "Europe Mode UAC Elevation Attempt Failed!" & @CRLF)
 							_LogClose()
 							Exit
 						Case Not RegRead("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "Start") = 4
@@ -391,12 +391,12 @@ Func ProcessCMDLine()
 					$hFile = "WINGET"
 					_ArrayDelete($CmdLine, 1)
 				Case "--MSEdgeRedirect"
-					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Recursion Prevention Check Failed. " & @CRLF & _
+					_Log($hLogs[$PEBIAT], "" & "Recursion Prevention Check Failed. " & @CRLF & _
 						"Commandline: " & _ArrayToString($CmdLine) & @CRLF & _ 
 						"Parent: " & _WinAPI_GetProcessName(_WinAPI_GetParentProcess()) & @CRLF)
 					_ArrayDelete($CmdLine, 1)
 				Case Else
-					FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Unexpected Commandline: " & _ArrayToString($CmdLine) & @CRLF)
+					_Log($hLogs[$PEBIAT], "" & "Unexpected Commandline: " & _ArrayToString($CmdLine) & @CRLF)
 					If @Compiled Then ; support for running non-compiled script - mLipok
 						MsgBox(0, _
 							"Invalid", _
@@ -590,7 +590,7 @@ Func RunArchCheck($bSilent = False)
 				"Wrong Version", _
 				"The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
 		EndIf
-		FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "32 Bit Version on 64 Bit System. EXITING!" & @CRLF)
+		_Log($hLogs[$AppFailures], "" & "32 Bit Version on 64 Bit System. EXITING!" & @CRLF)
 		_LogClose()
 		Exit 216 ; ERROR_EXE_MACHINE_TYPE_MISMATCH
 	EndIf
@@ -615,7 +615,7 @@ Func RunHTTPCheck($bSilent = False)
 					"Edge Set As Default", _
 					"You must set a different Default Browser to use MSEdgeRedirect! Once this is corrected, please relaunch MSEdgeRedirect.")
 			EndIf
-			FileWrite($hLogs[$AppFailures], _NowCalc() & " - " & "Found same MS Edge for both default browser and microsoft-edge handling, EXITING!" & @CRLF)
+			_Log($hLogs[$AppFailures], "" & "Found same MS Edge for both default browser and microsoft-edge handling, EXITING!" & @CRLF)
 			_LogClose()
 			Exit 4315 ; ERROR_MEDIA_INCOMPATIBLE
 		EndIf
@@ -632,10 +632,10 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
 		; Run Edge
 		Case StringRegExp($sCMDLine, "--default-search-provider=\? --out-pipe-name=MSEdgeDefault[a-z0-9]+")
-			FileWrite($hLogs[$AppSecurity], _NowCalc() & " - Passed Through MS-Settings Call: " & $sCMDLine & @CRLF)
+			_Log($hLogs[$AppSecurity], "Passed Through MS-Settings Call: " & $sCMDLine & @CRLF)
 			_SafeRun($sEdge, $sCMDLine)
 		Case $sCMDLine = "--no-startup-window --win-session-start"
-			FileWrite($hLogs[$AppSecurity], _NowCalc() & " - Passed Through MSEdge Startup Call: " & $sCMDLine & @CRLF)
+			_Log($hLogs[$AppSecurity], "Passed Through MSEdge Startup Call: " & $sCMDLine & @CRLF)
 			_SafeRun($sEdge, $sCMDLine)
 
 		; Run Another App
@@ -670,16 +670,16 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 					If _IsSafeURL($sCMDLine) Then
 						ShellExecute($sCMDLine)
 					Else
-						FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
+						_Log($hLogs[$URIFailures], "Invalid App URL: " & $sCMDLine & @CRLF)
 					EndIf
 				Case StringInStr($sCMDLine, "--ip-aumid=") ; Edge "Apps"
 					If _IsSafeApp($sCMDLine) Then
 						_SafeRun($sEdge, $sCMDLine)
 					Else
-						FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
+						_Log($hLogs[$URIFailures], "Invalid App URL: " & $sCMDLine & @CRLF)
 					EndIf
 				Case Else
-					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid App URL: " & $sCMDLine & @CRLF)
+					_Log($hLogs[$URIFailures], "Invalid App URL: " & $sCMDLine & @CRLF)
 			EndSelect
 
 		Case StringInStr($sCMDLine, "ux=copilot") ; CoPilot
@@ -691,9 +691,9 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
 		; Drop Call	
 		Case StringInStr($sCMDLine, "--default-search-provider=?")
-			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Blocked Invalid MS-Settings Call: " & $sCMDLine & @CRLF)
+			_Log($hLogs[$URIFailures], "Blocked Invalid MS-Settings Call: " & $sCMDLine & @CRLF)
 		Case StringInStr($sCMDLine, "profiles_settings")
-			FileWrite($hLogs[$URIFailures], _NowCalc() & " - Skipped Profile Settings URL: " & $sCMDLine & @CRLF)
+			_Log($hLogs[$URIFailures], "Skipped Profile Settings URL: " & $sCMDLine & @CRLF)
 
 		; Do Either (Drop Call or Run Edge)
 		Case StringInStr($sCMDLine, "bing.com/chat") Or StringInStr($sCMDLine, "bing.com%2Fchat") ; Fix BingAI
@@ -720,14 +720,14 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			Next
 
 			If $sURL = "" Then
-				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
+				_Log($hLogs[$URIFailures], "Command Line Missing Needed Parameters: " & $sCMDLine & @CRLF)
 			Else
-				FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Caught Valid URI Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
+				_Log($hLogs[$AppGeneral], "Caught Valid URI Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 				If _IsSafeURL($sURL) Then
 					$sURL = _ModifyURL($sURL)
 					ShellExecute($sURL)
 				Else
-					FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
+					_Log($hLogs[$URIFailures], "Invalid URL: " & $sCMDLine & @CRLF)
 				EndIf
 			EndIf
 
@@ -736,7 +736,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			If _GetSettingValue("RunUnsafe") Then
 				_SafeRun($sEdge, $sCMDLine)
 			Else
-				FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe Flag: " & $sCMDLine & @CRLF)
+				_Log($hLogs[$AppSecurity], "" & "Blocked Unsafe Flag: " & $sCMDLine & @CRLF)
 			EndIf
 
 		; Catch Everything Else
@@ -744,12 +744,12 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*) microsoft-edge:[\/]*", "") ; Legacy Installs
 			$sCMDLine = StringReplace($sCMDLine, "?url=", "")
 			If StringInStr($sCMDLine, "%2F") Then $sCMDLine = _WinAPI_UrlUnescape($sCMDLine)
-			FileWrite($hLogs[$AppGeneral], _NowCalc() & " - Caught Other Edge Call:" & @CRLF & $sCMDLine & @CRLF)
+			_Log($hLogs[$AppGeneral], "Caught Other Edge Call:" & @CRLF & $sCMDLine & @CRLF)
 			If _IsSafeURL($sCMDLine) Then
 				$sCMDLine = _ModifyURL($sCMDLine)
 				ShellExecute($sCMDLine)
 			Else
-				FileWrite($hLogs[$URIFailures], _NowCalc() & " - Invalid URL: " & $sCMDLine & @CRLF)
+				_Log($hLogs[$URIFailures], "Invalid URL: " & $sCMDLine & @CRLF)
 			EndIf
 	EndSelect
 EndFunc

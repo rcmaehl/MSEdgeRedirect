@@ -312,7 +312,7 @@ Func _ChangeWeatherProvider($sURL)
 								Case '"y"'
 									$fLat = StringTrimLeft($aData[$iLoop], 4)
 								Case Else
-									FileWrite($hLogs[$PEBIAT], _NowCalc() & " - " & "Unexpected Weather Entry: " & $aData[$iLoop] & " of " & _ArrayToString($aData) & @CRLF)
+									_Log($hLogs[$PEBIAT], "Unexpected Weather Entry: " & $aData[$iLoop] & " of " & _ArrayToString($aData) & @CRLF)
 							EndSwitch
 							$sSign = StringRegExpReplace($sURL, "(?i)(.*)(weadegreetype=)", "")
 							$sSign = StringRegExpReplace($sSign, "(?i)(?=&weaext0=)(.*)", "")
@@ -491,7 +491,7 @@ Func _WinAPI_UrlUnescape($sUrl, $dFlags = 0x00040000)
             "dword*", 4096, _ ; DWORD *pcchUnescaped - The number of characters in the buffer pointed to by pszUnescaped
             "dword", $dFlags) ; DWORD dwFlags
     If @error Then
-        FileWrite($hLogs[$URIFailures], _NowCalc() & " - " & "UrlUnescapeW call failed with error: (" & @error & "," & @extended & ")" & @CRLF)
+        _Log($hLogs[$URIFailures], "UrlUnescapeW call failed with error: (" & @error & "," & @extended & ")" & @CRLF)
         Return $sURL
     EndIf
 
@@ -499,10 +499,10 @@ Func _WinAPI_UrlUnescape($sUrl, $dFlags = 0x00040000)
 		If $aUrlUnescape[2] <> "decodedUrl" Then ; Decode Successful
 			Return $aUrlUnescape[2]
 		Else
-			FileWrite($hLogs[$URIFailures], _NowCalc() & " - " & "UrlUnescapeW failed. Attempt result: " & _ArrayToString($aUrlUnescape) & @CRLF)
+			_Log($hLogs[$URIFailures], "UrlUnescapeW failed. Attempt result: " & _ArrayToString($aUrlUnescape) & @CRLF)
 		EndIf
 	Else
-		FileWrite($hLogs[$URIFailures], _NowCalc() & " - " & "How did we get here? UrlUnescapeW is " & $aUrlUnescape & @CRLF)
+		_Log($hLogs[$URIFailures], "How did we get here? UrlUnescapeW is " & $aUrlUnescape & @CRLF)
 	EndIf
 	Return $sURL
     

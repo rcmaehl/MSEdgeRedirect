@@ -77,7 +77,7 @@ Func _GetSettingValue($sSetting, $sType = Null, $sLocation = Null)
 						Case $REG_DWORD Or $REG_QWORD
 							$vReturn = Number(RegRead("HKLM\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting))
 						Case Else
-							FileWrite($hLogs[$AppFailures], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
+							_Log($hLogs[$AppFailures], "Invalid Registry Key Type: " & $sSetting & @CRLF)
 					EndSwitch
 					If $bContinue Then ContinueCase
 
@@ -88,7 +88,7 @@ Func _GetSettingValue($sSetting, $sType = Null, $sLocation = Null)
 						Case $REG_DWORD Or $REG_QWORD
 							$vReturn = Number(RegRead("HKCU\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting))
 						Case Else
-							FileWrite($hLogs[$AppFailures], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
+							_Log($hLogs[$AppFailures], "Invalid Registry Key Type: " & $sSetting & @CRLF)
 					EndSwitch
 
 				Case $sLocation = "HKLM"
@@ -101,7 +101,7 @@ Func _GetSettingValue($sSetting, $sType = Null, $sLocation = Null)
 						Case $REG_DWORD Or $REG_QWORD
 							$vReturn = Number(RegRead("HKLM\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting))
 						Case Else
-							FileWrite($hLogs[$AppFailures], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
+							_Log($hLogs[$AppFailures], "Invalid Registry Key Type: " & $sSetting & @CRLF)
 					EndSwitch
 
 				Case $sLocation = "HKCU"
@@ -114,7 +114,7 @@ Func _GetSettingValue($sSetting, $sType = Null, $sLocation = Null)
 						Case $REG_DWORD Or $REG_QWORD
 							$vReturn = Number(RegRead("HKCU\SOFTWARE\Robert Maehl Software\MSEdgeRedirect", $sSetting))
 						Case Else
-							FileWrite($hLogs[$AppFailures], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
+							_Log($hLogs[$AppFailures], "Invalid Registry Key Type: " & $sSetting & @CRLF)
 					EndSwitch
 
 				Case $sLocation = "Appdata"
@@ -166,15 +166,15 @@ Func _SetSettingValue($sSetting, $vValue, $sLocation)
 			Select
 				Case IsBool($vValue)
 					RegWrite("HKLM\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_DWORD", $vValue)
-					If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write " & $sLocation & " REG_DWORD Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
+					If @error Then _Log($hLogs[$Install], "[WARNING!] Unable to write " & $sLocation & " REG_DWORD Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
 		
 				Case IsString($vValue)
 					RegWrite("HKLM\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_SZ", $vValue)
-					If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write " & $sLocation & " REG_SZ Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
+					If @error Then _Log($hLogs[$Install], "[WARNING!] Unable to write " & $sLocation & " REG_SZ Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
 		
 				Case Else
 					RegWrite("HKLM\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_SZ", $vValue)
-					If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write " & $sLocation & " REG_SZ Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
+					If @error Then _Log($hLogs[$Install], "[WARNING!] Unable to write " & $sLocation & " REG_SZ Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
 		
 			EndSelect
 			If $bContinue Then ContinueCase
@@ -183,28 +183,28 @@ Func _SetSettingValue($sSetting, $vValue, $sLocation)
 			Select
 				Case IsBool($vValue)
 					RegWrite("HKCU\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_DWORD", $vValue)
-					If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write " & $sLocation & " REG_DWORD Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
+					If @error Then _Log($hLogs[$Install], "[WARNING!] Unable to write " & $sLocation & " REG_DWORD Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
 		
 				Case IsString($vValue)
 					RegWrite("HKCU\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_SZ", $vValue)
-					If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write " & $sLocation & " REG_SZ Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
+					If @error Then _Log($hLogs[$Install], "[WARNING!] Unable to write " & $sLocation & " REG_SZ Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
 		
 				Case Else
 					RegWrite("HKCU\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_SZ", $vValue)
-					If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write " & $sLocation & " REG_SZ Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
+					If @error Then _Log($hLogs[$Install], "[WARNING!] Unable to write " & $sLocation & " REG_SZ Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
 		
 			EndSelect
 
 		Case "Appdata"
 			IniWrite(@LocalAppDataDir & "\MSEdgeRedirect\Settings.ini", "Settings", $sSetting, $vValue)
-			FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write '" & $sLocation & "' INI Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
+			_Log($hLogs[$Install], "[WARNING!] Unable to write '" & $sLocation & "' INI Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
 
 		Case "Portable"
-			IniWrite(@LocalAppDataDir & "\Settings.ini", "Settings", $sSetting, $vValue)
-			FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write '" & $sLocation & "' INI Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
+			IniWrite(@ScriptDir & "\Settings.ini", "Settings", $sSetting, $vValue)
+			_Log($hLogs[$Install], "[WARNING!] Unable to write '" & $sLocation & "' INI Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
 
 		Case Else
-			FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unknown Settings Location '" & $sLocation & "' when attempting to write '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
+			_Log($hLogs[$Install], "[WARNING!] Unknown Settings Location '" & $sLocation & "' when attempting to write '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
 
 	EndSwitch
 

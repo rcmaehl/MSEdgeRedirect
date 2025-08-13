@@ -76,7 +76,7 @@ Func _IsSafeApp(ByRef $sApp)
 		EndIf
 	Next
 
-	If Not $bSafe Then FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe App: " & $sApp & @CRLF)
+	If Not $bSafe Then _Log($hLogs[$AppSecurity], "Blocked Unsafe App: " & $sApp & @CRLF)
 
 	Return $bSafe
 
@@ -110,7 +110,7 @@ Func _IsSafeFile(ByRef $sPath)
 			$bSafe = False
 	EndSwitch
 
-	If Not $bSafe Then FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Potentially Unsafe File: " & $sPath & @CRLF)
+	If Not $bSafe Then _Log($hLogs[$AppSecurity], "Blocked Potentially Unsafe File: " & $sPath & @CRLF)
 
 	Return $bSafe
 
@@ -170,7 +170,7 @@ Func _IsSafeFlag(ByRef $sCommandLine)
 		EndIf
 	Next
 
-	If Not $bSafe Then FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe Flag: " & $sCommandLine & @CRLF)
+	If Not $bSafe Then _Log($hLogs[$AppSecurity], "Blocked Unsafe Flag: " & $sCommandLine & @CRLF)
 
 	Return $bSafe
 
@@ -190,7 +190,7 @@ Func _IsSafePDF(ByRef $sPath)
 			$bSafe = True
 	EndSelect
 
-	If Not $bSafe Then FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe File: " & $sPath & @CRLF)
+	If Not $bSafe Then _Log($hLogs[$AppSecurity], "Blocked Unsafe File: " & $sPath & @CRLF)
 
 	Return $bSafe
 
@@ -223,7 +223,7 @@ Func _IsSafeURL(ByRef $sURL)
 			;;;
 	EndSelect
 
-	If Not $bSafe Then FileWrite($hLogs[$AppSecurity], _NowCalc() & " - " & "Blocked Unsafe URL: " & $sURL & @CRLF)
+	If Not $bSafe Then _Log($hLogs[$AppSecurity], "Blocked Unsafe URL: " & $sURL & @CRLF)
 
 	Return $bSafe
 
