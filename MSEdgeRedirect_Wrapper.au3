@@ -1478,12 +1478,12 @@ Func _IsDestinationRestricted($sDirectory = Null)
 	Local $hTestFile
 
 	Select
+		Case $sDirectory <> Null
+			$hTestFile = FileOpen(".\writetest", $FO_CREATEPATH+$FO_OVERWRITE)
 		Case @ScriptDir = $sDrive & "\Program Files\MSEdgeRedirect"
 			Return True
 		Case @ScriptDir = @LocalAppDataDir & "\MSEdgeRedirect"
 			Return False
-		Case $sDirectory <> Null
-			$hTestFile = FileOpen(".\writetest", $FO_CREATEPATH+$FO_OVERWRITE)
 		Case Else
 			$hTestFile = FileOpen(".\writetest", $FO_CREATEPATH+$FO_OVERWRITE)
 
