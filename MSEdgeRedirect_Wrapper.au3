@@ -25,7 +25,7 @@
 ; TODO: Why have <Setting>PATH values for Custom handlers... Rewrite that.
 
 Global $sVersion
-Global $bIsPriv = _IsPriviledgedInstall()
+Global $bIsPriv = _IsDestinationRestricted()
 Global Enum $bNoApps, $bNoBing, $bNoChat, $bNoFeed, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoPilot, $bNoSpotlight, $bNoTray, $bNoUpdates, $sFeed, $sFeedPath, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
 
 If @Compiled Then
@@ -1473,22 +1473,27 @@ Func _IsInstalled()
 
 EndFunc
 
-; TODO: Rename. Detects if script install directory requires admin rights
-Func _IsPriviledgedInstall()
+Func _IsDestinationRestricted($sDirectory = Null)
 
 	Local $hTestFile
 
-	If @ScriptDir = $sDrive & "\Program Files\MSEdgeRedirect" Then
-		Return True
-	ElseIf @LocalAppDataDir & "\MSEdgeRedirect" Then
-		Return False
-	Else
-		$hTestFile = FileOpen(".\writetest", $FO_CREATEPATH)
-		If @error Then
+	Select
+		Case @ScriptDir = $sDrive & "\Program Files\MSEdgeRedirect"
 			Return True
-		Else
-			FileDelete($hTestFile)
+		Case @ScriptDir = @LocalAppDataDir & "\MSEdgeRedirect"
 			Return False
-		EndIf
+		Case $sDirectory <> Null
+			$hTestFile = FileOpen(".\writetest", $FO_CREATEPATH+$FO_OVERWRITE)
+		Case Else
+			$hTestFile = FileOpen(".\writetest", $FO_CREATEPATH+$FO_OVERWRITE)
+
+	EndSelect
+
+	If @error Then ; Did FileOpen Fail?
+		Return True
+	Else
+		FileDelete($hTestFile)
+		Return False
 	EndIf
+
 EndFunc
