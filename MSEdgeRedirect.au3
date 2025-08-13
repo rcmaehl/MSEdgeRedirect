@@ -77,6 +77,8 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--from-installer" ; Installing Edge
 			ContinueCase
+		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "-inprivate" ; In Private Browsing, Short Flag, No Parameters
+			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--inprivate" ; In Private Browsing, No Parameters
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--winrt-background-task-event", 2, 0, 0, 1) > 0 ; #94 & #95, Apps
