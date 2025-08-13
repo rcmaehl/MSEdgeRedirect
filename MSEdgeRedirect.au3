@@ -32,6 +32,7 @@
 #include <GUIConstantsEx.au3>
 #include <MsgBoxConstants.au3>
 
+#include "Includes\_Compat.au3"
 #include "Includes\_Logging.au3"
 #include "Includes\_Theming.au3"
 #include "Includes\_Security.au3"
@@ -104,23 +105,11 @@ Func ActiveMode(ByRef $aCMDLine)
 			EndIf
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			_SafeRun($aCMDLine[1], $sCMDLine)
-		Case $sParent = "BrowserSelect.exe" ; TODO: DOUBLE CHECK $aCMDLine[2]
-			ContinueCase
-		Case $sParent = "BrowserSelector.exe"
-			ContinueCase			
-		Case $sParent = "Hurl.exe"
+		Case _DoesParentProcessWantEdge($sParent)
 			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
 			_SafeRun($aCMDLine[1], $aCMDLine[2])
-		Case _ArraySearch($aCMDLine, "localhost:", 2, 0, 0, 1) > 0 ; Improve on #162
-			ContinueCase
-		Case _ArraySearch($aCMDLine, "localhost/", 2, 0, 0, 1) > 0 ; Improve on #162
-			ContinueCase
-		Case _ArraySearch($aCMDLine, @ComputerName & ":", 2, 0, 0, 1) > 0 ; Improve on #162
-			ContinueCase
-		Case _ArraySearch($aCMDLine, @ComputerName & "/", 2, 0, 0, 1) > 0 ; Improve on #162
-			ContinueCase
-		Case _ArraySearch($aCMDLine, "127.0.0.1", 2, 0, 0, 1) > 0 ; #162
+		Case _IsURLLocalHost($aCMDLine)
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			_Log($hLogs[$URIFailures], "Skipped Localhost URL: " & $sCMDLine & @CRLF)
 		Case Else

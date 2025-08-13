@@ -7,6 +7,9 @@
 
 #include "_Logging.au3"
 
+; URI Scheme Regex
+; ^[a-zA-Z][a-zA-Z0-9+\-.]*$:
+
 Func _ArraySafeDelim($aArray)
     
     Local $sChars = _ArrayToString($aArray, "")
