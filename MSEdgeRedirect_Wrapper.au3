@@ -40,28 +40,43 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	Local $sArgs = ""
 	Local Enum $bManaged = 1, $vMode
 
-	SetOptions("NoApps"     , $aSettings[$bNoApps]     , $aConfig)
-	SetOptions("NoBing"     , $aSettings[$bNoBing]     , $aConfig)
-	SetOptions("NoChat"     , $aSettings[$bNoChat]     , $aConfig)
-	SetOptions("NoFeed"     , $aSettings[$bNoFeed]     , $aConfig)
-	SetOptions("NoImgs"     , $aSettings[$bNoImgs]     , $aConfig)
-	SetOptions("NoMSN"      , $aSettings[$bNoMSN]      , $aConfig)
-	SetOptions("NoNews"     , $aSettings[$bNoNews]     , $aConfig)
-	SetOptions("NoPDFs"     , $aSettings[$bNoPDFs]     , $aConfig)
-	SetOptions("NoPilot"    , $aSettings[$bNoPilot]    , $aConfig)
-	SetOptions("NoSpotlight", $aSettings[$bNoSpotlight], $aConfig)
-	SetOptions("NoTray"     , $aSettings[$bNoTray]     , $aConfig)
-	SetOptions("NoUpdates"  , $aSettings[$bNoUpdates]  , $aConfig)
-	SetOptions("Feed"       , $aSettings[$sFeed]       , $aConfig)
-	SetOptions("FeedPath"   , $aSettings[$sFeedPath]   , $aConfig)
-	SetOptions("Images"     , $aSettings[$sImages]     , $aConfig)
-	SetOptions("ImagePath"  , $aSettings[$sImagePath]  , $aConfig)
-	SetOptions("News"       , $aSettings[$sNews]       , $aConfig)
-	SetOptions("PDFApp"     , $aSettings[$sPDFApp]     , $aConfig)
-	SetOptions("Search"     , $aSettings[$sSearch]     , $aConfig)
-	SetOptions("SearchPath" , $aSettings[$sSearchPath] , $aConfig)
-	SetOptions("Weather"    , $aSettings[$sWeather]    , $aConfig)
-	SetOptions("WeatherPath", $aSettings[$sWeatherPath], $aConfig)
+	If $aConfig[$bManaged] Then
+		$sLocation = "Policy"
+	Else
+		Switch $aConfig[$vMode]
+			Case "Active"
+				$sLocation = "HKLM"
+			Case "Service"
+				$sLocation = "HKCU"
+			Case "Portable"
+				$sLocation = "Portable"
+			Case Else
+				;;;
+		EndSwitch
+	EndIf
+
+	_SetSettingValue("NoApps"     , $aSettings[$bNoApps]     , $sLocation)
+	_SetSettingValue("NoBing"     , $aSettings[$bNoBing]     , $sLocation)
+	_SetSettingValue("NoChat"     , $aSettings[$bNoChat]     , $sLocation)
+	_SetSettingValue("NoFeed"     , $aSettings[$bNoFeed]     , $sLocation)
+	_SetSettingValue("NoImgs"     , $aSettings[$bNoImgs]     , $sLocation)
+	_SetSettingValue("NoMSN"      , $aSettings[$bNoMSN]      , $sLocation)
+	_SetSettingValue("NoNews"     , $aSettings[$bNoNews]     , $sLocation)
+	_SetSettingValue("NoPDFs"     , $aSettings[$bNoPDFs]     , $sLocation)
+	_SetSettingValue("NoPilot"    , $aSettings[$bNoPilot]    , $sLocation)
+	_SetSettingValue("NoSpotlight", $aSettings[$bNoSpotlight], $sLocation)
+	_SetSettingValue("NoTray"     , $aSettings[$bNoTray]     , $sLocation)
+	_SetSettingValue("NoUpdates"  , $aSettings[$bNoUpdates]  , $sLocation)
+	_SetSettingValue("Feed"       , $aSettings[$sFeed]       , $sLocation)
+	_SetSettingValue("FeedPath"   , $aSettings[$sFeedPath]   , $sLocation)
+	_SetSettingValue("Images"     , $aSettings[$sImages]     , $sLocation)
+	_SetSettingValue("ImagePath"  , $aSettings[$sImagePath]  , $sLocation)
+	_SetSettingValue("News"       , $aSettings[$sNews]       , $sLocation)
+	_SetSettingValue("PDFApp"     , $aSettings[$sPDFApp]     , $sLocation)
+	_SetSettingValue("Search"     , $aSettings[$sSearch]     , $sLocation)
+	_SetSettingValue("SearchPath" , $aSettings[$sSearchPath] , $sLocation)
+	_SetSettingValue("Weather"    , $aSettings[$sWeather]    , $sLocation)
+	_SetSettingValue("WeatherPath", $aSettings[$sWeatherPath], $sLocation)
 
 	$aPIDs = ProcessList("msedgeredirect.exe")
 	For $iLoop = 1 To $aPIDs[0][0] Step 1
@@ -257,18 +272,18 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	If $bSilent Then
 
 		If $bUpdate Then
-			$aSettings[$bNoApps] = _Bool(_GetSettingValue("NoApps"))
-			$aSettings[$bNoBing] = _Bool(_GetSettingValue("NoBing"))
-			$aSettings[$bNoChat] = _Bool(_GetSettingValue("NoChat"))
-			$aSettings[$bNoFeed] = _Bool(_GetSettingValue("NoFeed"))
-			$aSettings[$bNoImgs] = _Bool(_GetSettingValue("NoImgs"))
-			$aSettings[$bNoMSN] = _Bool(_GetSettingValue("NoMSN"))
-			$aSettings[$bNoNews] = _Bool(_GetSettingValue("NoNews"))
-			$aSettings[$bNoPDFs] = _Bool(_GetSettingValue("NoPDFs"))
-			$aSettings[$bNoPilot] = _Bool(_GetSettingValue("NoPilot"))
-			$aSettings[$bNoSpotlight] = _Bool(_GetSettingValue("NoSpotlight"))
-			$aSettings[$bNoTray] = _Bool(_GetSettingValue("NoTray"))
-			$aSettings[$bNoUpdates] = _Bool(_GetSettingValue("NoUpdates"))
+			$aSettings[$bNoApps] = _GetSettingValue("NoApps")
+			$aSettings[$bNoBing] = _GetSettingValue("NoBing")
+			$aSettings[$bNoChat] = _GetSettingValue("NoChat")
+			$aSettings[$bNoFeed] = _GetSettingValue("NoFeed")
+			$aSettings[$bNoImgs] = _GetSettingValue("NoImgs")
+			$aSettings[$bNoMSN] = _GetSettingValue("NoMSN")
+			$aSettings[$bNoNews] = _GetSettingValue("NoNews")
+			$aSettings[$bNoPDFs] = _GetSettingValue("NoPDFs")
+			$aSettings[$bNoPilot] = _GetSettingValue("NoPilot")
+			$aSettings[$bNoSpotlight] = _GetSettingValue("NoSpotlight")
+			$aSettings[$bNoTray] = _GetSettingValue("NoTray")
+			$aSettings[$bNoUpdates] =_GetSettingValue("NoUpdates")
 			If $aSettings[$bNoBing] Then
 				$aSettings[$sSearch] = _GetSettingValue("Search")
 				$aSettings[$sSearchPath] = _GetSettingValue("SearchPath")
@@ -303,31 +318,30 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$aConfig[$bManaged] = _Bool(IniRead($aConfig[$hFile], "Config", "Managed", False))
 			$aConfig[$vMode] = IniRead($aConfig[$hFile], "Config", "Mode", "Service")
 
-			; TODO: Merge with _GetSettingValue(Value, Forced Location)
-			$aSettings[$bNoApps] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoApps", $aSettings[$bNoApps]))
-			$aSettings[$bNoBing] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoBing", $aSettings[$bNoBing]))
-			$aSettings[$bNoChat] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoChat", $aSettings[$bNoChat]))
-			$aSettings[$bNoFeed] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoFeed", $aSettings[$bNoFeed]))
-			$aSettings[$bNoImgs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoImgs", $aSettings[$bNoImgs]))
-			$aSettings[$bNoMSN] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoMSN", $aSettings[$bNoMSN]))
-			$aSettings[$bNoNews] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoNews", $aSettings[$bNoNews]))
-			$aSettings[$bNoPDFs] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoPDFs", $aSettings[$bNoPDFs]))
-			$aSettings[$bNoPilot] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoPilot", $aSettings[$bNoPilot]))
-			$aSettings[$bNoSpotlight] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoSpotlight", $aSettings[$bNoSpotlight]))
-			$aSettings[$bNoTray] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoTray", $aSettings[$bNoTray]))
-			$aSettings[$bNoUpdates] = _Bool(IniRead($aConfig[$hFile], "Settings", "NoUpdates", $aSettings[$bNoUpdates]))
-			$aSettings[$sFeed] = _Bool(IniRead($aConfig[$hFile], "Settings", "Feed", $aSettings[$sFeed]))
-			$aSettings[$sFeedPath] = _Bool(IniRead($aConfig[$hFile], "Settings", "FeedPath", $aSettings[$sFeedPath]))
-			$aSettings[$sImages] = _Bool(IniRead($aConfig[$hFile], "Settings", "Images", $aSettings[$sImages]))
-			$aSettings[$sImagePath] = _Bool(IniRead($aConfig[$hFile], "Settings", "ImagePath", $aSettings[$sImagePath]))
-			$aSettings[$sNews] = _Bool(IniRead($aConfig[$hFile], "Settings", "News", $aSettings[$sNews]))
-			$aSettings[$sPDFApp] = IniRead($aConfig[$hFile], "Settings", "PDFApp", $aSettings[$sPDFApp])
-			$aSettings[$sSearchPath] = IniRead($aConfig[$hFile], "Settings", "SearchPath", $aSettings[$sSearchPath])
-			$aSettings[$sStartMenu] = IniRead($aConfig[$hFile], "Settings", "StartMenu", $aSettings[$sStartMenu])
-			$aSettings[$sSearch] = IniRead($aConfig[$hFile], "Settings", "Search", $aSettings[$sSearch])
-			$aSettings[$bStartup] = _Bool(IniRead($aConfig[$hFile], "Settings", "Startup", $aSettings[$bStartup]))
-			$aSettings[$sWeather] = IniRead($aConfig[$hFile], "Settings", "Weather", $aSettings[$sWeather])
-			$aSettings[$sWeatherPath] = IniRead($aConfig[$hFile], "Settings", "WeatherPath", $aSettings[$sWeatherPath])
+			$aSettings[$bNoApps] = _GetSettingValue("NoApps", "Bool", $aConfig[$hFile])
+			$aSettings[$bNoBing] = _GetSettingValue("NoBing", "Bool", $aConfig[$hFile])
+			$aSettings[$bNoChat] = _GetSettingValue("NoChat", "Bool", $aConfig[$hFile])
+			$aSettings[$bNoFeed] = _GetSettingValue("NoFeed", "Bool", $aConfig[$hFile])
+			$aSettings[$bNoImgs] = _GetSettingValue("NoImgs", "Bool", $aConfig[$hFile])
+			$aSettings[$bNoMSN] = _GetSettingValue("NoMSN", "Bool", $aConfig[$hFile])
+			$aSettings[$bNoNews] = _GetSettingValue("NoNews", "Bool", $aConfig[$hFile])
+			$aSettings[$bNoPDFs] = _GetSettingValue("NoPDFs", "Bool", $aConfig[$hFile])
+			$aSettings[$bNoPilot] = _GetSettingValue("NoPilot", "Bool", $aConfig[$hFile])
+			$aSettings[$bNoSpotlight] = _GetSettingValue("NoSpotlight", "Bool", $aConfig[$hFile])
+			$aSettings[$bNoTray] = _GetSettingValue("NoTray", "Bool", $aConfig[$hFile])
+			$aSettings[$bNoUpdates] = _GetSettingValue("NoUpdates", "Bool", $aConfig[$hFile])
+			$aSettings[$sFeed] = _GetSettingValue("Feed", "String", $aConfig[$hFile])
+			$aSettings[$sFeedPath] = _GetSettingValue("FeedPath", "String", $aConfig[$hFile])
+			$aSettings[$sImages] = _GetSettingValue("Images", "String", $aConfig[$hFile])
+			$aSettings[$sImagePath] = _GetSettingValue("ImagePath", "String", $aConfig[$hFile])
+			$aSettings[$sNews] = _GetSettingValue("News", "String", $aConfig[$hFile])
+			$aSettings[$sPDFApp] = _GetSettingValue("PDFApp", "String", $aConfig[$hFile])
+			$aSettings[$sSearchPath] = _GetSettingValue("SearchPath", "String", $aConfig[$hFile])
+			$aSettings[$sStartMenu] = _GetSettingValue("StartMenu", "String", $aConfig[$hFile])
+			$aSettings[$sSearch] = _GetSettingValue("Search", "String", $aConfig[$hFile])
+			$aSettings[$bStartup] = _GetSettingValue("Startup", "Bool", $aConfig[$hFile])
+			$aSettings[$sWeather] = _GetSettingValue("Weather", "String", $aConfig[$hFile])
+			$aSettings[$sWeatherPath] = _GetSettingValue("WeatherPath", "String", $aConfig[$hFile])
 
 			$sEdges = IniRead($aConfig[$hFile], "Settings", "Edges", "")
 			If StringInStr($sEdges, "Stable") Then $aChannels[0] = True
@@ -399,7 +413,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		Local $aPages[6]
 		Local Enum $hLicense, $hMode, $hSettings, $hFinish, $hExit, $hCountry, $hExit2
 
-		If @Compiled And Not _GetSettingValue("NoUpdates") Then RunUpdateCheck()
+		If @Compiled And Not _GetSettingValue("NoUpdates", "Bool") Then RunUpdateCheck()
 
 		If StringInStr($bUpdate, "HKLM") And Not $bIsAdmin And Not @Compiled Then
 			MsgBox($MB_ICONERROR+$MB_OK, _
@@ -505,6 +519,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			;;;
 		Else
 			_GUICtrlComboBoxEx_AddString($hOpMode, "Europe Mode (Beta)", 0, 0)
+		EndIf
+		If Not RegRead("HKLM\Software\Classes\microsoft-edge", "") And Not RegRead("HKCU\Software\Classes\microsoft-edge", "") Then
+			_GUICtrlComboBoxEx_AddString($hOpMode, "Edgeless Mode (Beta)", 0, 0)
 		EndIf
 		_GUICtrlComboBoxEx_AddString($hOpMode, "Show Me Alternatives")
 		_GUICtrlComboBoxEx_EndUpdate($hOpMode)
@@ -624,7 +641,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				GUICtrlSetState($hNoIcon, $GUI_DISABLE)
 			ElseIf $bUpdate Then
 				GUICtrlSetState($hStartup, FileExists(@StartupDir & "\MSEdgeRedirect.lnk"))
-				GUICtrlSetState($hNoIcon, _GetSettingValue("NoApps"))
+				GUICtrlSetState($hNoIcon, _GetSettingValue("NoApps", "Bool"))
 			EndIf
 
 		GUICtrlCreateGroup("Additional Redirections", 20, 200, 420, 210)
@@ -660,49 +677,49 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hNoApps = GUICtrlCreateCheckbox("Redirect Windows Store 'Apps'", 240, 365, 180, 20)
 
 		If $bUpdate Then
-			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps"))
-			GUICtrlSetState($hSearch, _GetSettingValue("NoBing"))
+			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps", "Bool"))
+			GUICtrlSetState($hSearch, _GetSettingValue("NoBing", "Bool"))
 			If _IsChecked($hSearch) Then
 				GUICtrlSetState($hEngine, $GUI_ENABLE)
-				GUICtrlSetData($hEngine, _GetSettingValue("Search"))
-				$sEngine = _GetSettingValue("SearchPath")
+				GUICtrlSetData($hEngine, _GetSettingValue("Search", "String"))
+				$sEngine = _GetSettingValue("SearchPath", "String")
 			EndIf
-			GUICtrlSetState($hNoChat, _GetSettingValue("NoChat"))
-			GUICtrlSetState($hNoFeed, _GetSettingValue("NoFeed"))
+			GUICtrlSetState($hNoChat, _GetSettingValue("NoChat", "Bool"))
+			GUICtrlSetState($hNoFeed, _GetSettingValue("NoFeed", "Bool"))
 			If _IsChecked($hNoFeed) Then
 				GUICtrlSetState($hFeedSRC, $GUI_ENABLE)
-				GUICtrlSetData($hFeedSRC, _GetSettingValue("Feed"))
-				$sFeedEng = _GetSettingValue("FeedPath")
+				GUICtrlSetData($hFeedSRC, _GetSettingValue("Feed", "String"))
+				$sFeedEng = _GetSettingValue("FeedPath", "String")
 			EndIf
-			GUICtrlSetState($hNoImgs, _GetSettingValue("NoImgs"))
+			GUICtrlSetState($hNoImgs, _GetSettingValue("NoImgs", "Bool"))
 			If _IsChecked($hNoImgs) Then
 				GUICtrlSetState($hImgSRC, $GUI_ENABLE)
-				GUICtrlSetData($hImgSRC, _GetSettingValue("Images"))
-				$sImgEng = _GetSettingValue("ImagePath")
+				GUICtrlSetData($hImgSRC, _GetSettingValue("Images", "String"))
+				$sImgEng = _GetSettingValue("ImagePath", "String")
 			EndIf
-			GUICtrlSetState($hNoMSN, _GetSettingValue("NoMSN"))
+			GUICtrlSetState($hNoMSN, _GetSettingValue("NoMSN", "Bool"))
 			If _IsChecked($hNoMSN) Then
 				GUICtrlSetState($hWeather, $GUI_ENABLE)
-				GUICtrlSetData($hWeather, _GetSettingValue("Weather"))
-				$sWeatherEng = _GetSettingValue("WeatherPath")
+				GUICtrlSetData($hWeather, _GetSettingValue("Weather", "String"))
+				$sWeatherEng = _GetSettingValue("WeatherPath", "String")
 			EndIf
-			GUICtrlSetState($hNoNews, _GetSettingValue("NoNews"))
+			GUICtrlSetState($hNoNews, _GetSettingValue("NoNews", "Bool"))
 			If _IsChecked($hNoNews) Then
 				GUICtrlSetState($hNewSRC, $GUI_ENABLE)
-				GUICtrlSetData($hNewSRC, _GetSettingValue("News"))
+				GUICtrlSetData($hNewSRC, _GetSettingValue("News", "String"))
 			EndIf
-			GUICtrlSetState($hNoPDFs, _GetSettingValue("NoPDFs"))
+			GUICtrlSetState($hNoPDFs, _GetSettingValue("NoPDFs", "Bool"))
 			If _IsChecked($hNoPDFs) Then
 				GUICtrlSetState($hPDFSrc, $GUI_ENABLE)
-				If StringInStr(_GUICtrlComboBox_GetList($hPDFSrc), _GetSettingValue("PDFApp")) Then
-					GUICtrlSetData($hPDFSrc, _GetSettingValue("PDFApp"))
+				If StringInStr(_GUICtrlComboBox_GetList($hPDFSrc), _GetSettingValue("PDFApp", "String")) Then
+					GUICtrlSetData($hPDFSrc, _GetSettingValue("PDFApp", "String"))
 				Else
 					GUICtrlSetData($hPDFSrc, "Custom")
 				EndIf
-				$sHandler = _GetSettingValue("PDFApp")
+				$sHandler = _GetSettingValue("PDFApp", "String")
 			EndIf
-			GUICtrlSetState($hNoSpotLight, _GetSettingValue("NoSpotlight"))
-			GUICtrlSetState($hNoPilot, _GetSettingValue("NoPilot"))
+			GUICtrlSetState($hNoSpotLight, _GetSettingValue("NoSpotlight", "Bool"))
+			GUICtrlSetState($hNoPilot, _GetSettingValue("NoPilot", "Bool"))
 		EndIf
 
 		GUISwitch($hInstallGUI)
@@ -950,21 +967,29 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								GUICtrlSetState($hHelp, $GUI_DISABLE)
 								GUICtrlSetState($hBack, $GUI_DISABLE)
 								GUICtrlSetState($hCancel, $GUI_DISABLE)
-								If $aConfig[$vMode] = "Active" Then
-									GUICtrlSetState($hLaunch, $GUI_DISABLE)
-								Else
-									GUICtrlSetState($hLaunch, $GUI_CHECKED)
-								EndIf
+								Switch $aConfig[$vMode]
+									Case "Service"
+										GUICtrlSetState($hLaunch, $GUI_CHECKED)
+									Case Else
+										GUICtrlSetState($hLaunch, $GUI_DISABLE)
+								EndSwitch
 							EndIf
 						Case $hExit
 							If @Compiled Then
 								If _IsChecked($hAppLnk) Then SetAppShortcuts($aConfig, $aSettings)
 								If _IsChecked($hDonate) Then ShellExecute("https://www.paypal.com/donate/?hosted_button_id=YL5HFNEJAAMTL")
 								If _IsChecked($hHelpUs) Then ShellExecute("https://safebrowsing.google.com/safebrowsing/report_error/?url=https://github.com/rcmaehl/MSEdgeRedirect")
-								If $aConfig[$vMode] <> "Active" And _IsChecked($hLaunch) Then
-									If $aSettings[$bNoTray] Then $sArgs = "/hide"
-									ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
-								EndIf
+								Switch $aConfig[$vMode]
+									Case "Service"
+										If _IsChecked($hLaunch) Then
+											If $aSettings[$bNoTray] Then $sArgs = "/hide"
+											ShellExecute(@LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe", $sArgs, @LocalAppDataDir & "\MSEdgeRedirect\")
+										EndIf
+									Case "Portable"
+										MsgBox($MB_OK + $MB_ICONINFORMATION + $MB_TOPMOST, "MSEdgeRedirect is ready to be moved", "MSEdgeRedirect.exe and Settings.ini can now be moved to your preferred location (e.g. A USB drive) after clicking OK.")
+									Case Else
+										;;;
+								EndSwitch
 								_LogClose()
 								Exit
 							EndIf
@@ -1370,32 +1395,6 @@ Func SetIFEORegistry(ByRef $aChannels)
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger", "REG_SZ", $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "FilterFullPath", "REG_SZ", $aEdges[5])
 	EndIf
-EndFunc
-
-Func SetOptions($sName, $vValue, ByRef $aConfig)
-
-	Local Static $sLocation = ""
-	Local Enum $bManaged = 1, $vMode
-
-	If $sLocation = "" Then
-		If $bManaged Then
-			$sLocation = "Policy"
-		Else
-			Switch $aConfig[$vMode]
-				Case "Active"
-					$sLocation = "HKLM"
-				Case "Service"
-					$sLocation = "HKCU"
-				Case "Portable"
-					$sLocation = "Portable"
-				Case Else
-					;;;
-			EndSwitch
-		EndIf		
-	EndIf
-
-	_SetSettingsValue($sName, $vValue, $sLocation)
-
 EndFunc
 
 Func SetupAppdata()

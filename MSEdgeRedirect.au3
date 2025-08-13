@@ -87,7 +87,7 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--notification-launch-id", 2, 0, 0, 1) > 0 ; #225, Web App Notifications
 			ContinueCase
-		Case _ArraySearch($aCMDLine, "--app-id", 2, 0, 0, 1) > 0 And Not _GetSettingValue("NoApps")
+		Case _ArraySearch($aCMDLine, "--app-id", 2, 0, 0, 1) > 0 And Not _GetSettingValue("NoApps", "Bool")
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--remote-debugging-port=", 2, 0, 0, 1) > 0 ; #271, Debugging Apps
 			ContinueCase
@@ -200,14 +200,14 @@ EndFunc
 Func ProcessCMDLine()
 
 	Local $aPIDs
-	Local $bHide = _GetSettingValue("NoTray")
+	Local $bHide = _GetSettingValue("NoTray", "Bool")
 	Local $hFile = @ScriptDir & ".\Setup.ini"
 	Local $bForce = False
 	; Local $iChance = 10
 	Local $iParams = $CmdLine[0]
 	Local $sCMDLine = _ArrayToString($CmdLine, " ", 1)
 	Local $bSilent = False
-	Local $aInstall[3]
+	Local $aInstall[3] ; [Installed, Registry Hive, Version]
 
 	$aInstall = _IsInstalled()
 	If DriveGetType(@ScriptDir) = "Removable" And FileExists(".\Settings.ini") Then _GetSettingValue("SetPortable")
@@ -219,7 +219,7 @@ Func ProcessCMDLine()
 			ActiveMode($CMDLine)
 			; TODO: Parse $aSettings[], decrease likelyhood based on number of enabled features so that users with more features enabled aren't spammed
 			; TODO: Revamp $aSettings to remove "Custom", have <whatever>PATH to replace "CUSTOM"
-			If Not _GetSettingValue("NoUpdates") And Random(1, 10, 1) = 1 Then RunUpdateCheck()
+			If Not _GetSettingValue("NoUpdates", "Bool") And Random(1, 10, 1) = 1 Then RunUpdateCheck()
 			_LogClose()
 			Exit
 		EndIf
@@ -503,7 +503,7 @@ Func ReactiveMode($bHide = False)
 	Local $sProcessPath
 	Local $sCommandline	
 
-	If _GetSettingValue("NoApps") Then
+	If _GetSettingValue("NoApps", "Bool") Then
 		$sRegex = "(?i).*(microsoft\-edge|app\-id).*"
 	Else
 		$sRegex = "(?i).*(microsoft\-edge).*"
@@ -640,18 +640,18 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
 		; Run Another App
 		Case FileExists(StringReplace($sCMDLine, "--single-argument ", "")); File Handling
-			If _GetSettingValue("NoFiles") Or _GetSettingValue("NoPDFs") Then
+			If _GetSettingValue("NoFiles", "Bool") Or _GetSettingValue("NoPDFs", "Bool") Then
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
 				If _IsSafeFile($sCMDLine) Then ShellExecute('"' & $sCMDLine & '"', "", "", $SHEX_EDIT)
 			EndIf
 		#cs
-			If _GetSettingValue("NoPDFs") Then
+			If _GetSettingValue("NoPDFs", "Bool") Then
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
-				Switch _GetSettingValue("PDFApp")
+				Switch _GetSettingValue("PDFApp", "String")
 					Case "Default", False
 						If RunPDFCheck() And _IsSafePDF($sCMDLine) Then ShellExecute('"' & $sCMDLine & '"')
 					Case Else
-						ShellExecute(_GetSettingValue("PDFApp"), '"' & $sCMDLine & '"')
+						ShellExecute(_GetSettingValue("PDFApp", "String"), '"' & $sCMDLine & '"')
 				EndSwitch
 			Else
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
@@ -664,7 +664,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 		; Do Either (Run Another App or Run Edge)
 		Case StringInStr($sCMDLine, "--app-id") ; "Apps"
 			Select
-				Case StringInStr($sCMDLine, "--app-fallback-url=") And _GetSettingValue("NoApps"); Windows Store "Apps"
+				Case StringInStr($sCMDLine, "--app-fallback-url=") And _GetSettingValue("NoApps", "Bool"); Windows Store "Apps"
 					$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*)(--app-fallback-url=)", "")
 					$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(?= --)(.*)", "")
 					If _IsSafeURL($sCMDLine) Then
@@ -683,7 +683,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			EndSelect
 
 		Case StringInStr($sCMDLine, "ux=copilot") ; CoPilot
-			If _GetSettingValue("NoPilot") Then
+			If _GetSettingValue("NoPilot", "Bool") Then
 				ShellExecute("ms-settings:")
 			Else
 				_SafeRun($sEdge, $sCMDLine)
@@ -697,7 +697,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
 		; Do Either (Drop Call or Run Edge)
 		Case StringInStr($sCMDLine, "bing.com/chat") Or StringInStr($sCMDLine, "bing.com%2Fchat") ; Fix BingAI
-			If _GetSettingValue("NoChat") Then 
+			If _GetSettingValue("NoChat", "Bool") Then 
 				ContinueCase
 			Else
 				_SafeRun($sEdge, $sCMDLine)

@@ -22,7 +22,7 @@ Func _ChangeFeedProvider($sURL)
 
 	If StringRegExp($sURL, "https?\:\/\/www.msn\.com\/[a-z]{2}-[a-z]{2}\/feed.*") Then
 
-		Switch _GetSettingValue("Feed")
+		Switch _GetSettingValue("Feed", "String")
 
 			Case "Ask"
 				$sUrl = "https://www.ask.com/"
@@ -31,7 +31,7 @@ Func _ChangeFeedProvider($sURL)
 				$sURL = "https://news.baidu.com/"
 
 			Case "Custom"
-				$sURL = _GetSettingValue("FeedPath")
+				$sURL = _GetSettingValue("FeedPath", "String")
 
 			Case "Google"
 				$sURL = "https://news.google.com/"
@@ -43,7 +43,7 @@ Func _ChangeFeedProvider($sURL)
 				$sURL = $sURL
 
 			Case Else
-				$sURL = _GetSettingValue("FeedPath")
+				$sURL = _GetSettingValue("FeedPath", "String")
 
 		EndSwitch
 	EndIf
@@ -63,7 +63,7 @@ Func _ChangeImageProvider($sURL)
 
 		$sOriginal = $sURL
 
-		Switch _GetSettingValue("Images")
+		Switch _GetSettingValue("Images", "String")
 
 			Case "Baidu"
 				$sURL = "https://image.baidu.com/search/index?tn=baiduimage&word=" & $sURL
@@ -72,7 +72,7 @@ Func _ChangeImageProvider($sURL)
 				$sURL = "https://search.brave.com/?ia=images&iax=images&q=" & $sURL
 
 			Case "Custom"
-				$sURL = _GetSettingValue("ImagePath")
+				$sURL = _GetSettingValue("ImagePath", "String")
 				If StringInStr($sURL, "%query%") Then
 					$sURL = StringReplace($sURL, "%query%", $sOriginal)
 				Else
@@ -104,7 +104,7 @@ Func _ChangeImageProvider($sURL)
 				$sURL = "https://bing.com/images/search?q=" & $sURL
 
 			Case Else
-				$sURL = _GetSettingValue("ImagePath") & $sURL
+				$sURL = _GetSettingValue("ImagePath", "String") & $sURL
 
 		EndSwitch
 	EndIf
@@ -151,7 +151,7 @@ Func _ChangeNewsProvider($sURL)
 		Next
 
 		If StringInStr($sURL, "-") Then ; All News URLs use "-" instead of spaces
-			Switch _GetSettingValue("News")
+			Switch _GetSettingValue("News", "String")
 
 				Case "DuckDuckGo"
 					$sURL = "https://duckduckgo.com/?q=%5C" & $sURL & "+-site%3Amsn.com%20-site%3Abing.com"
@@ -183,7 +183,7 @@ Func _ChangeSearchEngine($sURL)
 	Select
 
 		Case StringInStr($sURL, "bing.com/spotlight")
-			If _GetSettingValue("NoSpotlight") Then ContinueCase
+			If _GetSettingValue("NoSpotlight", "Bool") Then ContinueCase
 
 		Case StringInStr($sURL, "bing.com/search?q=")
 			$sURL = StringRegExpReplace($sURL, "(?i)(.*)((\?|&)q=)", "")
@@ -191,7 +191,7 @@ Func _ChangeSearchEngine($sURL)
 
 			$sOriginal = $sURL
 
-			Switch _GetSettingValue("Search")
+			Switch _GetSettingValue("Search", "String")
 
 				Case "Ask"
 					$sURL = "https://www.ask.com/web?q=" & $sURL
@@ -203,7 +203,7 @@ Func _ChangeSearchEngine($sURL)
 					$sURL = "https://search.brave.com/search?q=" & $sURL
 
 				Case "Custom"
-					$sURL = _GetSettingValue("SearchPath")
+					$sURL = _GetSettingValue("SearchPath", "String")
 					If StringInStr($sURL, "%query%") Then
 						$sURL = StringReplace($sURL, "%query%", $sOriginal)
 					Else
@@ -238,7 +238,7 @@ Func _ChangeSearchEngine($sURL)
 					$sURL = "https://bing.com/search?q=" & $sURL
 
 				Case Else
-					$sURL = _GetSettingValue("SearchPath") & $sURL
+					$sURL = _GetSettingValue("SearchPath", "String") & $sURL
 
 			EndSwitch
 	EndSelect
@@ -323,13 +323,13 @@ Func _ChangeWeatherProvider($sURL)
 
 				EndSelect
 
-				Switch _GetSettingValue("Weather")
+				Switch _GetSettingValue("Weather", "String")
 
 					Case "AccuWeather"
 						$sURL = "https://www.accuweather.com/en/search-locations?query=" & $fLat & "," & $fLong
 
 					Case "Custom"
-						$sURL = _GetSettingValue("WeatherPath")
+						$sURL = _GetSettingValue("WeatherPath", "String")
 						$sURL = StringReplace($sURL, "%lat%", $fLat)
 						$sURL = StringReplace($sURL, "%long%", $fLong)
 						$sURL = StringReplace($sURL, "%locale%", $sLocale)
@@ -378,11 +378,11 @@ EndFunc
 Func _ModifyURL($sURL)
 
 	$sURL = _ChangeBingWS($sURL)
-	If _GetSettingValue("NoFeed") Then $sURL = _ChangeFeedProvider($sURL)
-	If _GetSettingValue("NoImgs") Then $sURL = _ChangeImageProvider($sURL)
-	If _GetSettingValue("NoBing") Then $sURL = _ChangeSearchEngine($sURL)
-	If _GetSettingValue("NoMSN") Then $sURL = _ChangeWeatherProvider($sURL)
-	If _GetSettingValue("NoNews") Then $sURL = _ChangeNewsProvider($sURL)
+	If _GetSettingValue("NoFeed", "Bool") Then $sURL = _ChangeFeedProvider($sURL)
+	If _GetSettingValue("NoImgs", "Bool") Then $sURL = _ChangeImageProvider($sURL)
+	If _GetSettingValue("NoBing", "Bool") Then $sURL = _ChangeSearchEngine($sURL)
+	If _GetSettingValue("NoMSN", "Bool") Then $sURL = _ChangeWeatherProvider($sURL)
+	If _GetSettingValue("NoNews", "Bool") Then $sURL = _ChangeNewsProvider($sURL)
 
 	Return $sURL
 

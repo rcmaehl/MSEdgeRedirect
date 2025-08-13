@@ -44,11 +44,11 @@ Func _Bool($sString)
 		Case "False", 0
 			Return False
 		Case Else
-			Return $sString
+			Return False
 	EndSwitch
 EndFunc
 
-Func _GetSettingValue($sSetting, $sLocation = Null)
+Func _GetSettingValue($sSetting, $sType = Null, $sLocation = Null)
 
 	Local $vReturn = Null
 	Local $bContinue = False
@@ -129,17 +129,29 @@ Func _GetSettingValue($sSetting, $sLocation = Null)
 				Case Not IniRead(@ScriptDir & "\Settings.ini", "Settings", $sSetting, Null) = Null
 					$vReturn = _Bool(IniRead(@ScriptDir & "\Settings.ini", "Settings", $sSetting, False))
 
+				Case FileExists($sLocation)
+					$vReturn = IniRead($sLocation, "Settings", $sSetting, False)
+
 				Case Else
 					$vReturn = False
 
 			EndSelect
 	EndSwitch
 
+	If $sType <> Null Then
+		Switch $sType
+			Case "Bool"
+				$vReturn = _Bool($vReturn)
+			Case Else
+				;;;
+		EndSwitch
+	EndIf
+
 	Return $vReturn
 
 EndFunc
 
-Func _SetSettingsValue($sSetting, $vValue, $sLocation)
+Func _SetSettingValue($sSetting, $vValue, $sLocation)
 
 	Local $sPolicy = ""
 	
