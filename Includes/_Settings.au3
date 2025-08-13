@@ -51,6 +51,7 @@ EndFunc
 Func _GetSettingValue($sSetting, $sLocation = Null)
 
 	Local $vReturn = Null
+	Local $bContinue = False
 	Local Static $bPortable
 
 	Switch $sSetting
@@ -66,6 +67,7 @@ Func _GetSettingValue($sSetting, $sLocation = Null)
 			Select
 
 				Case $sLocation = "Policy"
+					$bContinue = True
 					ContinueCase
 
 				Case RegRead("HKLM\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting)
@@ -74,6 +76,17 @@ Func _GetSettingValue($sSetting, $sLocation = Null)
 							$vReturn = RegRead("HKLM\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting)
 						Case $REG_DWORD Or $REG_QWORD
 							$vReturn = Number(RegRead("HKLM\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting))
+						Case Else
+							FileWrite($hLogs[$AppFailures], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
+					EndSwitch
+					If $bContinue Then ContinueCase
+
+				Case RegRead("HKCU\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting)
+					Switch @extended
+						Case $REG_SZ Or $REG_EXPAND_SZ
+							$vReturn = RegRead("HKCU\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting)
+						Case $REG_DWORD Or $REG_QWORD
+							$vReturn = Number(RegRead("HKCU\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $sSetting))
 						Case Else
 							FileWrite($hLogs[$AppFailures], _NowCalc() & " - Invalid Registry Key Type: " & $sSetting & @CRLF)
 					EndSwitch
@@ -132,22 +145,40 @@ Func _SetSettingsValue($sSetting, $vValue, $sLocation)
 	
 	Switch $sLocation
 
-		Case "Policy"
+		Case "Policy" ; TODO, have Policy NOT write to both HKLM and HKCU
 			$sPolicy = "Policies\"
+			$bContinue = True
 			ContinueCase
 
-		Case "HKLM", "HKCU"
+		Case "HKLM"
 			Select
 				Case IsBool($vValue)
-					RegWrite($sLocation & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_DWORD", $vValue)
+					RegWrite("HKLM\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_DWORD", $vValue)
 					If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write " & $sLocation & " REG_DWORD Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
 		
 				Case IsString($vValue)
-					RegWrite($sLocation & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_SZ", $vValue)
+					RegWrite("HKLM\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_SZ", $vValue)
 					If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write " & $sLocation & " REG_SZ Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
 		
 				Case Else
-					RegWrite($sLocation & "\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_SZ", $vValue)
+					RegWrite("HKLM\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_SZ", $vValue)
+					If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write " & $sLocation & " REG_SZ Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
+		
+			EndSelect
+			If $bContinue Then ContinueCase
+
+		Case "HKCU"
+			Select
+				Case IsBool($vValue)
+					RegWrite("HKCU\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_DWORD", $vValue)
+					If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write " & $sLocation & " REG_DWORD Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
+		
+				Case IsString($vValue)
+					RegWrite("HKCU\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_SZ", $vValue)
+					If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write " & $sLocation & " REG_SZ Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
+		
+				Case Else
+					RegWrite("HKCU\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_SZ", $vValue)
 					If @error Then FileWrite($hLogs[$Install], _NowCalc() & " - [WARNING!] Unable to write " & $sLocation & " REG_SZ Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
 		
 			EndSelect
