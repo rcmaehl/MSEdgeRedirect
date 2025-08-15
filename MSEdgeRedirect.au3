@@ -137,8 +137,8 @@ Func CheckEdgeIntegrity($sLocation)
 					_Translate($aMUI[1], "The IFEO junctions for MSEdgeRedirect are missing and need to be created. Create Now?"), _
 					0) = $IDYES Then ShellExecuteWait(@ScriptFullPath, "/repair", @ScriptDir, "RunAs")
 				If @error Then MsgBox($MB_ICONERROR+$MB_OK, _
-					"Copy Failed", _
-					"Unable to create the IFEO junction without Admin Rights!")
+					_Translate($aMUI[1], "Copy Failed"), _
+					_Translate($aMUI[1], "Unable to create the IFEO junction without Admin Rights!"))
 			Case Else
 				;;;
 		EndSelect
@@ -249,8 +249,8 @@ Func ProcessCMDLine()
 				Case "/ContinueActive"
 					If Not $bIsAdmin Then
 						MsgBox($MB_ICONERROR+$MB_OK, _
-							"Admin Required", _
-							"Unable to install Active Mode without Admin Rights!")
+							_Translate($aMUI[1], "Admin Required"), _
+							_Translate($aMUI[1], "Unable to install Active Mode without Admin Rights!"))
 						_Log($hLogs[$AppFailures], "" & "Active Mode UAC Elevation Attempt Failed!" & @CRLF)
 						_LogClose()
 						Exit
@@ -261,8 +261,8 @@ Func ProcessCMDLine()
 					Select
 						Case Not $bIsAdmin
 							MsgBox($MB_ICONERROR+$MB_OK, _
-								"Admin Required", _
-								"Unable to Setup Europe Mode without Admin Rights!")
+								_Translate($aMUI[1], "Admin Required"), _
+								_Translate($aMUI[1], "Unable to Setup Europe Mode without Admin Rights!"))
 							_Log($hLogs[$AppFailures], "" & "Europe Mode UAC Elevation Attempt Failed!" & @CRLF)
 							_LogClose()
 							Exit
@@ -270,8 +270,8 @@ Func ProcessCMDLine()
 							ContinueCase
 						Case Not RegRead("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "FeatureV2") = 0
 							If MsgBox($MB_YESNO + $MB_ICONWARNING + $MB_TOPMOST, _
-								"Reboot Required", _
-								"A Reboot/Restart is required to disable User Choice Protection Driver (UCPD), would you like to do so now?") = $IDYES Then
+								_Translate($aMUI[1], "Reboot Required"), _
+								_Translate($aMUI[1], "A Reboot/Restart is required to disable User Choice Protection Driver (UCPD), would you like to do so now?")) = $IDYES Then
 								RegWrite("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "Start", "REG_DWORD", 4)
 								RegWrite("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "FeatureV2", "REG_DWORD", 0)
 								RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\UCPDMgr.exe")
@@ -388,8 +388,8 @@ Func ProcessCMDLine()
 					_Log($hLogs[$PEBIAT], "" & "Unexpected Commandline: " & _ArrayToString($CmdLine) & @CRLF)
 					If @Compiled Then ; support for running non-compiled script - mLipok
 						MsgBox(0, _
-							"Invalid", _
-							'Invalid parameter - "' & $CmdLine[1] & '".' & @CRLF)
+							_Translate($aMUI[1], "Invalid"), _
+							_Translate($aMUI[1], 'Invalid parameter - "') & $CmdLine[1] & '".' & @CRLF)
 						_LogClose()
 						Exit 87 ; ERROR_INVALID_PARAMETER
 					EndIf
@@ -420,8 +420,8 @@ Func ProcessCMDLine()
 						ShellExecute(@ScriptFullPath, $sCMDLine, @ScriptDir, "RunAs")
 						If @error Then
 							If Not $bSilent Then MsgBox($MB_ICONWARNING+$MB_OK, _
-								"Existing Active Mode Install", _
-								"Unable to update an existing Active Mode install without Admin Rights! The installer will continue however.")
+								_Translate($aMUI[1], "Existing Active Mode Install"), _
+								_Translate($aMUI[1], "Unable to update an existing Active Mode install without Admin Rights! The installer will continue however."))
 							ContinueCase
 						Else
 							_LogClose()
@@ -447,8 +447,8 @@ Func ProcessCMDLine()
 				ShellExecute(@ScriptFullPath, $sCMDLine, @ScriptDir, "RunAs")
 				If @error Then
 					If Not $bSilent Then MsgBox($MB_ICONWARNING+$MB_OK, _
-						"Existing Active Mode Install", _
-						"Unable to update an existing Active Mode install without Admin Rights! The installer will continue however.")
+						_Translate($aMUI[1], "Existing Active Mode Install"), _
+						_Translate($aMUI[1], "Unable to update an existing Active Mode install without Admin Rights! The installer will continue however."))
 					ContinueCase
 				Else
 					_LogClose()
@@ -576,8 +576,8 @@ Func RunArchCheck($bSilent = False)
 	If @Compiled And $bIsWOW64 Then
 		If Not $bSilent Then
 			MsgBox($MB_ICONERROR+$MB_OK, _
-				"Wrong Version", _
-				"The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!")
+				_Translate($aMUI[1], "Wrong Version"), _
+				_Translate($aMUI[1], "The 64-bit Version of MSEdgeRedirect must be used with 64-bit Windows!"))
 		EndIf
 		_Log($hLogs[$AppFailures], "" & "32 Bit Version on 64 Bit System. EXITING!" & @CRLF)
 		_LogClose()
@@ -601,8 +601,8 @@ Func RunHTTPCheck($bSilent = False)
 		If $aDefaults[$hHTTP] = $aDefaults[$hMSEdge] Or $aDefaults[$hHTTPS] = $aDefaults[$hMSEdge] Then
 			If Not $bSilent Then
 				MsgBox($MB_ICONERROR+$MB_OK, _
-					"Edge Set As Default", _
-					"You must set a different Default Browser to use MSEdgeRedirect! Once this is corrected, please relaunch MSEdgeRedirect.")
+					_Translate($aMUI[1], "Edge Set As Default"), _
+					_Translate($aMUI[1], "You must set a different Default Browser to use MSEdgeRedirect! Once this is corrected, please relaunch MSEdgeRedirect."))
 			EndIf
 			_Log($hLogs[$AppFailures], "" & "Found same MS Edge for both default browser and microsoft-edge handling, EXITING!" & @CRLF)
 			_LogClose()
