@@ -90,8 +90,8 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 				_Log($hLogs[$Install], _NowCalc() & " - [CRITICAL] Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
 				If Not $bSilent Then
 					MsgBox($MB_ICONERROR + $MB_OK, _
-						"[CRITICAL]", _
-						"Unable to copy application to " & $sDrive & "'\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'")
+						_Translate($aMUI[1], "CRITICAL"), _
+						_Translate($aMUI[1], "Unable to copy application to '") & $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe'")
 				EndIf
 				_LogClose()
 				Exit 29 ; ERROR_WRITE_FAULT
@@ -102,8 +102,8 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 				_Log($hLogs[$Install], _NowCalc() & " - [CRITICAL] Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'" & @CRLF)
 				If Not $bSilent Then
 					MsgBox($MB_ICONERROR + $MB_OK, _
-						"[CRITICAL]", _
-						"Unable to copy application to '" & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'")
+						_Translate($aMUI[1], "CRITICAL"), _
+						_Translate($aMUI[1], "Unable to copy application to '") & @LocalAppDataDir & "\MSEdgeRedirect\MSEdgeRedirect.exe'")
 				EndIf
 				_LogClose()
 				Exit 29 ; ERROR_WRITE_FAULT
@@ -126,8 +126,8 @@ Func RunPDFCheck($bSilent = False)
 	If StringRegExp(RegRead("HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice", "ProgId"), "(?i)(ms|microsoft)edge.*") Then
 		If Not $bSilent Then
 			MsgBox($MB_ICONERROR+$MB_OK, _
-				"Edge Set As Default PDF Handler", _
-				"You must set a different Default PDF Handler to use this feature!")
+				_Translate($aMUI[1], "Edge Set As Default PDF Handler"), _
+				_Translate($aMUI[1], "You must set a different Default PDF Handler to use this feature!"))
 		EndIf
 		Return False
 	EndIf
@@ -421,8 +421,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		If StringInStr($bUpdate, "HKLM") And Not $bIsAdmin And Not @Compiled Then
 			MsgBox($MB_ICONERROR+$MB_OK, _
-				"Admin Required", _
-				"Unable to update an Admin Install without Admin Rights!")
+				_Translate($aMUI[1], "Admin Required"), _
+				_Translate($aMUI[1], "Unable to update an Admin Install without Admin Rights!"))
 			_Log($hLogs[$AppFailures], "Non Admin Update Attempt on Admin Install. EXITING!" & @CRLF)
 			For $iLoop = 0 To UBound($hLogs) - 1
 				FileClose($hLogs[$iLoop])
@@ -445,19 +445,19 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			_SetBkIcon(-1, "", 0x00A4EF, @ScriptDir & "\assets\MSEdgeRedirect.ico", -1, 128, 128)
 		EndIf
 
-		Local $hHelp = GUICtrlCreateButton("Help", 20, 435, 90, 30)
+		Local $hHelp = GUICtrlCreateButton(_Translate($aMUI[1], "Help"), 20, 435, 90, 30)
 
-		Local $hBack = GUICtrlCreateButton("< Back", 330, 435, 90, 30)
+		Local $hBack = GUICtrlCreateButton("< " & _Translate($aMUI[1], "Back"), 330, 435, 90, 30)
 		GUICtrlSetState(-1, $GUI_DISABLE)
-		Local $hNext = GUICtrlCreateButton("Next >", 420, 435, 90, 30)
+		Local $hNext = GUICtrlCreateButton(_Translate($aMUI[1], "Next") & " >", 420, 435, 90, 30)
 		Select
 			Case $iPage = $hLicense 
 				GUICtrlSetState(-1, $GUI_DISABLE)
 			Case $iPage = $hSettings And $bResumed
 				If $bUpdate Then
-					GUICtrlSetData(-1, "Update")
+					GUICtrlSetData(-1, _Translate($aMUI[1], "Update"))
 				Else
-					GUICtrlSetData(-1, "Install")
+					GUICtrlSetData(-1, _Translate($aMUI[1], "Install"))
 				EndIf
 			Case $iPage = $hLicense
 				ContinueCase
@@ -465,9 +465,9 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				GUICtrlSetState(-1, $GUI_DISABLE)
 				ContinueCase	
 			Case $iPage = $hSettings
-				GUICtrlSetData(-1, "Save")
+				GUICtrlSetData(-1, _Translate($aMUI[1], "Save"))
 		EndSelect
-		Local $hCancel = GUICtrlCreateButton("Cancel", 530, 435, 90, 30)
+		Local $hCancel = GUICtrlCreateButton(_Translate($aMUI[1], "Cancel"), 530, 435, 90, 30)
 
 		#Region License Page
 		$aPages[$hLicense] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
@@ -476,17 +476,17 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		GUICtrlCreateLabel("", 20, 20, 420, 40)
 		If $bUpdate Then
-			GUICtrlSetData(-1, "Please read the following License. You must accept the terms of the license before continuing with the upgrade.")
+			GUICtrlSetData(-1, _Translate($aMUI[1], "Please read the following License. You must accept the terms of the license before continuing with the upgrade."))
 		Else
-			GUICtrlSetData(-1, "Please read the following License. You must accept the terms of the license before continuing with the installation.")
+			GUICtrlSetData(-1, _Translate($aMUI[1], "Please read the following License. You must accept the terms of the license before continuing with the installation."))
 		EndIf
 
 		GUICtrlCreateEdit("TL;DR: It's FOSS, you can edit it, repackage it, eat it (not recommended), or throw it at your neighbor Steve (depends on the Steve), but changes to it must be LGPL v3 too." & _
 			@CRLF & @CRLF & _
 			FileRead(@LocalAppDataDir & "\MSEdgeRedirect\License.txt"), 20, 60, 420, 280, $ES_READONLY + $WS_VSCROLL)
 
-		Local $hAgree = GUICtrlCreateRadio("I accept this license", 20, 350, 420, 20)
-		Local $hDisagree = GUICtrlCreateRadio("I don't accept this license", 20, 370, 420, 20)
+		Local $hAgree = GUICtrlCreateRadio(_Translate($aMUI[1], "I accept this license"), 20, 350, 420, 20)
+		Local $hDisagree = GUICtrlCreateRadio(_Translate($aMUI[1], "I don't accept this license"), 20, 370, 420, 20)
 		GUICtrlSetState(-1, $GUI_CHECKED)
 
 		GUISwitch($hInstallGUI)
@@ -496,20 +496,20 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		$aPages[$hMode] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 		GUISetBkColor(0xFFFFFF)
 		If $bUpdate Then
-			GUICtrlCreateLabel("MSEdgeRedirect " & $sVersion & " Update", 20, 10, 420, 30)
+			GUICtrlCreateLabel("MSEdgeRedirect " & $sVersion & " " & _Translate($aMUI[1], "Update"), 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Next to continue the Update of MSEdgeRedirect after selecting your preferred mode", 20, 40, 420, 40)
+			GUICtrlCreateLabel(_Translate($aMUI[1], "Click Next to continue the Update of MSEdgeRedirect after selecting your preferred mode"), 20, 40, 420, 40)
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		Else
-			GUICtrlCreateLabel("Install MSEdgeRedirect " & $sVersion, 20, 10, 420, 30)
+			GUICtrlCreateLabel(_Translate($aMUI[1], "Install") & " MSEdgeRedirect " & $sVersion, 20, 10, 420, 30)
 			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel("Click Next to continue the Install of MSEdgeRedirect after selecting your preferred mode", 20, 40, 420, 40)
+			GUICtrlCreateLabel(_Translate($aMUI[1], "Click Next to continue the Install of MSEdgeRedirect after selecting your preferred mode"), 20, 40, 420, 40)
 			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndIf
 
-		GUICtrlCreateGroup("Mode", 20, 100, 420, 300)
+		GUICtrlCreateGroup(_Translate($aMUI[1], "Mode"), 20, 100, 420, 300)
 
-		GUICtrlCreateLabel("Operational Mode:", 50, 130, 180, 20, $SS_SUNKEN)
+		GUICtrlCreateLabel(_Translate($aMUI[1], "Operational Mode") & ":", 50, 130, 180, 20, $SS_SUNKEN)
 		Local $hOpMode = _GUICtrlComboBoxEx_Create($aPages[$hMode], "", 230, 130, 180, 200, $CBS_DROPDOWNLIST+$WS_VSCROLL)
 
 		Local $hImage = _GUIImageList_Create(16, 16, 5, 1)
@@ -525,16 +525,16 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		Else
 			_GUICtrlComboBoxEx_AddString($hOpMode, "Europe Mode (Beta)", 0, 0)
 		EndIf
-		_GUICtrlComboBoxEx_AddString($hOpMode, "Show Me Alternatives")
+		_GUICtrlComboBoxEx_AddString($hOpMode, _Translate($aMUI[1], "Show Me Alternatives"))
 		_GUICtrlComboBoxEx_EndUpdate($hOpMode)
 
-		GUICtrlCreateLabel("Accuracy:", 50, 150, 180, 20, $SS_SUNKEN)
+		GUICtrlCreateLabel(_Translate($aMUI[1], "Accuracy") & ":", 50, 150, 180, 20, $SS_SUNKEN)
 		Local $hAccuracy = GUICtrlCreateProgress(230, 150, 180, 20, $PBS_SMOOTHREVERSE)
-		GUICtrlCreateLabel("CPU Usage:", 50, 170, 180, 20, $SS_SUNKEN)
+		GUICtrlCreateLabel(_Translate($aMUI[1], "CPU Usage") & ":", 50, 170, 180, 20, $SS_SUNKEN)
 		Local $hCPUUsage = GUICtrlCreateProgress(230, 170, 180, 20, $PBS_SMOOTHREVERSE)
-		GUICtrlCreateLabel("Customization:", 50, 190, 180, 20, $SS_SUNKEN)
+		GUICtrlCreateLabel(_Translate($aMUI[1], "Customization") & ":", 50, 190, 180, 20, $SS_SUNKEN)
 		Local $hCustomize = GUICtrlCreateProgress(230, 190, 180, 20, $PBS_SMOOTHREVERSE)
-		GUICtrlCreateLabel("System Modification:", 50, 210, 180, 20, $SS_SUNKEN)
+		GUICtrlCreateLabel(_Translate($aMUI[1], "System Modification") & ":", 50, 210, 180, 20, $SS_SUNKEN)
 		Local $hModifies = GUICtrlCreateProgress(230, 210, 180, 20, $PBS_SMOOTHREVERSE)
 
 		GUICtrlSetData($hAccuracy, 1)
@@ -542,47 +542,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		GUICtrlSetData($hCustomize, 1)
 		GUICtrlSetData($hModifies, 1)
 
-		GUICtrlCreateLabel("Description:", 50, 250, 180, 20, $SS_SUNKEN)
+		GUICtrlCreateLabel(_Translate($aMUI[1], "Description") & ":", 50, 250, 180, 20, $SS_SUNKEN)
 		Local $hDetails = GUICtrlCreateLabel("", 50, 270, 360, 80)
-
-#cs
-		GUICtrlCreateGroup("Mode", 20, 60, 420, 340)
-			GUICtrlCreateIcon("imageres.dll", 78, 30, 80, 16, 16)
-			Local $hEurope = GUICtrlCreateRadio("Europe Mode" & @CRLF & _
-				@CRLF & _
-				"System Wide Change using a Native Windows Feature" & @CRLF & _
-				@CRLF & _
-				"MSEdgeRedirect DOES NOT INSTALL. Locale and Settings changes are made to set Windows 'in EU' and respect the default browser.", _
-				50, 80, 380, 80, $BS_TOP+$BS_MULTILINE)
-
-			If (@OSVersion = "WIN_11" And @OSBuild < 22621) Or (@OSVersion = "WIN_10" AND @OSBuild < 19045) Then GUICtrlSetState(-1, $GUI_DISABLE)
-
-			GUICtrlCreateLabel("", 50, 165, 380, 1, $SS_SUNKEN)
-
-			Local $hService = GUICtrlCreateRadio("Service Mode" & @CRLF & _
-				@CRLF & _
-				"Adminless, Less Intrusive, Single User Install" & @CRLF & _
-				@CRLF & _
-				"MSEdgeRedirect stays running in the background. Detected Edge data is redirected to your default browser. Uses 1-10% CPU depending on System.", _
-				50, 175, 380, 80, $BS_TOP+$BS_MULTILINE)
-			If Not $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
-
-			GUICtrlCreateLabel("", 50, 260, 380, 1, $SS_SUNKEN)
-
-			GUICtrlCreateIcon("imageres.dll", 78, 30, 270, 16, 16)
-			Local $hActive = GUICtrlCreateRadio("Active Mode - RECOMMENDED" & @CRLF & _
-				@CRLF & _
-				"Best Performing, System Wide, Customizable, and Compatible Install" & @CRLF & _
-				@CRLF & _
-				"MSEdgeRedirect is ran instead of Edge, similarly to the old EdgeDeflector app. Does not run in background. Compatible with AveYo's Edge Removal Tool.", _
-				50, 270, 380, 80, $BS_TOP+$BS_MULTILINE)
-			If $bIsAdmin Then GUICtrlSetState(-1, $GUI_CHECKED)
-
-			GUICtrlCreateLabel("", 50, 355, 380, 1, $SS_SUNKEN)
-
-			Local $hOthers = GUICtrlCreateRadio("Show Me MSEdgeRedirect Alternatives", _
-				50, 365, 380, 20, $BS_TOP)
-#ce
 
 		GUISwitch($hInstallGUI)
 		#EndRegion
