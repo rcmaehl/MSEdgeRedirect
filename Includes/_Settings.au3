@@ -3,7 +3,7 @@
 #include <Date.au3>
 #include <AutoItConstants.au3>
 
-#include ".\_Logging.au3"
+#include "_Logging.au3"
 
 Global $bDebug = False
 Global $bIsAdmin = IsAdmin()

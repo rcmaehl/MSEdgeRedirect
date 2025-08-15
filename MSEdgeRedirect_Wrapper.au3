@@ -16,6 +16,7 @@
 #include <WindowsConstants.au3>
 #include <ProgressConstants.au3>
 
+#include "Includes\_Compat.au3"
 #include "Includes\_Logging.au3"
 #include "Includes\_Theming.au3"
 #include "Includes\_Settings.au3"
@@ -45,7 +46,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	Else
 		Switch $aConfig[$vMode]
 			Case "Active"
-				$sLocation = "HKLM"
+				$sLocation = "HKCU"
 			Case "Service"
 				$sLocation = "HKCU"
 			Case "Portable"
@@ -171,6 +172,9 @@ Func RunRemoval($bUpdate = False)
 
 	; App Settings
 	RegDelete($sHive & "\SOFTWARE\Robert Maehl Software\MSEdgeRedirect")
+
+	; App Settings HKCU (Always delete as of 0.8.1.0)
+	RegDelete("HKCU\SOFTWARE\Robert Maehl Software\MSEdgeRedirect")
 
 	; URI Handler for Pre Win11 22494 Installs
 	RegDelete($sHive & "\Software\Classes\MSEdgeRedirect.microsoft-edge")
@@ -470,10 +474,11 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		GUISetBkColor(0xFFFFFF)
 		FileInstall("./LICENSE", @LocalAppDataDir & "\MSEdgeRedirect\License.txt")
 
+		GUICtrlCreateLabel("", 20, 20, 420, 40)
 		If $bUpdate Then
-			GUICtrlCreateLabel("Please read the following License. You must accept the terms of the license before continuing with the upgrade.", 20, 20, 420, 40)
+			GUICtrlSetData(-1, "Please read the following License. You must accept the terms of the license before continuing with the upgrade.")
 		Else
-			GUICtrlCreateLabel("Please read the following License. You must accept the terms of the license before continuing with the installation.", 20, 20, 420, 40)
+			GUICtrlSetData(-1, "Please read the following License. You must accept the terms of the license before continuing with the installation.")
 		EndIf
 
 		GUICtrlCreateEdit("TL;DR: It's FOSS, you can edit it, repackage it, eat it (not recommended), or throw it at your neighbor Steve (depends on the Steve), but changes to it must be LGPL v3 too." & _
@@ -519,9 +524,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			;;;
 		Else
 			_GUICtrlComboBoxEx_AddString($hOpMode, "Europe Mode (Beta)", 0, 0)
-		EndIf
-		If Not RegRead("HKLM\Software\Classes\microsoft-edge", "") And Not RegRead("HKCU\Software\Classes\microsoft-edge", "") Then
-			_GUICtrlComboBoxEx_AddString($hOpMode, "Edgeless Mode (Beta)", 0, 0)
 		EndIf
 		_GUICtrlComboBoxEx_AddString($hOpMode, "Show Me Alternatives")
 		_GUICtrlComboBoxEx_EndUpdate($hOpMode)
@@ -608,7 +610,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 145, 80, 95, 20)
 			$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 240, 80, 95, 20)
 			$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 335, 80, 95, 20)
-			$hChannels[4] = GUICtrlCreateCheckbox("Edge Removed Using AveYo's Edge Remover (Auto Detected)", 50, 100, 380, 20)
+			$hChannels[4] = GUICtrlCreateCheckbox("Edge Removed (Auto Detected)", 50, 100, 380, 20)
 			GUICtrlSetState(-1, $GUI_DISABLE)
 
 			Select
@@ -617,7 +619,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUICtrlSetState($hChannels[1], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[2], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[3], $GUI_DISABLE)
-				Case FileExists($aEdges[5]) ; IEtoEdgeStub
+				Case _IsEdgeRemoved()
+					GUICtrlSetState($hChannels[4], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 					ContinueCase
 				Case Else
@@ -1103,10 +1106,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					EndSwitch
 
 					If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger") Then
-						GUICtrlSetState($hChannels[0], $GUI_DISABLE)
-						GUICtrlSetState($hChannels[1], $GUI_DISABLE)
-						GUICtrlSetState($hChannels[2], $GUI_DISABLE)
-						GUICtrlSetState($hChannels[3], $GUI_DISABLE)
 						GUICtrlSetState($hChannels[4], $GUI_DISABLE)
 						GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 					EndIf

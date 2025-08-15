@@ -1,4 +1,9 @@
+#include-once
+
 #include <Array.au3>
+
+#include "_Logging.au3"
+#include "_Settings.au3"
 
 Func _DoesParentProcessWantEdge($sProcess) ; #229
 
@@ -18,6 +23,15 @@ Func _DoesParentProcessWantEdge($sProcess) ; #229
         Case Else
             Return False
     EndSwitch
+
+EndFunc
+
+Func _IsEdgeRemoved() ; #519
+
+    If FileExists($aEdges[5]) Then Return True ; IEtoEdgeStub
+    If Not RegRead("HKLM\Software\Classes\microsoft-edge", "") And Not RegRead("HKCU\Software\Classes\microsoft-edge", "") Then Return True
+
+    Return False
 
 EndFunc
 
