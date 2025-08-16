@@ -1457,7 +1457,7 @@ Func _IsDestinationRestricted($sDirectory = Null)
 		Return True
 	Else
 		FileClose($hTestFile)
-		FileDelete($hTestFile)
+		FileDelete(".\writetest")
 		Return False
 	EndIf
 
