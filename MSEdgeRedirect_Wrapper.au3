@@ -53,10 +53,12 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 			Case "Portable"
 				$sLocation = "Portable"
 			Case Else
-				_Log($hLogs[$Install], "[WARNING] Caught Invalid Location '" & $aConfig[$vMode] & "' in RunInstall()." & @CRLF)
+				_Log($hLogs[$Install], "[CRITICAL] Caught Invalid Location '" & $aConfig[$vMode] & "' in RunInstall()." & @CRLF)
 				Exit 1359 ; ERROR_INTERNAL_ERROR
 		EndSwitch
 	EndIf
+
+	_Log($hLogs[$Install], "Installing to '" & $sLocation & "'." & @CRLF)
 
 	_SetSettingValue("NoApps"     , $aSettings[$bNoApps]     , $sLocation)
 	_SetSettingValue("NoBing"     , $aSettings[$bNoBing]     , $sLocation)
@@ -81,10 +83,14 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	_SetSettingValue("Weather"    , $aSettings[$sWeather]    , $sLocation)
 	_SetSettingValue("WeatherPath", $aSettings[$sWeatherPath], $sLocation)
 
+	_Log($hLogs[$Install], "Killing any running instances of MSEdgeRedirect.exe." & @CRLF)
+
 	$aPIDs = ProcessList("msedgeredirect.exe")
 	For $iLoop = 1 To $aPIDs[0][0] Step 1
 		If $aPIDs[$iLoop][1] <> @AutoItPID Then ProcessClose($aPIDs[$iLoop][1])
 	Next
+
+	_Log($hLogs[$Install], "Copying application to destination." & @CRLF)
 
 	Switch $aConfig[$vMode]
 		Case "Active"
@@ -131,6 +137,7 @@ Func RunPDFCheck($bSilent = False)
 				_Translate($aMUI[1], "Edge Set As Default PDF Handler"), _
 				_Translate($aMUI[1], "You must set a different Default PDF Handler to use this feature!"))
 		EndIf
+		_Log($hLogs[$URIFailures], "[WARNING] Edge Set As Default PDF Handler." & @CRLF)
 		Return False
 	EndIf
 	Return True
@@ -142,6 +149,10 @@ Func RunRemoval($bUpdate = False)
 	Local $aPIDs
 	Local $sHive = ""
 	Local $sLocation = ""
+
+	_Log($hLogs[$Install], "Uninstalling MSEdgeRedirect." & @CRLF)
+
+	_Log($hLogs[$Install], "Killing any running instances of MSEdgeRedirect.exe." & @CRLF)
 
 	$aPIDs = ProcessList("msedgeredirect.exe")
 	For $iLoop = 1 To $aPIDs[0][0] Step 1
@@ -169,6 +180,8 @@ Func RunRemoval($bUpdate = False)
 		Exit 1359 ; ERROR_INTERNAL_ERROR
 	EndIf
 
+	_Log($hLogs[$Install], "Cleaning up Registry Entries." & @CRLF)
+
 	; App Paths
 	RegDelete($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\MSEdgeRedirect.exe")
 
@@ -191,6 +204,8 @@ Func RunRemoval($bUpdate = False)
 	; Uninstall Info
 	RegDelete($sHive & "\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\MSEdgeRedirect")
 
+	_Log($hLogs[$Install], "Cleaning up Start Menu Shortcuts." & @CRLF)
+
 	; Start Menu Shortcuts
 	FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
 	DirRemove(@ProgramsCommonDir & "\MSEdgeRedirect", $DIR_REMOVE)
@@ -199,6 +214,8 @@ Func RunRemoval($bUpdate = False)
 	; Parent Registry Key
 	RegEnumKey($sHive & "\SOFTWARE\Robert Maehl Software", 1)
 	If @error Then RegDelete($sHive & "\SOFTWARE\Robert Maehl Software")
+
+	_Log($hLogs[$Install], "Removing IFEO Entries." & @CRLF)
 
 	If $bIsAdmin Then
 		For $iLoop = 1 To $aEdges[0] Step 1
@@ -215,6 +232,8 @@ Func RunRemoval($bUpdate = False)
 		Next
 	EndIf
 
+	_Log($hLogs[$Install], "Deleting Executable." & @CRLF)
+
 	If $bUpdate Then
 		FileDelete($sLocation & "*")
 	Else
@@ -227,7 +246,10 @@ EndFunc
 
 Func RunRepair()
 
+	_Log($hLogs[$Install], "Repairing MSEdgeRedirect." & @CRLF)
+
 	If $bIsAdmin Then
+		_Log($hLogs[$Install], "Repairing IFEO Entries." & @CRLF)
 		For $iLoop = 1 To $aEdges[0] Step 1
 			RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER" & $iLoop, "Debugger")
 			If @error Then
@@ -236,6 +258,7 @@ Func RunRepair()
 				If $iLoop = $aEdges[0] Then ; Skip IEtoEdgeStub
 					;;;
 				Else
+					_Log($hLogs[$Install], "Repairing SymLinks." & @CRLF)
 					_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"), $aEdges[$iLoop])
 				EndIf
 			EndIf
@@ -243,6 +266,7 @@ Func RunRepair()
 		_LogClose()
 		Exit
 	Else
+		_Log($hLogs[$Install], "[WARNING] Unable to Repair MSEdgeRedirect, not running as Admin." & @CRLF)
 		_LogClose()
 		Exit 5 ; ERROR_ACCESS_DENIED
 	EndIf
@@ -318,6 +342,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			EndIf
 			; Bypass file checks, IniReads, use default values
 		ElseIf Not FileExists($aConfig[$hFile]) And Not $bUpdate Then
+			_Log($hLogs[$Install], "[CRITICAL] Setup File '" & $aConfig[$hFile] & "' does not exist." & @CRLF)
 			_LogClose()
 			Exit 2 ; ERROR_FILE_NOT_FOUND
 		Else
