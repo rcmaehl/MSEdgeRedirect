@@ -152,6 +152,7 @@ EndFunc
 Func _SetSettingValue($sSetting, $vValue, $sLocation)
 
 	Local $sPolicy = ""
+	Local $bContinue = False
 	
 	Switch $sLocation
 
