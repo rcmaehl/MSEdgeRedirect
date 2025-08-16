@@ -39,6 +39,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 
 	Local $aPIDs
 	Local $sArgs = ""
+	Local $sLocation
 	Local Enum $bManaged = 1, $vMode
 
 	If $aConfig[$bManaged] Then
@@ -52,7 +53,8 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 			Case "Portable"
 				$sLocation = "Portable"
 			Case Else
-				;;;
+				_Log($hLogs[$Install], "[WARNING] Caught Invalid Location '" & $aConfig[$vMode] & "' in RunInstall()." & @CRLF)
+				Exit 1359 ; ERROR_INTERNAL_ERROR
 		EndSwitch
 	EndIf
 
@@ -734,8 +736,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 		Local $aOld[6]
 
-		_Log($hLogs[$Install], "Read Pre-European Install Values of: " & _ArrayToString($aNations) & " & " & _ArrayToString($aIDs) & @CRLF)
-
 		GUICtrlCreateLabel("Machine Region:", 30, 90, 95, 20)
 			$aOld[0] = GUICtrlCreateLabel($aNations[0], 125, 90, 95, 20, $SS_RIGHT)
 		GUICtrlCreateLabel("Default Region ID:", 30, 110, 95, 20)
@@ -884,15 +884,18 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 										FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
 								EndSelect
 
-								If $iMode = $hSettings Then
-									If $bIsAdmin Then
+								Select
+									Case $bResumed
 										$aConfig[$vMode] = "Active"
-									Else
-										$aConfig[$vMode] = "Service"
-									EndIf
-								Else
-									 $aConfig[$vMode] = $aMode[0]
-								EndIf
+									Case $iMode = $hSettings
+										If $bIsAdmin Then
+											$aConfig[$vMode] = "Active"
+										Else
+											$aConfig[$vMode] = "Service"
+										EndIf
+									Case Else
+										 $aConfig[$vMode] = $aMode[0]
+								EndSelect
 
 								$aSettings[$bNoApps] = _IsChecked($hNoApps)
 								$aSettings[$bNoBing] = _IsChecked($hSearch)
@@ -958,6 +961,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 								Exit
 							EndIf
 						Case $hExit2
+							_Log($hLogs[$Install], "Read Pre-European Install Values of: " & _ArrayToString($aNations) & " & " & _ArrayToString($aIDs) & @CRLF)
 							If @Compiled Then
 								;Backup Values
 								RegWrite("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Control Panel\DeviceRegion", "OldDeviceRegion", "REG_DWORD", GUICtrlRead($aOld[0]))
@@ -1452,6 +1456,7 @@ Func _IsDestinationRestricted($sDirectory = Null)
 	If @error Then ; Did FileOpen Fail?
 		Return True
 	Else
+		FileClose($hTestFile)
 		FileDelete($hTestFile)
 		Return False
 	EndIf
