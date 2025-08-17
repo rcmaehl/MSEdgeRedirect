@@ -1376,13 +1376,16 @@ Func SetIFEORegistry(ByRef $aChannels)
 			EndIf
 		EndIf
 	Next
-	If $aChannels[4] Then ; IE_TO_EDGE_STUB
+	If $aChannels[4] Then ; Edge Removed / IE_TO_EDGE_STUB
 		RegDelete("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\0")
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe")
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe", "UseFilter", "REG_DWORD", 1)
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0")
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger", "REG_SZ", $sDrive & "\Program Files\MSEdgeRedirect\MSEdgeRedirect.exe")
 		RegWrite("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "FilterFullPath", "REG_SZ", $aEdges[5])
+		; Restore Edge URI Handler
+		RegWrite("HKLM\Software\Classes\microsoft-edge", "", "REG_SZ", "URL:microsoft-edge")
+		RegWrite("HKLM\Software\Classes\microsoft-edge", "URL Protocol", "REG_SZ", "")
 	EndIf
 EndFunc
 
