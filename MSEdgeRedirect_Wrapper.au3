@@ -640,7 +640,6 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 				Case _IsEdgeRemoved()
 					GUICtrlSetState($hChannels[4], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[4], $GUI_CHECKED)
-					ContinueCase
 				Case Else
 					;;;
 			EndSelect
