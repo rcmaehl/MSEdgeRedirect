@@ -621,6 +621,16 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 			$hChannels[4] = GUICtrlCreateCheckbox("Edge Removed (Auto Detected)", 50, 100, 380, 20)
 			GUICtrlSetState(-1, $GUI_DISABLE)
 
+			If $iType Then
+				If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER1", "Debugger") Then GUICtrlSetState($hChannels[0], $GUI_CHECKED)
+				If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER2", "Debugger") Then GUICtrlSetState($hChannels[1], $GUI_CHECKED)
+				If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER3", "Debugger") Then GUICtrlSetState($hChannels[2], $GUI_CHECKED)
+				If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER4", "Debugger") Then GUICtrlSetState($hChannels[3], $GUI_CHECKED)
+				If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER5", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
+			Else
+				GUICtrlSetState($hChannels[0], $GUI_CHECKED)
+			EndIf
+
 			Select
 				Case Not $bIsAdmin And @Compiled
 					GUICtrlSetState($hChannels[0], $GUI_DISABLE)
@@ -632,15 +642,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 					GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 					ContinueCase
 				Case Else
-					If $iType Then
-						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER1", "Debugger") Then GUICtrlSetState($hChannels[0], $GUI_CHECKED)
-						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER2", "Debugger") Then GUICtrlSetState($hChannels[1], $GUI_CHECKED)
-						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER3", "Debugger") Then GUICtrlSetState($hChannels[2], $GUI_CHECKED)
-						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER4", "Debugger") Then GUICtrlSetState($hChannels[3], $GUI_CHECKED)
-						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER5", "Debugger") Then GUICtrlSetState($hChannels[4], $GUI_CHECKED)
-					Else
-						GUICtrlSetState($hChannels[0], $GUI_CHECKED)
-					EndIf
+					;;;
 			EndSelect
 
 		GUICtrlCreateGroup("Service Mode Options", 20, 140, 420, 50)
