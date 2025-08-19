@@ -307,19 +307,11 @@ Func ProcessCMDLine()
 					_LogClose()
 					Exit
 				Case "/settings"
-					If $bIsPriv Then
-						If Not $bIsAdmin Then
-							ShellExecute(@ScriptFullPath, "/settings", @ScriptDir, "RunAs")
-							_LogClose()
-							Exit
-						EndIf
-					Else
-						$aPIDs = ProcessList(@ScriptName)
-						For $iLoop = 1 To $aPIDs[0][0] Step 1
-							If $aPIDs[$iLoop][1] <> @AutoItPID Then ProcessClose($aPIDs[$iLoop][1])
-						Next
-					EndIf
-					RunSetup(True, False, 2)
+					$aPIDs = ProcessList(@ScriptName)
+					For $iLoop = 1 To $aPIDs[0][0] Step 1
+						If $aPIDs[$iLoop][1] <> @AutoItPID Then ProcessClose($aPIDs[$iLoop][1])
+					Next
+					RunSetup(2, False, 2)
 					If Not $bIsPriv Then ShellExecute(@ScriptFullPath)
 					_LogClose()
 					Exit

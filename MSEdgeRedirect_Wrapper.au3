@@ -443,6 +443,8 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 
 	Else
 
+		Local $aInstall = _IsInstalled()
+
 		Local $aPages[6]
 		Local Enum $hLicense, $hMode, $hSettings, $hFinish, $hExit, $hCountry, $hExit2
 
@@ -645,14 +647,18 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 			Local $hNoIcon = GUICtrlCreateCheckbox("Hide Service Mode from Tray", 50, 160, 180, 20)
 			Local $hStartup = GUICtrlCreateCheckbox("Start Service Mode With Windows", 240, 160, 180, 20)
 
-			; TO DO: Detect if Admin install, but only updating Redirections. Disable $hStartup and $hNoIcon
-			If $bIsAdmin Then
-				GUICtrlSetState($hStartup, $GUI_DISABLE)
-				GUICtrlSetState($hNoIcon, $GUI_DISABLE)
-			ElseIf $iType = $iUpdate Then
-				GUICtrlSetState($hStartup, FileExists(@StartupDir & "\MSEdgeRedirect.lnk"))
-				GUICtrlSetState($hNoIcon, _GetSettingValue("NoApps", "Bool"))
-			EndIf
+			Select
+				Case $bIsAdmin
+					ContinueCase
+				Case $aInstall[0] And $aInstall[1] = "HKLM"
+					GUICtrlSetState($hStartup, $GUI_DISABLE)
+					GUICtrlSetState($hNoIcon, $GUI_DISABLE)
+				Case $iType = $iUpdate
+					GUICtrlSetState($hStartup, FileExists(@StartupDir & "\MSEdgeRedirect.lnk"))
+					GUICtrlSetState($hNoIcon, _GetSettingValue("NoApps", "Bool"))
+				Case Else
+					;;;
+			EndSelect
 
 		GUICtrlCreateGroup("Additional Redirections", 20, 200, 420, 210)
 			Local $hNoFeed = GUICtrlCreateCheckbox("Bing Discover:", 50, 220, 180, 20)
