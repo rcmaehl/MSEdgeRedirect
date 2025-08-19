@@ -273,7 +273,7 @@ Func RunRepair()
 
 EndFunc
 
-Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir & "\Setup.ini")
+Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir & "\Setup.ini")
 
 	Local $hMsg
 	Local $sArgs = ""
@@ -292,6 +292,8 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 	Local $aConfig[3] = [$hSetupFile, False, "Service"] ; [File Path, Managed Install, MSER Mode] Default Setup.ini Values
 	Local Enum $hFile, $bManaged, $vMode
 
+	Local Enum $iInstall, $iUpdate, $iSettings
+
 	Local $aSettings[24] = [False, False, False, False, False, False, False, False, False, False, False, False, "", "", "", "", "", "", "", "", "Full", True, "", ""]
 
 	If $iPage < 0 Then
@@ -301,7 +303,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 
 	If $bSilent Then
 
-		If $bUpdate Then
+		If $iType Then
 			$aSettings[$bNoApps] = _GetSettingValue("NoApps")
 			$aSettings[$bNoBing] = _GetSettingValue("NoBing")
 			$aSettings[$bNoChat] = _GetSettingValue("NoChat")
@@ -341,7 +343,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 				$aConfig[$vMode] = "Service"
 			EndIf
 			; Bypass file checks, IniReads, use default values
-		ElseIf Not FileExists($aConfig[$hFile]) And Not $bUpdate Then
+		ElseIf Not FileExists($aConfig[$hFile]) And Not $iType Then
 			_Log($hLogs[$Install], "[CRITICAL] Setup File '" & $aConfig[$hFile] & "' does not exist." & @CRLF)
 			_LogClose()
 			Exit 2 ; ERROR_FILE_NOT_FOUND
@@ -423,7 +425,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			EndIf
 		EndIf
 
-		If $bUpdate Then RunRemoval(True)
+		If $iType = $iUpdate Then RunRemoval(True)
 		RunInstall($aConfig, $aSettings, $bSilent)
 		SetAppRegistry($aConfig)
 		SetAppShortcuts($aConfig, $aSettings)
@@ -445,18 +447,6 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		Local Enum $hLicense, $hMode, $hSettings, $hFinish, $hExit, $hCountry, $hExit2
 
 		If @Compiled And Not _GetSettingValue("NoUpdates", "Bool") Then RunUpdateCheck()
-
-		If StringInStr($bUpdate, "HKLM") And Not $bIsAdmin And Not @Compiled Then
-			MsgBox($MB_ICONERROR+$MB_OK, _
-				_Translate($aMUI[1], "Admin Required"), _
-				_Translate($aMUI[1], "Unable to update an Admin Install without Admin Rights!"))
-			_Log($hLogs[$AppFailures], "Non Admin Update Attempt on Admin Install. EXITING!" & @CRLF)
-			For $iLoop = 0 To UBound($hLogs) - 1
-				FileClose($hLogs[$iLoop])
-			Next
-			_LogClose()
-			Exit 5 ; ERROR_ACCESS_DENIED
-		EndIf
 
 		; Disable Scaling
 		If @OSVersion = 'WIN_10' or 'WIN_11' Then DllCall(@SystemDir & "\User32.dll", "bool", "SetProcessDpiAwarenessContext", "HWND", "DPI_AWARENESS_CONTEXT" - 1)
@@ -481,11 +471,17 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Case $iPage = $hLicense 
 				GUICtrlSetState(-1, $GUI_DISABLE)
 			Case $iPage = $hSettings And $bResumed
-				If $bUpdate Then
-					GUICtrlSetData(-1, _Translate($aMUI[1], "Update"))
-				Else
-					GUICtrlSetData(-1, _Translate($aMUI[1], "Install"))
-				EndIf
+				Switch $iType
+					Case $iSettings
+						GUICtrlSetData(-1, _Translate($aMUI[1], "Save"))
+					Case $iUpdate
+						GUICtrlSetData(-1, _Translate($aMUI[1], "Update"))
+					Case $iInstall
+						GUICtrlSetData(-1, _Translate($aMUI[1], "Install"))
+					Case Else
+						GUICtrlSetData(-1, _Translate($aMUI[1], "Install"))
+						_Log($hLogs[$PEBIAT], "[WARNING] Caught Invalid UI Mode: " & $iType & @CRLF)
+				EndSwitch
 			Case $iPage = $hLicense
 				ContinueCase
 			Case $iPage = $hCountry 
@@ -502,11 +498,17 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		FileInstall("./LICENSE", @LocalAppDataDir & "\MSEdgeRedirect\License.txt")
 
 		GUICtrlCreateLabel("", 20, 20, 420, 40)
-		If $bUpdate Then
-			GUICtrlSetData(-1, _Translate($aMUI[1], "Please read the following License. You must accept the terms of the license before continuing with the upgrade."))
-		Else
-			GUICtrlSetData(-1, _Translate($aMUI[1], "Please read the following License. You must accept the terms of the license before continuing with the installation."))
-		EndIf
+		Switch $iType
+			Case $iSettings
+				GUICtrlSetData(-1, _Translate($aMUI[1], "You should never see this. Please file a bug report."))
+			Case $iUpdate
+				GUICtrlSetData(-1, _Translate($aMUI[1], "Please read the following License. You must accept the terms of the license before continuing with the upgrade."))
+			Case $iInstall
+				GUICtrlSetData(-1, _Translate($aMUI[1], "Please read the following License. You must accept the terms of the license before continuing with the installation."))
+			Case Else
+				GUICtrlSetData(-1, _Translate($aMUI[1], "You should never see this. Please file a bug report."))
+				_Log($hLogs[$PEBIAT], "[WARNING] Caught Invalid UI Mode: " & $iType & @CRLF)
+		EndSwitch
 
 		GUICtrlCreateEdit("TL;DR: It's FOSS, you can edit it, repackage it, eat it (not recommended), or throw it at your neighbor Steve (depends on the Steve), but changes to it must be LGPL v3 too." & _
 			@CRLF & @CRLF & _
@@ -520,19 +522,31 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		#EndRegion
 
 		#Region Mode Page
+		; TO DO: Rewrite; Create Labels, then set Data depending on $iType
 		$aPages[$hMode] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 		GUISetBkColor(0xFFFFFF)
-		If $bUpdate Then
-			GUICtrlCreateLabel("MSEdgeRedirect " & $sVersion & " " & _Translate($aMUI[1], "Update"), 20, 10, 420, 30)
-			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel(_Translate($aMUI[1], "Click Next to continue the Update of MSEdgeRedirect after selecting your preferred mode"), 20, 40, 420, 40)
-			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-		Else
-			GUICtrlCreateLabel(_Translate($aMUI[1], "Install") & " MSEdgeRedirect " & $sVersion, 20, 10, 420, 30)
-			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-			GUICtrlCreateLabel(_Translate($aMUI[1], "Click Next to continue the Install of MSEdgeRedirect after selecting your preferred mode"), 20, 40, 420, 40)
-			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-		EndIf
+		Switch $iType
+			Case $iSettings
+				GUICtrlCreateLabel("MSEdgeRedirect " & $sVersion & " " & _Translate($aMUI[1], "Settings"), 20, 10, 420, 30)
+				GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+				GUICtrlCreateLabel(_Translate($aMUI[1], "You should never see this. Please file a bug report."), 20, 40, 420, 40)
+				GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+			Case $iUpdate
+				GUICtrlCreateLabel("MSEdgeRedirect " & $sVersion & " " & _Translate($aMUI[1], "Update"), 20, 10, 420, 30)
+				GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+				GUICtrlCreateLabel(_Translate($aMUI[1], "Click Next to continue the Update of MSEdgeRedirect after selecting your preferred mode"), 20, 40, 420, 40)
+				GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+			Case $iInstall
+				GUICtrlCreateLabel(_Translate($aMUI[1], "Install") & " MSEdgeRedirect " & $sVersion, 20, 10, 420, 30)
+				GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+				GUICtrlCreateLabel(_Translate($aMUI[1], "Click Next to continue the Install of MSEdgeRedirect after selecting your preferred mode"), 20, 40, 420, 40)
+				GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+			Case Else
+				GUICtrlCreateLabel(_Translate($aMUI[1], "Install") & " MSEdgeRedirect " & $sVersion, 20, 10, 420, 30)
+				GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+				GUICtrlCreateLabel(_Translate($aMUI[1], "You should never see this. Please file a bug report."), 20, 40, 420, 40)
+				GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+		EndSwitch
 
 		GUICtrlCreateGroup(_Translate($aMUI[1], "Mode"), 20, 100, 420, 300)
 
@@ -579,17 +593,21 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		$aPages[$hSettings] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 		GUISetBkColor(0xFFFFFF)
 
-		If $bUpdate Then
-			GUICtrlCreateLabel("MSEdgeRedirect " & $sVersion & " Update", 20, 10, 420, 30)
-			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-;			GUICtrlCreateLabel("Click Install to continue the Update of MSEdgeRedirect after customizing your preferred settings", 20, 40, 420, 40)
-;			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-		Else
-			GUICtrlCreateLabel("Install MSEdgeRedirect " & $sVersion, 20, 10, 420, 30)
-			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-;			GUICtrlCreateLabel("Click Install to continue the Install of MSEdgeRedirect after customizing your preferred settings", 20, 40, 420, 40)
-;			GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-		EndIf
+		; TO DO: Rewrite; Reuse Mode Page Labels by Shrinking and Lowering Settings Page
+		GUICtrlCreateLabel("", 20, 10, 420, 30)
+		GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+;		GUICtrlCreateLabel("Click Install to continue the Update of MSEdgeRedirect after customizing your preferred settings", 20, 40, 420, 40)
+;		GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+		Switch $iType
+			Case $iSettings
+				GUICtrlSetData(-1, "MSEdgeRedirect " & $sVersion & " Settings")
+			Case $iUpdate
+				GUICtrlSetData(-1, "MSEdgeRedirect " & $sVersion & " Update")
+			Case $iInstall
+				GUICtrlSetData(-1, "Install MSEdgeRedirect " & $sVersion)
+			Case Else
+				GUICtrlSetData(-1, _Translate($aMUI[1], "You should never see this. Please file a bug report."))
+		EndSwitch
 
 		;GUICtrlCreateGroup("Mode Options", 20, 60, 420, 130)
 
@@ -612,7 +630,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 					GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 					ContinueCase
 				Case Else
-					If $bUpdate Or $iMode = $hSettings Then
+					If $iType Then
 						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER1", "Debugger") Then GUICtrlSetState($hChannels[0], $GUI_CHECKED)
 						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER2", "Debugger") Then GUICtrlSetState($hChannels[1], $GUI_CHECKED)
 						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER3", "Debugger") Then GUICtrlSetState($hChannels[2], $GUI_CHECKED)
@@ -627,10 +645,11 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			Local $hNoIcon = GUICtrlCreateCheckbox("Hide Service Mode from Tray", 50, 160, 180, 20)
 			Local $hStartup = GUICtrlCreateCheckbox("Start Service Mode With Windows", 240, 160, 180, 20)
 
+			; TO DO: Detect if Admin install, but only updating Redirections. Disable $hStartup and $hNoIcon
 			If $bIsAdmin Then
 				GUICtrlSetState($hStartup, $GUI_DISABLE)
 				GUICtrlSetState($hNoIcon, $GUI_DISABLE)
-			ElseIf $bUpdate Then
+			ElseIf $iType = $iUpdate Then
 				GUICtrlSetState($hStartup, FileExists(@StartupDir & "\MSEdgeRedirect.lnk"))
 				GUICtrlSetState($hNoIcon, _GetSettingValue("NoApps", "Bool"))
 			EndIf
@@ -667,7 +686,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 			If @OSVersion <> "WIN_11" Then GUICtrlSetState(-1, $GUI_DISABLE)
 			Local $hNoApps = GUICtrlCreateCheckbox("Redirect Windows Store 'Apps'", 240, 365, 180, 20)
 
-		If $bUpdate Then
+		If $iType Then
 			GUICtrlSetState($hNoApps, _GetSettingValue("NoApps", "Bool"))
 			GUICtrlSetState($hSearch, _GetSettingValue("NoBing", "Bool"))
 			If _IsChecked($hSearch) Then
@@ -720,13 +739,18 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 		$aPages[$hFinish] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 		GUISetBkColor(0xFFFFFF)
 
-		If $bUpdate Then
-			GUICtrlCreateLabel("Updated Successfully", 20, 10, 420, 30)
-			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-		Else
-			GUICtrlCreateLabel("Installed Successfully", 20, 10, 420, 30)
-			GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-		EndIf
+		GUICtrlCreateLabel("", 20, 10, 420, 30)
+		GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
+		Switch $iType
+			Case $iSettings
+				GUICtrlSetData(-1, _Translate($aMUI[1], "You should never see this. Please file a bug report."))
+			Case $iUpdate
+				GUICtrlSetData(-1, "Updated Successfully")
+			Case $iInstall
+				GUICtrlSetData(-1, "Installed Successfully")
+			Case Else
+				GUICtrlSetData(-1, _Translate($aMUI[1], "You should never see this. Please file a bug report."))
+		EndSwitch
 
 		Local $hLaunch = GUICtrlCreateCheckbox("Launch Service Mode Now", 20, 200, 190, 20)
 		Local $hAppLnk = GUICtrlCreateCheckbox("Create Start Menu Shortcuts", 20, 220, 190, 20)
@@ -857,11 +881,16 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						Case $hMode
 							GUICtrlSetData($hNext, "Next >")
 						Case $hSettings
-							If $bUpdate Then
-								GUICtrlSetData($hNext, "Update")
-							Else
-								GUICtrlSetData($hNext, "Install")
-							EndIf
+							Switch $iType
+								Case $iSettings
+									GUICtrlSetData($hNext, "Save")
+								Case $iUpdate
+									GUICtrlSetData($hNext, "Update")
+								Case $iInstall
+									GUICtrlSetData($hNext, "Install")
+								Case Else
+									GUICtrlSetData($hNext, "Install")
+							EndSwitch
 					EndSwitch
 					GUISetState(@SW_HIDE, $aPages[$iPage])
 					GUISetState(@SW_SHOW, $aPages[$iPage - 1])
@@ -892,18 +921,25 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 										Exit
 								
 								EndSwitch
-							ElseIf $bUpdate Then
-								GUICtrlSetData($hNext, "Update")
 							Else
-								GUICtrlSetData($hNext, "Install")
+								Switch $iType
+									Case $iSettings
+										GUICtrlSetData($hNext, "Save")
+									Case $iUpdate
+										GUICtrlSetData($hNext, "Update")
+									Case $iInstall
+										GUICtrlSetData($hNext, "Install")
+									Case Else
+										GUICtrlSetData($hNext, "Install")
+								EndSwitch
 							EndIf
 						Case $hFinish
 							If @Compiled Then
 								# 8.0.0.0 Refactor
 								Select
-									Case $bUpdate And $iMode <> $hSettings
+									Case $iType And $iMode <> $hSettings
 										ContinueCase
-									Case $bUpdate And $bResumed
+									Case $iType = $iUpdate And $bResumed
 										RunRemoval(True)
 									Case Else
 										FileDelete(@StartupDir & "\MSEdgeRedirect.lnk")
@@ -1100,7 +1136,7 @@ Func RunSetup($bUpdate = False, $bSilent = False, $iPage = 0, $hSetupFile = @Scr
 						GUICtrlSetState($hChannels[4], $GUI_CHECKED)
 					EndIf
 						
-					If $bUpdate Or $iMode = $hSettings Then
+					If $iType Then
 						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER1", "Debugger") Then GUICtrlSetState($hChannels[0], $GUI_CHECKED)
 						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER2", "Debugger") Then GUICtrlSetState($hChannels[1], $GUI_CHECKED)
 						If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\msedge.exe\MSER3", "Debugger") Then GUICtrlSetState($hChannels[2], $GUI_CHECKED)
