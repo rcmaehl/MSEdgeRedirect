@@ -369,9 +369,9 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 			$aSettings[$sImagePath] = _GetSettingValue("ImagePath", "String", $aConfig[$hFile])
 			$aSettings[$sNews] = _GetSettingValue("News", "String", $aConfig[$hFile])
 			$aSettings[$sPDFApp] = _GetSettingValue("PDFApp", "String", $aConfig[$hFile])
+			$aSettings[$sSearch] = _GetSettingValue("Search", "String", $aConfig[$hFile])
 			$aSettings[$sSearchPath] = _GetSettingValue("SearchPath", "String", $aConfig[$hFile])
 			$aSettings[$sStartMenu] = _GetSettingValue("StartMenu", "String", $aConfig[$hFile])
-			$aSettings[$sSearch] = _GetSettingValue("Search", "String", $aConfig[$hFile])
 			$aSettings[$bStartup] = _GetSettingValue("Startup", "Bool", $aConfig[$hFile])
 			$aSettings[$sWeather] = _GetSettingValue("Weather", "String", $aConfig[$hFile])
 			$aSettings[$sWeatherPath] = _GetSettingValue("WeatherPath", "String", $aConfig[$hFile])
@@ -640,7 +640,6 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 				Case _IsEdgeRemoved()
 					GUICtrlSetState($hChannels[4], $GUI_DISABLE)
 					GUICtrlSetState($hChannels[4], $GUI_CHECKED)
-					ContinueCase
 				Case Else
 					;;;
 			EndSelect
