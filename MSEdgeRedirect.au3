@@ -498,22 +498,18 @@ Func ReactiveMode($bHide = False)
 			$aProcessList = ProcessList("msedge.exe")
 			For $iLoop = 1 To $aProcessList[0][0] - 1
 				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
-				If StringRegExp($sCommandline, $sRegex) Then
-					ProcessClose($aProcessList[$iLoop][1])
-					_DecodeAndRun(Default, $sCommandline)
-				EndIf
+				If Not StringRegExp($sCommandline, $sRegex) Then ContinueLoop
+				ProcessClose($aProcessList[$iLoop][1])
+				_DecodeAndRun(Default, $sCommandline)
 			Next
 		Else
 			ProcessClose($aProcessList[1][0])
 			$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[1][0])
 			$sProcessPath = _WinAPI_GetProcessFileName($aProcessList[1][0])
 			If @error Then $bHavePath = False
-			If StringRegExp($sCommandline, $sRegex) Then
-				_DecodeAndRun(Default, $sCommandline)
-			ElseIf $bHavePath = True Then
-				;Relaunch other processes without SIHOST Parent
-				_SafeRun($sProcessPath, $sCommandline)
-			EndIf
+			If StringRegExp($sCommandline, $sRegex) Then _DecodeAndRun(Default, $sCommandline)
+			;Relaunch other processes without SIHOST Parent
+			If Not StringRegExp($sCommandline, $sRegex) And $bHavePath = True Then _SafeRun($sProcessPath, $sCommandline)
 		EndIf
 
 		Switch $hMsg
