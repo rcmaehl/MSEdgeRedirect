@@ -50,11 +50,21 @@ EndFunc
 
 Func _GetSettingValue($sSetting, $sType = Null, $sLocation = Null)
 
+	Local $iLoop
+	Local $vTemp
 	Local $vReturn = Null
 	Local $bContinue = False
 	Local Static $bPortable
 
 	Switch $sSetting
+		Case "All"
+			$iLoop = 1
+			Do
+				$vTemp = RegEnumVal("HKCU\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", 1)
+				If @extended = $REG_DWORD Then
+					If $vTemp Then $vReturn += 1
+				EndIf
+			Until @error
 		Case "IsPortable"
 			Return $bPortable
 		Case "RunUnsafe"

@@ -215,9 +215,7 @@ Func ProcessCMDLine()
 		$CMDLine = RepairCMDLine($CMDLine)
 		If _ArraySearch($aEdges, $CMDLine[1]) > 0 Or StringInStr($CMDLine[1], "ie_to_edge_stub.exe") Then ; Image File Execution Options Mode
 			ActiveMode($CMDLine)
-			; TODO: Parse $aSettings[], decrease likelyhood based on number of enabled features so that users with more features enabled aren't spammed
-			; TODO: Revamp $aSettings to remove "Custom", have <whatever>PATH to replace "CUSTOM"
-			If Not _GetSettingValue("NoUpdates", "Bool") And Random(1, 10, 1) = 1 Then RunUpdateCheck()
+			If Not _GetSettingValue("NoUpdates", "Bool") And Random(1, _GetSettingValue("All") * 10, 1) = 1 Then RunUpdateCheck()
 			_LogClose()
 			Exit
 		EndIf
