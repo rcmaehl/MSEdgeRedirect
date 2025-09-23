@@ -211,6 +211,8 @@ Func ProcessCMDLine()
 			If Not _GetSettingValue("NoUpdates", "Bool") And Random(1, 10, 1) = 1 Then RunUpdateCheck()
 			_LogClose()
 			Exit
+		ElseIf StringLeft($CMDLine[1], 5) = "MSER:" Then ; Future Edge Add-On Mode
+			;;;
 		EndIf
 
 		Do
@@ -461,6 +463,10 @@ Func ReactiveMode($bHide = False)
 
 	Local $hMsg
 
+	Global $oWMI  = ObjGet("winmgmts:\\")
+	Global $oSink = ObjCreate("WbemScripting.SWbemSink")
+	_registerProcessCreation()
+
 	; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
 	Local $hToken = _WinAPI_OpenProcessToken(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
 
@@ -493,16 +499,9 @@ Func ReactiveMode($bHide = False)
 	While True
 		$hMsg = TrayGetMsg()
 
+#cs
 		$aProcessList = _WinAPI_EnumChildProcess($iSIHost)
-		If @error Then 
-			$aProcessList = ProcessList("msedge.exe")
-			For $iLoop = 1 To $aProcessList[0][0] - 1
-				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
-				If Not StringRegExp($sCommandline, $sRegex) Then ContinueLoop
-				ProcessClose($aProcessList[$iLoop][1])
-				_DecodeAndRun(Default, $sCommandline)
-			Next
-		Else
+		If Not @error Then
 			ProcessClose($aProcessList[1][0])
 			$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[1][0])
 			$sProcessPath = _WinAPI_GetProcessFileName($aProcessList[1][0])
@@ -510,7 +509,16 @@ Func ReactiveMode($bHide = False)
 			If StringRegExp($sCommandline, $sRegex) Then _DecodeAndRun(Default, $sCommandline)
 			;Relaunch other processes without SIHOST Parent
 			If Not StringRegExp($sCommandline, $sRegex) And $bHavePath = True Then _SafeRun($sProcessPath, $sCommandline)
+		Else
+			$aProcessList = ProcessList("msedge.exe")
+			For $iLoop = 1 To $aProcessList[0][0] - 1
+				$sCommandline = _WinAPI_GetProcessCommandLine($aProcessList[$iLoop][1])
+				If Not StringRegExp($sCommandline, $sRegex) Then ContinueLoop
+				ProcessClose($aProcessList[$iLoop][1])
+				_DecodeAndRun(Default, $sCommandline)
+			Next
 		EndIf
+#ce
 
 		Switch $hMsg
 
@@ -536,6 +544,23 @@ Func ReactiveMode($bHide = False)
 	_LogClose()
 	Exit
 
+EndFunc
+
+Func SINK_OnObjectReady($oProcess)
+    ProcessClose($oProcess.TargetInstance.ProcessID)
+	Local $sRegex = "(?i).*(microsoft\-edge|app\-id).*"
+	$sCommandline = _WinAPI_GetProcessCommandLine($oProcess.TargetInstance.ProcessID)
+	$sProcessPath = _WinAPI_GetProcessFileName($oProcess.TargetInstance.ProcessID)
+	ConsoleWrite($sCommandline & @CRLF)
+	If StringRegExp($sCommandline, $sRegex) Then _DecodeAndRun(Default, $sCommandline)
+EndFunc
+
+Func _registerProcessCreation()
+    ; Events with the prefix “SINK_” are linked to corresponding AutoIt functions (we only need SINK_OnObjectReady).
+    ObjEvent($oSink, "SINK_")
+
+    ; Queries the __InstanceCreationEvent events on the WMI class Win32_Process every 100 ms.
+    $oWMI.ExecNotificationQueryAsync($oSink, "SELECT * FROM __InstanceCreationEvent WITHIN 0.1 WHERE TargetInstance ISA 'Win32_Process' AND (TargetInstance.name = 'msedge.exe')")
 EndFunc
 
 Func RepairCMDLine($aCMDLine)
