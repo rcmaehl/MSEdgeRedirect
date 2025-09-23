@@ -49,6 +49,9 @@ Opt("GUICloseOnESC", 0)
 
 #include "MSEdgeRedirect_Wrapper.au3"
 
+Global $oWMI  = ObjGet("winmgmts:\\")
+Global $oSink = ObjCreate("WbemScripting.SWbemSink")
+
 SetupAppdata()
 ProcessCMDLine()
 
@@ -472,8 +475,6 @@ Func ReactiveMode($bHide = False)
 
 	Local $hMsg
 
-	Global $oWMI  = ObjGet("winmgmts:\\")
-	Global $oSink = ObjCreate("WbemScripting.SWbemSink")
 	_registerProcessCreation()
 
 	; Enable "SeDebugPrivilege" privilege for obtain full access rights to another processes
@@ -492,18 +493,12 @@ Func ReactiveMode($bHide = False)
 
 	If $bHide Then TraySetState($TRAY_ICONSTATE_HIDE)
 
-	Local $sRegex
-	Local $iSIHost = ProcessExists("sihost.exe")
-	Local $bHavePath = True
-	Local $aProcessList
-	Local $sProcessPath
-	Local $sCommandline	
-
-	If _GetSettingValue("NoApps", "Bool") Then
-		$sRegex = "(?i).*(microsoft\-edge|app\-id).*"
-	Else
-		$sRegex = "(?i).*(microsoft\-edge).*"
-	EndIf
+	;Local $sRegex
+	;Local $iSIHost = ProcessExists("sihost.exe")
+	;Local $bHavePath = True
+	;Local $aProcessList
+	;Local $sProcessPath
+	;Local $sCommandline	
 
 	While True
 		$hMsg = TrayGetMsg()
@@ -557,11 +552,21 @@ EndFunc
 
 Func SINK_OnObjectReady($oProcess)
     ProcessClose($oProcess.TargetInstance.ProcessID)
-	Local $sRegex = "(?i).*(microsoft\-edge|app\-id).*"
+
+	Local Static $sRegex = ""
+
+	If $sRegex = "" Then
+		If _GetSettingValue("NoApps", "Bool") Then
+			$sRegex = "(?i).*(microsoft\-edge|app\-id).*"
+		Else
+			$sRegex = "(?i).*(microsoft\-edge).*"
+		EndIf
+	EndIf
+		
 	$sCommandline = _WinAPI_GetProcessCommandLine($oProcess.TargetInstance.ProcessID)
 	$sProcessPath = _WinAPI_GetProcessFileName($oProcess.TargetInstance.ProcessID)
 	ConsoleWrite($sCommandline & @CRLF)
-	If StringRegExp($sCommandline, $sRegex) Then _DecodeAndRun(Default, $sCommandline)
+	If StringRegExp($sCommandline, $sRegex) Then _DecodeAndRun($sProcessPath, $sCommandline)
 EndFunc
 
 Func _registerProcessCreation()
@@ -569,7 +574,7 @@ Func _registerProcessCreation()
     ObjEvent($oSink, "SINK_")
 
     ; Queries the __InstanceCreationEvent events on the WMI class Win32_Process every 100 ms.
-    $oWMI.ExecNotificationQueryAsync($oSink, "SELECT * FROM __InstanceCreationEvent WITHIN 0.1 WHERE TargetInstance ISA 'Win32_Process' AND (TargetInstance.name = 'msedge.exe')")
+    $oWMI.ExecNotificationQueryAsync($oSink, "SELECT * FROM __InstanceCreationEvent WITHIN " & _GetSettingValue("SMRefresh", "Int") & " WHERE TargetInstance ISA 'Win32_Process' AND (TargetInstance.name = 'msedge.exe')")
 EndFunc
 
 Func RepairCMDLine($aCMDLine)

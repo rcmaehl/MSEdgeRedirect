@@ -140,6 +140,8 @@ Func _GetSettingValue($sSetting, $sType = Null, $sLocation = Null)
 		Switch $sType
 			Case "Bool"
 				$vReturn = _Bool($vReturn)
+			Case "Int"
+				$vReturn = Int($vReturn)
 			Case Else
 				;;;
 		EndSwitch
@@ -163,14 +165,14 @@ Func _SetSettingValue($sSetting, $vValue, $sLocation)
 
 		Case "HKLM"
 			Select
-				Case IsBool($vValue)
+				Case IsBool($vValue) Or IsInt($vValue)
 					RegWrite("HKLM\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_DWORD", $vValue)
 					If @error Then _Log($hLogs[$Install], "[WARNING!] Unable to write " & $sLocation & " REG_DWORD Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
-		
+
 				Case IsString($vValue)
 					RegWrite("HKLM\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_SZ", $vValue)
 					If @error Then _Log($hLogs[$Install], "[WARNING!] Unable to write " & $sLocation & " REG_SZ Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
-		
+
 				Case Else
 					RegWrite("HKLM\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_SZ", $vValue)
 					If @error Then _Log($hLogs[$Install], "[WARNING!] Unable to write " & $sLocation & " REG_SZ Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
@@ -180,7 +182,7 @@ Func _SetSettingValue($sSetting, $vValue, $sLocation)
 
 		Case "HKCU"
 			Select
-				Case IsBool($vValue)
+				Case IsBool($vValue) Or IsInt($vValue)
 					RegWrite("HKCU\SOFTWARE\" & $sPolicy & "Robert Maehl Software\MSEdgeRedirect\", $sSetting, "REG_DWORD", $vValue)
 					If @error Then _Log($hLogs[$Install], "[WARNING!] Unable to write " & $sLocation & " REG_DWORD Registry Key '" & $sSetting & "' - with value '" & $vValue & "'" & @CRLF)
 		
