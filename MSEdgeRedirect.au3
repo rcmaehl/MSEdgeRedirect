@@ -551,6 +551,8 @@ EndFunc
 Func SINK_OnObjectReady($oProcess)
     ProcessClose($oProcess.TargetInstance.ProcessID)
 
+	Local $sProcessPath
+	Local $sCommandline	
 	Local Static $sRegex = ""
 
 	If $sRegex = "" Then
