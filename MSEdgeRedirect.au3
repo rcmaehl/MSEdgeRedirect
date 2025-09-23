@@ -201,6 +201,15 @@ Func ProcessCMDLine()
 	$aInstall = _IsInstalled()
 	If DriveGetType(@ScriptDir) = "Removable" And FileExists(".\Settings.ini") Then _GetSettingValue("SetPortable")
 
+	If $aInstall[0] And StringReplace($aInstall[2], ".", "") <= "0720" Then
+		MsgBox($MB_ICONERROR+$MB_OK, _
+			_Translate($aMUI[1], "Legacy Install Detected"), _
+			_Translate($aMUI[1], "Please Uninstall Existing MSEdgeRedirect before Upgrading"))
+		_Log($hLogs[$AppFailures], "" & "Pre-0.7.2.0 version detected. Unable to clean up task scheduler entries." & @CRLF)
+		_LogClose()
+		Exit 10 ; ERROR_BAD_ENVIRONMENT
+	EndIf
+
 	If $iParams > 0 Then
 
 		$CMDLine = RepairCMDLine($CMDLine)
@@ -255,7 +264,7 @@ Func ProcessCMDLine()
 							_Translate($aMUI[1], "Unable to install Active Mode without Admin Rights!"))
 						_Log($hLogs[$AppFailures], "" & "Active Mode UAC Elevation Attempt Failed!" & @CRLF)
 						_LogClose()
-						Exit
+						Exit 5 ; ERROR_ACCESS_DENIED
 					Else
 						RunSetup($aInstall[0], False, -2)
 					EndIf
@@ -267,7 +276,7 @@ Func ProcessCMDLine()
 								_Translate($aMUI[1], "Unable to Setup Europe Mode without Admin Rights!"))
 							_Log($hLogs[$AppFailures], "" & "Europe Mode UAC Elevation Attempt Failed!" & @CRLF)
 							_LogClose()
-							Exit
+							Exit 5 ; ERROR_ACCESS_DENIED
 						Case Not RegRead("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "Start") = 4
 							ContinueCase
 						Case Not RegRead("HKLM\SYSTEM\CurrentControlSet\Services\UCPD", "FeatureV2") = 0

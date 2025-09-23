@@ -205,26 +205,31 @@ Func _IsSafeURL(ByRef $sURL)
 	Local $aURL
 	Local $bSafe = False
 
-	$aURL = StringSplit($sURL, ":")
-	If $aURL[0] < 2 Then
-		ReDim $aURL[3]
-		$aURL[2] = $aURL[1]
-		$aURL[1] = "https"
-		$sURL = "https://" & $sURL
-	EndIf
+	If $sURL = "" Or StringRegExp($sURL, "\s+") Then
+		_Log($hLogs[$AppSecurity], "Received Blank Micorsoft Edge Call, droppping..." & @CRLF)
+		Return False
+	Else
+		$aURL = StringSplit($sURL, ":")
+		If $aURL[0] < 2 Then
+			ReDim $aURL[3]
+			$aURL[2] = $aURL[1]
+			$aURL[1] = "https"
+			$sURL = "https://" & $sURL
+		EndIf
 
-	Select
-		Case $aURL[1] <> "http" And $aURL[1] <> "https"
-			ContinueCase
-		Case _WinAPI_UrlIs($sURL, $URLIS_FILEURL)
-			ContinueCase
-		Case _WinAPI_UrlIs($sURL, $URLIS_OPAQUE)
-			$bSafe = False
-		Case _WinAPI_UrlIs($sURL, $URLIS_URL)
-			$bSafe = True
-		Case Else
-			;;;
-	EndSelect
+		Select
+			Case $aURL[1] <> "http" And $aURL[1] <> "https"
+				ContinueCase
+			Case _WinAPI_UrlIs($sURL, $URLIS_FILEURL)
+				ContinueCase
+			Case _WinAPI_UrlIs($sURL, $URLIS_OPAQUE)
+				$bSafe = False
+			Case _WinAPI_UrlIs($sURL, $URLIS_URL)
+				$bSafe = True
+			Case Else
+				;;;
+		EndSelect
+	EndIf
 
 	If Not $bSafe Then _Log($hLogs[$AppSecurity], "Blocked Unsafe URL: " & $sURL & @CRLF)
 

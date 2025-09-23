@@ -1074,7 +1074,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 							GUICtrlSetData($hDetails, _
 								"Adminless, Less Intrusive, Single User Install" & @CRLF & _
 								@CRLF & _
-								"MSEdgeRedirect stays running in the background. Detected Edge data is redirected to your default browser. This uses 1-10% CPU depending on System.")
+								"MSEdgeRedirect stays running in the background and PREVENTS Edge from running. Detected Edge data is REDIRECTED to your default browser. Configurable Responsiveness at the COST of CPU Usage.")
 							GUICtrlSetData($hAccuracy, 33)
 							GUICtrlSetData($hCPUUsage, 99)
 							GUICtrlSetData($hCustomize, 50)
@@ -1084,7 +1084,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 							GUICtrlSetData($hDetails, _
 								"Best Performing, System Wide, Customizable, and Compatible Install" & @CRLF & _
 								@CRLF & _
-								"MSEdgeRedirect is ran instead of Edge, similarly to the old EdgeDeflector app. CPU Resources are spared as no background process is required. Compatible with AveYo's Edge Removal Tool.")
+								"MSEdgeRedirect INTERCEPTS and actions Edge Calls as needed. Edge CAN be used as normal if needed. CPU Resources are SPARED as no background process is required. Compatible with AveYo's Edge Removal Tool.")
 							GUICtrlSetData($hAccuracy, 66)
 							GUICtrlSetData($hCPUUsage, 10)
 							GUICtrlSetData($hCustomize, 66)
@@ -1094,7 +1094,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 							GUICtrlSetData($hDetails, _
 								"Adminless, Less Intrusive, Portable Install" & @CRLF & _
 								@CRLF & _
-								"MSEdgeRedirect creates a Settings.ini file; The Installer then exits. The App and Settings file can be moved to a USB or other Device. While Running, detected Edge data is redirected to your default browser. This uses 1-10% CPU depending on System.")
+								"MSEdgeRedirect creates a Settings.ini file; The Installer then exits. The App and Settings file can be moved to a USB or other Device. While Running, PREVENTS Edge from running. Detected Edge data is REDIRECTED to your default browser. Configurable Responsiveness at the COST of CPU Usage.")
 							GUICtrlSetData($hAccuracy, 33)
 							GUICtrlSetData($hCPUUsage, 99)
 							GUICtrlSetData($hCustomize, 33)
@@ -1104,7 +1104,9 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 							GUICtrlSetData($hDetails, _ 
 								"System Wide Change using a Native Windows Feature" & @CRLF & _
 								@CRLF & _
-								"MSEdgeRedirect DOES NOT INSTALL. Locale and Settings changes are made to set Windows 'in EU' and respect the default browser.")
+								"MSEdgeRedirect DOES NOT INSTALL. Locale and Settings CHANGES are made to set Windows 'in EU' and respect the default browser. Pages will STILL load as Bing and other Microsoft Services." & @CRLF & _ 
+								@CRLF & _
+								"We RECOMMEND installing Chrometana Pro or Foxtana Pro after using this mode.")
 							GUICtrlSetData($hAccuracy, 99)
 							GUICtrlSetData($hCPUUsage, 1)
 							GUICtrlSetData($hCustomize, 1)
