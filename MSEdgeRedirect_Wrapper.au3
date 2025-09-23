@@ -453,7 +453,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 		; Disable Scaling
 		If @OSVersion = 'WIN_10' or 'WIN_11' Then DllCall(@SystemDir & "\User32.dll", "bool", "SetProcessDpiAwarenessContext", "HWND", "DPI_AWARENESS_CONTEXT" - 1)
 
-		Local $hInstallGUI = GUICreate("MSEdgeRedirect " & $sVersion & " Setup", 640, 480)
+		Local $hInstallGUI = GUICreate("MSEdgeRedirect " & $sVersion & " Setup", 640, 480, -1, -1)
 		GUICtrlCreateLabel("", 0, 0, 180, 420)
 		GUICtrlSetBkColor(-1, 0x00A4EF)
 
@@ -495,7 +495,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 		Local $hCancel = GUICtrlCreateButton(_Translate($aMUI[1], "Cancel"), 530, 435, 90, 30)
 
 		#Region License Page
-		$aPages[$hLicense] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
+		$aPages[$hLicense] = GUICreate("", 460, 420, 180, 0, $WS_CHILD+$WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 		GUISetBkColor(0xFFFFFF)
 		FileInstall("./LICENSE", @LocalAppDataDir & "\MSEdgeRedirect\License.txt")
 
@@ -525,7 +525,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 
 		#Region Mode Page
 		; TO DO: Rewrite; Create Labels, then set Data depending on $iType
-		$aPages[$hMode] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
+		$aPages[$hMode] = GUICreate("", 460, 420, 180, 0, $WS_CHILD+$WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 		GUISetBkColor(0xFFFFFF)
 		Switch $iType
 			Case $iSettings
@@ -586,13 +586,13 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 		GUICtrlSetData($hModifies, 1)
 
 		GUICtrlCreateLabel(_Translate($aMUI[1], "Description") & ":", 50, 250, 180, 20, $SS_SUNKEN)
-		Local $hDetails = GUICtrlCreateLabel("", 50, 270, 360, 80)
+		Local $hDetails = GUICtrlCreateLabel("", 50, 270, 360, 120)
 
 		GUISwitch($hInstallGUI)
 		#EndRegion
 
 		#Region Settings Page
-		$aPages[$hSettings] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
+		$aPages[$hSettings] = GUICreate("", 460, 420, 180, 0, $WS_CHILD+$WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 		GUISetBkColor(0xFFFFFF)
 
 		; TO DO: Rewrite; Reuse Mode Page Labels by Shrinking and Lowering Settings Page
@@ -611,14 +611,12 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 				GUICtrlSetData(-1, _Translate($aMUI[1], "You should never see this. Please file a bug report."))
 		EndSwitch
 
-		;GUICtrlCreateGroup("Mode Options", 20, 60, 420, 130)
-
-		GUICtrlCreateGroup("Active Mode Options", 20, 60, 420, 70)
-			$hChannels[0] = GUICtrlCreateCheckbox("Edge Stable", 50, 80, 95, 20)
-			$hChannels[1] = GUICtrlCreateCheckbox("Edge Beta", 145, 80, 95, 20)
-			$hChannels[2] = GUICtrlCreateCheckbox("Edge Dev", 240, 80, 95, 20)
-			$hChannels[3] = GUICtrlCreateCheckbox("Edge Canary", 335, 80, 95, 20)
-			$hChannels[4] = GUICtrlCreateCheckbox("Edge Removed (Auto Detected)", 50, 100, 380, 20)
+		GUICtrlCreateGroup("Edge Branch(es) To Redirect", 20, 40, 420, 50)
+			$hChannels[0] = GUICtrlCreateCheckbox("Stable", 40, 60, 76, 20)
+			$hChannels[1] = GUICtrlCreateCheckbox("Beta", 116, 60, 76, 20)
+			$hChannels[2] = GUICtrlCreateCheckbox("Dev", 192, 60, 76, 20)
+			$hChannels[3] = GUICtrlCreateCheckbox("Canary", 268, 60, 76, 20)
+			$hChannels[4] = GUICtrlCreateCheckbox("Stub (Auto)", 344, 60, 76, 20)
 			GUICtrlSetState(-1, $GUI_DISABLE)
 
 			If $iType Then
@@ -743,7 +741,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 		#EndRegion
 
 		#Region Finish Page
-		$aPages[$hFinish] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
+		$aPages[$hFinish] = GUICreate("", 460, 420, 180, 0, $WS_CHILD+$WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 		GUISetBkColor(0xFFFFFF)
 
 		GUICtrlCreateLabel("", 20, 10, 420, 30)
@@ -769,7 +767,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 		#EndRegion
 
 		#Region EuropeModePage
-		$aPages[$hCountry] = GUICreate("", 460, 420, 180, 0, $WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
+		$aPages[$hCountry] = GUICreate("", 460, 420, 180, 0, $WS_CHILD+$WS_POPUP, $WS_EX_MDICHILD, $hInstallGUI)
 		GUISetBkColor(0xFFFFFF)
 
 		GUICtrlCreateLabel("Configure European Country", 20, 10, 420, 30)
@@ -846,7 +844,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 		#EndRegion
 
 		GUISetState(@SW_SHOW, $hInstallGUI)
-		GUISetState(@SW_SHOW, $aPages[$iPage])
+		GUISetState(@SW_SHOWNOACTIVATE, $aPages[$iPage])
 
 		Local $iIndex
 
@@ -900,7 +898,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 							EndSwitch
 					EndSwitch
 					GUISetState(@SW_HIDE, $aPages[$iPage])
-					GUISetState(@SW_SHOW, $aPages[$iPage - 1])
+					GUISetState(@SW_SHOWNOACTIVATE, $aPages[$iPage - 1])
 					$iPage -= 1
 
 				Case $hMsg = $hNext
@@ -1049,7 +1047,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 							Exit
 					EndSwitch
 					GUISetState(@SW_HIDE, $aPages[$iPage])
-					GUISetState(@SW_SHOW, $aPages[$iPage + 1])
+					GUISetState(@SW_SHOWNOACTIVATE, $aPages[$iPage + 1])
 					$iPage += 1
 
 				Case $aMode[0] = "" And $aMode[1] <> "" ; Fix Next Button Flickering
