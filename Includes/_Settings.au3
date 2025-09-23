@@ -1,6 +1,7 @@
 #include-once
 
 #include <Date.au3>
+#include <Array.au3>
 #include <AutoItConstants.au3>
 
 #include "_Logging.au3"
@@ -58,13 +59,19 @@ Func _GetSettingValue($sSetting, $sType = Null, $sLocation = Null)
 
 	Switch $sSetting
 		Case "All"
-			$iLoop = 1
-			Do
-				$vTemp = RegEnumVal("HKCU\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", 1)
-				If @extended = $REG_DWORD Then
-					If $vTemp Then $vReturn += 1
-				EndIf
-			Until @error
+			If $bPortable Then
+				$vTemp = IniReadSection(@ScriptDir & "\Settings.ini", "Settings")
+				$vReturn = UBound(_ArrayFindAll($vTemp, "True")) - 1
+			Else
+				$iLoop = 1
+				Do
+					$vTemp = RegEnumVal("HKCU\SOFTWARE\Policies\Robert Maehl Software\MSEdgeRedirect", $iLoop)
+					If @extended = $REG_DWORD Then
+						If $vTemp Then $vReturn += 1
+					EndIf
+					$iLoop += 1
+				Until @error
+			EndIf
 		Case "IsPortable"
 			Return $bPortable
 		Case "RunUnsafe"
