@@ -448,7 +448,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 
 	Else
 
-		Local $aInstall = _IsInstalled()
+		;Local $aInstall = _IsInstalled()
 
 		Local $aPages[6]
 		Local Enum $hLicense, $hMode, $hSettings, $hFinish, $hExit, $hCountry, $hExit2
@@ -655,21 +655,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 			Local $hNoIcon = GUICtrlCreateCheckbox("Hide Tray Icon", 170, 120, 120, 20)
 			GUICtrlSetState(-1, $aSettings[$bNoTray])
 			Local $hStartup = GUICtrlCreateCheckbox("Start w/ Windows", 300, 120, 120, 20)
-			GUICtrlSetState(-1, $aSettings[$bStartup])
-
-			Select
-				Case $bIsAdmin
-					ContinueCase
-				Case $aInstall[0] And $aInstall[1] = "HKLM"
-					GUICtrlSetState($hRefresh, $GUI_DISABLE)
-					GUICtrlSetState($hStartup, $GUI_DISABLE)
-					GUICtrlSetState($hNoIcon, $GUI_DISABLE)
-				Case $iType = $iUpdate
-					GUICtrlSetState($hStartup, FileExists(@StartupDir & "\MSEdgeRedirect.lnk"))
-					GUICtrlSetState($hNoIcon, _GetSettingValue("NoApps", "Bool"))
-				Case Else
-					;;;
-			EndSelect
+			GUICtrlSetState(-1, FileExists(@StartupDir & "\MSEdgeRedirect.lnk"))
 
 		GUICtrlCreateGroup("Additional Redirections", 20, 200, 420, 210)
 			Local $hNoFeed = GUICtrlCreateCheckbox("Bing Discover:", 50, 220, 180, 20)
@@ -1077,6 +1063,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 					GUICtrlSetState($hChannels[1], $GUI_ENABLE)
 					GUICtrlSetState($hChannels[2], $GUI_ENABLE)
 					GUICtrlSetState($hChannels[3], $GUI_ENABLE)
+					GUICtrlSetState($hRefresh, $GUI_ENABLE)
 					GUICtrlSetState($hStartup, $GUI_ENABLE)
 					GUICtrlSetState($hNoIcon, $GUI_ENABLE)
 
@@ -1135,21 +1122,11 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 							;;;
 					EndSwitch
 
-					Switch $aMode[0]
-						Case Not "Service"
-							GUICtrlSetState($hStartup, $GUI_DISABLE)
-							GUICtrlSetState($hNoIcon, $GUI_DISABLE)
-						
-						Case Not "Active"
-							GUICtrlSetState($hChannels[0], $GUI_DISABLE)
-							GUICtrlSetState($hChannels[1], $GUI_DISABLE)
-							GUICtrlSetState($hChannels[2], $GUI_DISABLE)
-							GUICtrlSetState($hChannels[3], $GUI_DISABLE)
-
-						Case Else
-							;;;
-
-					EndSwitch
+					If $aMode[0] <> "Service" Then
+						GUICtrlSetState($hRefresh, $GUI_DISABLE)
+						GUICtrlSetState($hStartup, $GUI_DISABLE)
+						GUICtrlSetState($hNoIcon, $GUI_DISABLE)
+					EndIf
 
 					If RegRead("HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\ie_to_edge_stub.exe\0", "Debugger") Then
 						GUICtrlSetState($hChannels[4], $GUI_DISABLE)
