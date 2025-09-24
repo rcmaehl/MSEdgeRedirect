@@ -574,6 +574,7 @@ Func _registerProcessCreation()
     ObjEvent($oSink, "SINK_")
 
     ; Queries the __InstanceCreationEvent events on the WMI class Win32_Process every 100 ms.
+	;MsgBox(0, "", _GetSettingValue("SMRefresh", "Int"))
     $oWMI.ExecNotificationQueryAsync($oSink, "SELECT * FROM __InstanceCreationEvent WITHIN " & _GetSettingValue("SMRefresh", "Int") & " WHERE TargetInstance ISA 'Win32_Process' AND (TargetInstance.name = 'msedge.exe')")
 EndFunc
 

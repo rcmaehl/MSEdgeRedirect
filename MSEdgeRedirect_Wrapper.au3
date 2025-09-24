@@ -27,7 +27,7 @@
 
 Global $sVersion
 Global $bIsPriv = _IsDestinationRestricted()
-Global Enum $bNoApps, $bNoBing, $bNoChat, $bNoFeed, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoPilot, $bNoSpotlight, $bNoTray, $bNoUpdates, $sFeed, $sFeedPath, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
+Global Enum $bNoApps, $bNoBing, $bNoChat, $bNoFeed, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoPilot, $bNoSpotlight, $bNoTray, $bNoUpdates, $sFeed, $sFeedPath, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sSMRefesh, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
 
 If @Compiled Then
 	$sVersion = FileGetVersion(@ScriptFullPath)
@@ -80,6 +80,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	_SetSettingValue("PDFApp"     , $aSettings[$sPDFApp]     , $sLocation)
 	_SetSettingValue("Search"     , $aSettings[$sSearch]     , $sLocation)
 	_SetSettingValue("SearchPath" , $aSettings[$sSearchPath] , $sLocation)
+	_SetSettingValue("SMRefresh"  , $aSettings[$sSMRefesh]   , $sLocation)
 	_SetSettingValue("Weather"    , $aSettings[$sWeather]    , $sLocation)
 	_SetSettingValue("WeatherPath", $aSettings[$sWeatherPath], $sLocation)
 
@@ -294,7 +295,9 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 
 	Local Enum $iInstall, $iUpdate, $iSettings
 
-	Local $aSettings[24] = [False, False, False, False, False, False, False, False, False, False, False, False, "", "", "", "", "", "", "", "", "Full", True, "", ""]
+	Local $aSettings[25] = [False, False, False, False, False, False, False, False, False, False, False, False, "", "", "", "", "", "", "", "", 100, "Full", True, "", ""]
+
+	If $iType == True Then $iType = $iUpdate
 
 	If $iPage < 0 Then
 		$iPage = Abs($iPage)
@@ -316,6 +319,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 			$aSettings[$bNoSpotlight] = _GetSettingValue("NoSpotlight")
 			$aSettings[$bNoTray] = _GetSettingValue("NoTray")
 			$aSettings[$bNoUpdates] =_GetSettingValue("NoUpdates")
+			$aSettings[$sSMRefesh] = _GetSettingValue("SMRefresh")
 			If $aSettings[$bNoBing] Then
 				$aSettings[$sSearch] = _GetSettingValue("Search")
 				$aSettings[$sSearchPath] = _GetSettingValue("SearchPath")
@@ -371,6 +375,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 			$aSettings[$sPDFApp] = _GetSettingValue("PDFApp", "String", $aConfig[$hFile])
 			$aSettings[$sSearch] = _GetSettingValue("Search", "String", $aConfig[$hFile])
 			$aSettings[$sSearchPath] = _GetSettingValue("SearchPath", "String", $aConfig[$hFile])
+			$aSettings[$sSMRefesh] = _GetSettingValue("SMRefresh", "Int", $aConfig[$hFile])
 			$aSettings[$sStartMenu] = _GetSettingValue("StartMenu", "String", $aConfig[$hFile])
 			$aSettings[$bStartup] = _GetSettingValue("Startup", "Bool", $aConfig[$hFile])
 			$aSettings[$sWeather] = _GetSettingValue("Weather", "String", $aConfig[$hFile])
@@ -508,7 +513,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 			Case $iInstall
 				GUICtrlSetData(-1, _Translate($aMUI[1], "Please read the following License. You must accept the terms of the license before continuing with the installation."))
 			Case Else
-				GUICtrlSetData(-1, _Translate($aMUI[1], "You should never see this. Please file a bug report."))
+				GUICtrlSetData(-1, _Translate($aMUI[1], "You should DEFINITELY never see this. Please file a bug report."))
 				_Log($hLogs[$PEBIAT], "[WARNING] Caught Invalid UI Mode: " & $iType & @CRLF)
 		EndSwitch
 
@@ -546,7 +551,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 			Case Else
 				GUICtrlCreateLabel(_Translate($aMUI[1], "Install") & " MSEdgeRedirect " & $sVersion, 20, 10, 420, 30)
 				GUICtrlSetFont(-1, 20, $FW_BOLD, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
-				GUICtrlCreateLabel(_Translate($aMUI[1], "You should never see this. Please file a bug report."), 20, 40, 420, 40)
+				GUICtrlCreateLabel(_Translate($aMUI[1], "You should DEFINITELY never see this. Please file a bug report."), 20, 40, 420, 40)
 				GUICtrlSetFont(-1, 10, $FW_NORMAL, $GUI_FONTNORMAL, "", $CLEARTYPE_QUALITY)
 		EndSwitch
 
@@ -608,15 +613,15 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 			Case $iInstall
 				GUICtrlSetData(-1, "Install MSEdgeRedirect " & $sVersion)
 			Case Else
-				GUICtrlSetData(-1, _Translate($aMUI[1], "You should never see this. Please file a bug report."))
+				GUICtrlSetData(-1, _Translate($aMUI[1], "You should DEFINITELY never see this. Please file a bug report."))
 		EndSwitch
 
-		GUICtrlCreateGroup("Edge Branch(es) To Redirect", 20, 40, 420, 50)
-			$hChannels[0] = GUICtrlCreateCheckbox("Stable", 40, 60, 76, 20)
-			$hChannels[1] = GUICtrlCreateCheckbox("Beta", 116, 60, 76, 20)
-			$hChannels[2] = GUICtrlCreateCheckbox("Dev", 192, 60, 76, 20)
-			$hChannels[3] = GUICtrlCreateCheckbox("Canary", 268, 60, 76, 20)
-			$hChannels[4] = GUICtrlCreateCheckbox("Stub (Auto)", 344, 60, 76, 20)
+		GUICtrlCreateGroup("Edge Branch(es) To Redirect", 20, 50, 420, 50)
+			$hChannels[0] = GUICtrlCreateCheckbox("Stable", 40, 70, 76, 20)
+			$hChannels[1] = GUICtrlCreateCheckbox("Beta", 116, 70, 76, 20)
+			$hChannels[2] = GUICtrlCreateCheckbox("Dev", 192, 70, 76, 20)
+			$hChannels[3] = GUICtrlCreateCheckbox("Canary", 268, 70, 76, 20)
+			$hChannels[4] = GUICtrlCreateCheckbox("Stub (Auto)", 344, 70, 76, 20)
 			GUICtrlSetState(-1, $GUI_DISABLE)
 
 			If $iType Then
@@ -642,14 +647,21 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 					;;;
 			EndSelect
 
-		GUICtrlCreateGroup("Service Mode Options", 20, 140, 420, 50)
-			Local $hNoIcon = GUICtrlCreateCheckbox("Hide Service Mode from Tray", 50, 160, 180, 20)
-			Local $hStartup = GUICtrlCreateCheckbox("Start Service Mode With Windows", 240, 160, 180, 20)
+		GUICtrlCreateGroup("Service Mode Options", 20, 100, 420, 50)
+			GUICtrlCreateLabel("Refresh (ms):", 40, 120, 70, 20, $SS_CENTERIMAGE)
+			Local $hRefresh = GUICtrlCreateInput("100", 110, 120, 50, 20, $ES_NUMBER+$ES_RIGHT)
+			GUICtrlCreateUpdown($hRefresh)
+			GUICtrlSetLimit(-1, 2000, 100)
+			Local $hNoIcon = GUICtrlCreateCheckbox("Hide Tray Icon", 170, 120, 120, 20)
+			GUICtrlSetState(-1, $aSettings[$bNoTray])
+			Local $hStartup = GUICtrlCreateCheckbox("Start w/ Windows", 300, 120, 120, 20)
+			GUICtrlSetState(-1, $aSettings[$bStartup])
 
 			Select
 				Case $bIsAdmin
 					ContinueCase
 				Case $aInstall[0] And $aInstall[1] = "HKLM"
+					GUICtrlSetState($hRefresh, $GUI_DISABLE)
 					GUICtrlSetState($hStartup, $GUI_DISABLE)
 					GUICtrlSetState($hNoIcon, $GUI_DISABLE)
 				Case $iType = $iUpdate
@@ -754,7 +766,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 			Case $iInstall
 				GUICtrlSetData(-1, "Installed Successfully")
 			Case Else
-				GUICtrlSetData(-1, _Translate($aMUI[1], "You should never see this. Please file a bug report."))
+				GUICtrlSetData(-1, _Translate($aMUI[1], "You should DEFINITELY never see this. Please file a bug report."))
 		EndSwitch
 
 		Local $hLaunch = GUICtrlCreateCheckbox("Launch Service Mode Now", 20, 200, 190, 20)
@@ -982,6 +994,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 								$aSettings[$sPDFApp] = $sHandler
 								$aSettings[$sSearch] = GUICtrlRead($hEngine)
 								$aSettings[$sSearchPath] = $sEngine
+								$aSettings[$sSMRefesh] = GUICtrlRead($hRefresh)
 								$aSettings[$bStartup] = _IsChecked($hStartup)
 								$aSettings[$sWeather] = GUICtrlRead($hWeather)
 								$aSettings[$sWeatherPath] = $sWeatherEng
