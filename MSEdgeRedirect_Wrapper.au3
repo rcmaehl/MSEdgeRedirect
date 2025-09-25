@@ -902,7 +902,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 				Case $hMsg = $hNext
 					Switch $iPage + 1
 						Case $hMode
-							GUICtrlSetState($hNext, $GUI_DISABLE)
+							If $aMode[0] = "" Then GUICtrlSetState($hNext, $GUI_DISABLE)
 							GUICtrlSetState($hBack, $GUI_ENABLE)
 						Case $hSettings
 							If @Compiled And Not $bResumed Then 
