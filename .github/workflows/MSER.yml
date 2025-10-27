@@ -43,7 +43,7 @@ jobs:
         run: |
           Start-Process "${env:ProgramFiles(x86)}\AutoIt3\AutoIt3.exe" "`"${env:ProgramFiles(x86)}\AutoIt3\SciTE\AutoIt3Wrapper\AutoIt3Wrapper.au3`" /NoStatus /prod /in MSEdgeRedirect.au3" -NoNewWindow -Wait
           sha256sum -b MSEdgeRedirect*.exe > checksums.sha256
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: mser
           path: |
