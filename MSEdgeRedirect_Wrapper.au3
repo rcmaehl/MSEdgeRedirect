@@ -302,6 +302,14 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 	If $iPage < 0 Then
 		$iPage = Abs($iPage)
 		$bResumed = True
+		Switch $iPage
+			Case 2
+				$aMode[1] = "Active"
+			Case 5
+				$aMode[1] = "Europe"
+			Case Else
+				$aMode[1] = "Service"
+		EndSwitch
 	EndIf
 
 	If $bSilent Then
@@ -1049,14 +1057,14 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 					GUISetState(@SW_SHOWNOACTIVATE, $aPages[$iPage + 1])
 					$iPage += 1
 
-				Case $aMode[0] = "" And $aMode[1] <> "" ; Fix Next Button Flickering
+				Case $aMode[0] = "" And $aMode[1] <> "" And Not $bResumed ; Fix Next Button Flickering
 
 					If Not _GUICtrlComboBoxEx_GetDroppedState($hOpMode) And $aMode[1] <> "" Then
 						GUICtrlSetState($hNext, $GUI_ENABLE)
 						ContinueCase
 					EndIf
 
-				Case $aMode[0] <> $aMode[1]
+				Case $aMode[0] <> $aMode[1] Or ($aMode[0] = "" And $bResumed)
 
 					$aMode[0] = $aMode[1]
 					GUICtrlSetState($hChannels[0], $GUI_ENABLE)
