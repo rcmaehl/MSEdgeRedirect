@@ -27,7 +27,7 @@
 
 Global $sVersion
 Global $bIsPriv = _IsDestinationRestricted()
-Global Enum $bNoApps, $bNoBing, $bNoChat, $bNoFeed, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoPilot, $bNoSpotlight, $bNoTray, $bNoUpdates, $sFeed, $sFeedPath, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $sSMRefesh, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
+Global Enum $bNoApps, $bNoBing, $bNoChat, $bNoFeed, $bNoImgs, $bNoMSN, $bNoNews, $bNoPDFs, $bNoPilot, $bNoSpotlight, $bNoTray, $bNoUpdates, $sFeed, $sFeedPath, $sImages, $sImagePath, $sNews, $sPDFApp, $sSearch, $sSearchPath, $iSMRefesh, $sStartMenu, $bStartup, $sWeather, $sWeatherPath
 
 If @Compiled Then
 	$sVersion = FileGetVersion(@ScriptFullPath)
@@ -80,7 +80,7 @@ Func RunInstall(ByRef $aConfig, ByRef $aSettings, $bSilent = False)
 	_SetSettingValue("PDFApp"     , $aSettings[$sPDFApp]     , $sLocation)
 	_SetSettingValue("Search"     , $aSettings[$sSearch]     , $sLocation)
 	_SetSettingValue("SearchPath" , $aSettings[$sSearchPath] , $sLocation)
-	_SetSettingValue("SMRefresh"  , $aSettings[$sSMRefesh]   , $sLocation)
+	_SetSettingValue("SMRefresh"  , $aSettings[$iSMRefesh]   , $sLocation)
 	_SetSettingValue("Weather"    , $aSettings[$sWeather]    , $sLocation)
 	_SetSettingValue("WeatherPath", $aSettings[$sWeatherPath], $sLocation)
 
@@ -327,7 +327,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 			$aSettings[$bNoSpotlight] = _GetSettingValue("NoSpotlight")
 			$aSettings[$bNoTray] = _GetSettingValue("NoTray")
 			$aSettings[$bNoUpdates] =_GetSettingValue("NoUpdates")
-			$aSettings[$sSMRefesh] = _GetSettingValue("SMRefresh")
+			$aSettings[$iSMRefesh] = _GetSettingValue("SMRefresh")
 			If $aSettings[$bNoBing] Then
 				$aSettings[$sSearch] = _GetSettingValue("Search")
 				$aSettings[$sSearchPath] = _GetSettingValue("SearchPath")
@@ -383,7 +383,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 			$aSettings[$sPDFApp] = _GetSettingValue("PDFApp", "String", $aConfig[$hFile])
 			$aSettings[$sSearch] = _GetSettingValue("Search", "String", $aConfig[$hFile])
 			$aSettings[$sSearchPath] = _GetSettingValue("SearchPath", "String", $aConfig[$hFile])
-			$aSettings[$sSMRefesh] = _GetSettingValue("SMRefresh", "Int", $aConfig[$hFile])
+			$aSettings[$iSMRefesh] = _GetSettingValue("SMRefresh", "Int", $aConfig[$hFile])
 			$aSettings[$sStartMenu] = _GetSettingValue("StartMenu", "String", $aConfig[$hFile])
 			$aSettings[$bStartup] = _GetSettingValue("Startup", "Bool", $aConfig[$hFile])
 			$aSettings[$sWeather] = _GetSettingValue("Weather", "String", $aConfig[$hFile])
@@ -660,6 +660,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 			Local $hRefresh = GUICtrlCreateInput("100", 110, 120, 50, 20, $ES_NUMBER+$ES_RIGHT)
 			GUICtrlCreateUpdown($hRefresh)
 			GUICtrlSetLimit(-1, 2000, 100)
+			GUICtrlSetData(-1, $iSMRefesh)
 			Local $hNoIcon = GUICtrlCreateCheckbox("Hide Tray Icon", 170, 120, 120, 20)
 			GUICtrlSetState(-1, $aSettings[$bNoTray])
 			Local $hStartup = GUICtrlCreateCheckbox("Start w/ Windows", 300, 120, 120, 20)
@@ -988,7 +989,7 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 								$aSettings[$sPDFApp] = $sHandler
 								$aSettings[$sSearch] = GUICtrlRead($hEngine)
 								$aSettings[$sSearchPath] = $sEngine
-								$aSettings[$sSMRefesh] = GUICtrlRead($hRefresh)
+								$aSettings[$iSMRefesh] = GUICtrlRead($hRefresh)
 								$aSettings[$bStartup] = _IsChecked($hStartup)
 								$aSettings[$sWeather] = GUICtrlRead($hWeather)
 								$aSettings[$sWeatherPath] = $sWeatherEng
@@ -1158,6 +1159,14 @@ Func RunSetup($iType = 0, $bSilent = False, $iPage = 0, $hSetupFile = @ScriptDir
 							ExitLoop
 						EndIf
 					Next
+
+				Case $hMsg = $hRefresh
+					Switch GUICtrlRead($hRefresh)
+						Case 0 To 999
+							GUICtrlSetData($hRefresh, 100)
+						Case 2001 To 9999
+							GUICtrlSetData($hRefresh, 2000)
+					EndSwitch
 
 				Case $hMsg = $hSearch
 					If _IsChecked($hSearch) Then
