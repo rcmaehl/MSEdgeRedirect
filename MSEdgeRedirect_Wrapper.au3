@@ -230,6 +230,10 @@ Func RunRemoval($bUpdate = False)
 			If FileExists(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe")) Then ; 0.8.0.0+
 				FileDelete(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"))
 			EndIf
+			If FileExists(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\msedge.exe")) Then ; 0.8.1.0+
+				FileDelete(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\msedge.exe"))
+				DirRemove(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\"))
+			EndIf
 		Next
 	EndIf
 
@@ -260,7 +264,10 @@ Func RunRepair()
 					;;;
 				Else
 					_Log($hLogs[$Install], "Repairing SymLinks." & @CRLF)
-					_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"), $aEdges[$iLoop])
+					If Not FileExists(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\"), $aEdges[$iLoop]) Then
+						DirCreate(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\"), $aEdges[$iLoop])
+					EndIf
+					_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\msedge.exe"), $aEdges[$iLoop])
 				EndIf
 			EndIf
 		Next
@@ -1422,7 +1429,8 @@ Func SetIFEORegistry(ByRef $aChannels)
 			If $iLoop = $aEdges[0] Then
 				;;;
 			Else
-				_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"), $aEdges[$iLoop])
+				DirCreate(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\"))
+				_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\msedge.exe"), $aEdges[$iLoop])
 			EndIf
 		EndIf
 	Next
