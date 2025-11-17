@@ -264,8 +264,8 @@ Func RunRepair()
 					;;;
 				Else
 					_Log($hLogs[$Install], "Repairing SymLinks." & @CRLF)
-					If Not FileExists(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\"), $aEdges[$iLoop]) Then
-						DirCreate(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\"), $aEdges[$iLoop])
+					If Not FileExists(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\")) Then
+						DirCreate(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\"))
 					EndIf
 					_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\msedge.exe"), $aEdges[$iLoop])
 				EndIf
