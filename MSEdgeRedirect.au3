@@ -130,7 +130,7 @@ Func CheckEdgeIntegrity($sLocation)
 		Exit
 	Else
 		Select
-			Case Not FileExists(StringReplace($sLocation, "\msedge.exe", "\msedge_IFEO.exe"))
+			Case Not FileExists(StringReplace($sLocation, "\msedge.exe", "\IFEO\msedge.exe"))
 				If WinExists(_Translate($aMUI[1], "Admin File Copy Required")) Then
 					_LogClose()
 					Exit ; #202
