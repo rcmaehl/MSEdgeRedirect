@@ -643,6 +643,7 @@ EndFunc
 Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
 	Local $sURL = ""
+	Local $bIsSafe
 	Local $aCMDLine
 
 	Select
@@ -762,7 +763,9 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			$sCMDLine = StringReplace($sCMDLine, "?url=", "")
 			If StringInStr($sCMDLine, "%2F") Then $sCMDLine = _WinAPI_UrlUnescape($sCMDLine)
 			_Log($hLogs[$AppGeneral], "Caught Other Edge Call:" & @CRLF & $sCMDLine & @CRLF)
-			If _IsSafeURL($sCMDLine) Then
+			$bIsSafe = _IsSafeURL($sCMDLine)
+			If @error Then _SafeRun($sEdge) ; Empty URL
+			If $bIsSafe Then
 				$sCMDLine = _ModifyURL($sCMDLine)
 				ShellExecute($sCMDLine)
 			Else

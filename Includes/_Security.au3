@@ -206,8 +206,8 @@ Func _IsSafeURL(ByRef $sURL)
 	Local $bSafe = False
 
 	If $sURL = "" Or StringRegExp($sURL, "\s+") Then
-		_Log($hLogs[$AppSecurity], "Received Blank Micorsoft Edge Call, droppping..." & @CRLF)
-		Return False
+		_Log($hLogs[$AppSecurity], "Received Blank Microsoft Edge Call. " & @CRLF)
+		Return SetError(1, 0, 0)
 	Else
 		$aURL = StringSplit($sURL, ":")
 		If $aURL[0] < 2 Then
