@@ -63,7 +63,7 @@ Func ActiveMode(ByRef $aCMDLine)
 
 	$aCMDLine = FixTreeIntegrity($aCMDLine)
 	CheckEdgeIntegrity($aCMDLine[1])
-	$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "msedge_IFEO.exe")
+	$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "IFEO\msedge.exe")
 	
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
