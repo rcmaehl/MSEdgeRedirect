@@ -65,8 +65,6 @@ Func ActiveMode(ByRef $aCMDLine)
 	CheckEdgeIntegrity($aCMDLine[1])
 	$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
 	
-	_ArrayDisplay($aCMDLine, "CMDLine Parameters Before Processing", Default, Default, 0x400)
-
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
 			ContinueCase
