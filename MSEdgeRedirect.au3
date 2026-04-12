@@ -63,8 +63,10 @@ Func ActiveMode(ByRef $aCMDLine)
 
 	$aCMDLine = FixTreeIntegrity($aCMDLine)
 	CheckEdgeIntegrity($aCMDLine[1])
-	$aCMDLine[1] = StringReplace($aCMDLine[1], "msedge.exe", "IFEO\msedge.exe")
+	$aCMDLine[1] = StringReplace($aCMDLine[1], "Application\msedge.exe", "IFEO\msedge.exe")
 	
+	_ArrayDisplay($aCMDLine, "CMDLine Parameters Before Processing", Default, Default, 0x400)
+
 	Select
 		Case $aCMDLine[0] = 1 ; No Parameters
 			ContinueCase
@@ -85,7 +87,7 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--inprivate" ; In Private Browsing, No Parameters
 			ContinueCase
-		Case _ArraySearch($aCMDLine, "--winrt-background-task-event", 2, 0, 0, 1) > 0 ; #94 & #95, Apps
+		Case _ArraySearch($aCMDLine, "--winrt-background-task-event", 2, 0, 0, 1) > 0 ; #094 & #095, Apps
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--web-widget-jumplist-launch", 2, 0, 0, 1) > 0 ; #123, EdgeBar
 			ContinueCase
@@ -95,28 +97,32 @@ Func ActiveMode(ByRef $aCMDLine)
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--remote-debugging-port=", 2, 0, 0, 1) > 0 ; #271, Debugging Apps
 			ContinueCase
-		Case _ArraySearch($aCMDLine, "--profile-directory=", 2, 0, 0, 1) > 0 ; #68, Multiple Profiles
+		Case _ArraySearch($aCMDLine, "--profile-directory=", 1, 0, 0, 1) > 0 ; #68, Multiple Profiles, Start at 1 instead of 2 in case of missing parameters
 			ContinueCase
 		Case _ArraySearch($aCMDLine, "--user-data-dir=", 2, 0, 0, 1) > 0 ; #463, Multiple Profiles
-			ContinueCase			
+			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
+			_Log($hLogs[$AppGeneral], "Passing Allowed Flag:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
+			_SafeRun($aCMDLine[1], $sCMDLine)		
 		Case $sParent = "MSEdgeRedirect.exe"
+			_Log($hLogs[$AppGeneral], "Caught Recursive Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 			$iIndex = _ArraySearch($aCMDLine, "--from-ie-to-edge", 2, 0, 0, 1)
 			If $iIndex Then
 				_ArrayDelete($aCMDLine, $iIndex)
 				$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
+				_Log($hLogs[$AppGeneral], "Decoding Recursive Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 				_DecodeAndRun(Default, $sCMDLine)
 			EndIf
-			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
-			_SafeRun($aCMDLine[1], $sCMDLine)
 		Case _DoesParentProcessWantEdge($sParent)
 			ContinueCase
 		Case $aCMDLine[0] = 2 And $aCMDLine[2] = "--continue-active-setup"
+			_Log($hLogs[$AppGeneral], "Passing Setup Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 			_SafeRun($aCMDLine[1], $aCMDLine[2])
 		Case _IsURLLocalHost($aCMDLine)
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
 			_Log($hLogs[$URIFailures], "Skipped Localhost URL: " & $sCMDLine & @CRLF)
 		Case Else
 			$sCMDLine = _ArrayToString($aCMDLine, " ", 2, -1)
+			_Log($hLogs[$AppGeneral], "Caught Something Else:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 			_DecodeAndRun($aCMDLine[1], $sCMDLine)
 	EndSelect
 
@@ -130,7 +136,7 @@ Func CheckEdgeIntegrity($sLocation)
 		Exit
 	Else
 		Select
-			Case Not FileExists(StringReplace($sLocation, "\msedge.exe", "\IFEO\msedge.exe"))
+			Case Not FileExists(StringReplace($sLocation, "Application\msedge.exe", "\IFEO\msedge.exe"))
 				If WinExists(_Translate($aMUI[1], "Admin File Copy Required")) Then
 					_LogClose()
 					Exit ; #202
@@ -549,7 +555,7 @@ Func ReactiveMode($bHide = False)
 EndFunc
 
 Func SINK_OnObjectReady($oProcess)
-    ProcessClose($oProcess.TargetInstance.ProcessID)
+    ;ProcessClose($oProcess.TargetInstance.ProcessID)
 
 	Local $sProcessPath
 	Local $sCommandline	
@@ -565,8 +571,8 @@ Func SINK_OnObjectReady($oProcess)
 		
 	$sCommandline = _WinAPI_GetProcessCommandLine($oProcess.TargetInstance.ProcessID)
 	$sProcessPath = _WinAPI_GetProcessFileName($oProcess.TargetInstance.ProcessID)
-	ConsoleWrite($sCommandline & @CRLF)
-	If StringRegExp($sCommandline, $sRegex) Then _DecodeAndRun($sProcessPath, $sCommandline)
+	ShellExecute("C:\Users\rcmaehl\Documents\GitHub\MSEdgeRedirect\del.exe", $sCommandline)
+;	If StringRegExp($sCommandline, $sRegex) Then _DecodeAndRun($sProcessPath, $sCommandline)
 EndFunc
 
 Func _registerProcessCreation()
@@ -650,15 +656,16 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
 		; Run Edge
 		Case StringRegExp($sCMDLine, "--default-search-provider=\? --out-pipe-name=MSEdgeDefault[a-z0-9]+")
-			_Log($hLogs[$AppSecurity], "Passed Through MS-Settings Call: " & $sCMDLine & @CRLF)
+			_Log($hLogs[$AppSecurity], "Passing MS-Settings Call: " & $sCMDLine & @CRLF)
 			_SafeRun($sEdge, $sCMDLine)
 		Case $sCMDLine = "--no-startup-window --win-session-start"
-			_Log($hLogs[$AppSecurity], "Passed Through MSEdge Startup Call: " & $sCMDLine & @CRLF)
+			_Log($hLogs[$AppSecurity], "Passing MSEdge Startup Call: " & $sCMDLine & @CRLF)
 			_SafeRun($sEdge, $sCMDLine)
 
 		; Run Another App
 		Case FileExists(StringReplace($sCMDLine, "--single-argument ", "")); File Handling
 			If _GetSettingValue("NoFiles", "Bool") Or _GetSettingValue("NoPDFs", "Bool") Then
+				_Log($hLogs[$AppGeneral], "Caught File Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 				$sCMDLine = StringReplace($sCMDLine, "--single-argument ", "")
 				If _IsSafeFile($sCMDLine) Then ShellExecute('"' & $sCMDLine & '"', "", "", $SHEX_EDIT)
 			EndIf
@@ -686,12 +693,14 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 					$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(.*)(--app-fallback-url=)", "")
 					$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)(?= --)(.*)", "")
 					If _IsSafeURL($sCMDLine) Then
+						_Log($hLogs[$AppGeneral], "Caught PWA Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 						ShellExecute($sCMDLine)
 					Else
 						_Log($hLogs[$URIFailures], "Invalid App URL: " & $sCMDLine & @CRLF)
 					EndIf
 				Case StringInStr($sCMDLine, "--ip-aumid=") ; Edge "Apps"
 					If _IsSafeApp($sCMDLine) Then
+						_Log($hLogs[$AppGeneral], "Caught AUMID Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 						_SafeRun($sEdge, $sCMDLine)
 					Else
 						_Log($hLogs[$URIFailures], "Invalid App URL: " & $sCMDLine & @CRLF)
@@ -701,9 +710,12 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 			EndSelect
 
 		Case StringInStr($sCMDLine, "ux=copilot") ; CoPilot
+			_Log($hLogs[$AppGeneral], "Caught Co-Pilot Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 			If _GetSettingValue("NoPilot", "Bool") Then
+				_Log($hLogs[$AppGeneral], "Dropping Co-Pilot Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 				ShellExecute("ms-settings:")
 			Else
+				_Log($hLogs[$AppGeneral], "Passing Co-Pilot Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 				_SafeRun($sEdge, $sCMDLine)
 			EndIf
 
@@ -715,14 +727,18 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 
 		; Do Either (Drop Call or Run Edge)
 		Case StringInStr($sCMDLine, "bing.com/chat") Or StringInStr($sCMDLine, "bing.com%2Fchat") ; Fix BingAI
-			If _GetSettingValue("NoChat", "Bool") Then 
+			_Log($hLogs[$AppGeneral], "Caught Bing Chat Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
+			If _GetSettingValue("NoChat", "Bool") Then
+				_Log($hLogs[$AppGeneral], "Skipped Bing Chat Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 				ContinueCase
 			Else
+				_Log($hLogs[$AppGeneral], "Passing Bing Chat Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 				_SafeRun($sEdge, $sCMDLine)
 			EndIf
 
 		; Call Default Browser
 		Case StringInStr($sCMDLine, "bing.com/spotlight?spotlightid") ; Fix Windows Spotlight
+			_Log($hLogs[$AppGeneral], "Caught Windows Spotlight Call:" & @CRLF & _ArrayToString($aCMDLine, ": ") & @CRLF)
 			$sCMDLine = StringRegExpReplace($sCMDLine, "(?i)spotlight\?spotlightid=[^&]+&", "search?")
 			ContinueCase
 		Case StringInStr($sCMDLine, "&url=") ; Fix Windows 11 Widgets
@@ -752,6 +768,7 @@ Func _DecodeAndRun($sEdge = $aEdges[1], $sCMDLine = "")
 		; Catch Misc Edge Flags (MUST BE LOWEST PRIORITY)
 		Case StringLeft($sCMDLine, 2) = "--"
 			If _GetSettingValue("RunUnsafe") Then
+				_Log($hLogs[$AppSecurity], "" & "Allowed Unsafe Flag: " & $sCMDLine & @CRLF)
 				_SafeRun($sEdge, $sCMDLine)
 			Else
 				_Log($hLogs[$AppSecurity], "" & "Blocked Unsafe Flag: " & $sCMDLine & @CRLF)

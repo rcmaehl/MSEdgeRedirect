@@ -224,13 +224,13 @@ Func RunRemoval($bUpdate = False)
 			If FileExists(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe")) Then ; Pre-0.7.3.0
 				FileDelete(StringReplace($aEdges[$iLoop], "msedge.exe", "msedge_no_ifeo.exe"))
 			EndIf
-			If FileExists(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\")) Then ; 0.7.3.0+
+			If FileExists(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\")) Then ; 0.7.3.0+, 0.8.1.0+
 				DirRemove(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"))
 			EndIf
 			If FileExists(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe")) Then ; 0.8.0.0+
 				FileDelete(StringReplace($aEdges[$iLoop], "\msedge.exe", "\msedge_IFEO.exe"))
 			EndIf
-			If FileExists(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\msedge.exe")) Then ; 0.8.1.0+
+			If FileExists(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\msedge.exe")) Then ; 0.8.1.0 Dev
 				FileDelete(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\msedge.exe"))
 				DirRemove(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\"))
 			EndIf
@@ -264,10 +264,8 @@ Func RunRepair()
 					;;;
 				Else
 					_Log($hLogs[$Install], "Repairing SymLinks." & @CRLF)
-					If Not FileExists(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\")) Then
-						DirCreate(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\"))
-					EndIf
-					_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\msedge.exe"), $aEdges[$iLoop])
+					_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"), StringReplace($aEdges[$iLoop], "\msedge.exe", ""), True)
+					If @error Then _Log($hLogs[$Install], "[WARNING] Unable to Create IFEO Directory for " & $aEdges[$iLoop] & @CRLF)
 				EndIf
 			EndIf
 		Next
@@ -1429,8 +1427,7 @@ Func SetIFEORegistry(ByRef $aChannels)
 			If $iLoop = $aEdges[0] Then
 				;;;
 			Else
-				DirCreate(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\"))
-				_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "\msedge.exe", "\IFEO\msedge.exe"), $aEdges[$iLoop])
+				_WinAPI_CreateSymbolicLink(StringReplace($aEdges[$iLoop], "Application\msedge.exe", "IFEO\"), StringReplace($aEdges[$iLoop], "\msedge.exe", ""), True)
 			EndIf
 		EndIf
 	Next
