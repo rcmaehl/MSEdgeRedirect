@@ -568,11 +568,11 @@ Func RunHTTPCheck($bSilent = False)
 	Local $aDefaults[3]
 	Local Enum $hHTTP, $hHTTPS, $hMSEdge
 
-	$aDefaults[$hHTTP] = RegRead("HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\http\UserChoice", "ProgId")
+	$aDefaults[$hHTTP] = _GetDefaultProgId("http")
 	If @error Then Return
-	$aDefaults[$hHTTPS] = RegRead("HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgId")
+	$aDefaults[$hHTTPS] = _GetDefaultProgId("https")
 	If @error Then Return
-	$aDefaults[$hMSEdge] = RegRead("HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\microsoft-edge\UserChoice", "ProgId")
+	$aDefaults[$hMSEdge] = _GetDefaultProgId("microsoft-edge")
 	If @error Then Return
 
 	If StringInStr($aDefaults[$hMSEdge], "MSEdge") Then
@@ -708,7 +708,7 @@ Func _GetDefaultBrowser()
 	If $sBrowser <> "" Then
 		;;;
 	Else
-		$sProg = RegRead("HKCU\SOFTWARE\Microsoft\Windows\Shell\Associations\UrlAssociations\https\UserChoice", "ProgID")
+		$sProg = _GetDefaultProgId("https")
 		$sBrowser = RegRead("HKCR\" & $sProg & "\shell\open\command", "")
 		$sBrowser = StringReplace($sBrowser, "%1", "")
 	EndIf

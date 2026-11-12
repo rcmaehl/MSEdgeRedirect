@@ -4,6 +4,7 @@
 #include <Array.au3>
 #include <String.au3>
 #include <GuiComboBox.au3>
+#include <WinAPIReg.au3>
 #include <WinAPIFiles.au3>
 #include <EditConstants.au3>
 #include <FileConstants.au3>
@@ -99,7 +100,7 @@ EndFunc
 
 Func RunPDFCheck($bSilent = False)
 
-	If StringRegExp(RegRead("HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.pdf\UserChoice", "ProgId"), "(?i)(ms|microsoft)edge.*") Then
+	If StringRegExp(_GetDefaultProgId(".pdf"), "(?i)(ms|microsoft)edge.*") Then
 		If Not $bSilent Then
 			MsgBox($MB_ICONERROR+$MB_OK, _
 				"Edge Set As Default PDF Handler", _
@@ -108,6 +109,35 @@ Func RunPDFCheck($bSilent = False)
 		Return False
 	EndIf
 	Return True
+
+EndFunc
+
+; Returns the ProgId Windows actually uses for a URL scheme (e.g. "https") or file extension (e.g. ".pdf").
+; Newer Windows 11 builds store the user's choice under UserChoiceLatest and stop updating the legacy
+; UserChoice key, which can then still name Edge after another browser was made the default (#556).
+Func _GetDefaultProgId($sAssoc)
+
+	Local Const $ASSOCSTR_PROGID = 20
+	Local $sKey
+	Local $sProgId
+
+	; Ask Windows which ProgId it resolves, so whichever key the running build uses is honored
+	$sProgId = _WinAPI_AssocQueryString($sAssoc, $ASSOCSTR_PROGID)
+	If Not @error And $sProgId <> "" Then Return $sProgId
+
+	If StringLeft($sAssoc, 1) = "." Then
+		$sKey = "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\" & $sAssoc
+	Else
+		$sKey = "HKCU\Software\Microsoft\Windows\Shell\Associations\UrlAssociations\" & $sAssoc
+	EndIf
+
+	$sProgId = RegRead($sKey & "\UserChoiceLatest\ProgId", "ProgId")
+	If Not @error And $sProgId <> "" Then Return $sProgId
+
+	$sProgId = RegRead($sKey & "\UserChoice", "ProgId")
+	If @error Then Return SetError(1, 0, "")
+
+	Return $sProgId
 
 EndFunc
 
